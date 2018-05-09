@@ -29,7 +29,8 @@
                          <th>Username</th>
                         <th>Password</th>
                         <th>Action</th>
-                  
+                        <th>Edit Right Status</th>
+                       <th>Edit Right</th>
                        </tr>
                        {{!!$c = 0}}
                        @foreach($l as $v)
@@ -40,12 +41,26 @@
                        <td>{{$v->username}}</td>
                        <td>{{$v->plain_password}}</td>
                        <td><div class="btn-group">
-  <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  <button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Action <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
     <li><a href="{{url('edit_lecturer',$v->id)}}">Edit</a></li>
     
+  </ul>
+</div></td>
+<td>{{$v->edit_right}}</td>
+<td><div class="btn-group">
+  <button type="button" class="btn btn-success dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Enabled <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><a href="{{url('/edit_right',[$v->id,0])}}">0</a></li>
+    <li><a href="{{url('/edit_right',[$v->id,6])}}">6</a></li>
+    <li><a href="{{url('/edit_right',[$v->id,8])}}">8</a></li>
+    <li><a href="{{url('/edit_right',[$v->id,10])}}">10</a></li>
+    <li><a href="{{url('/edit_right',[$v->id,12])}}">12</a></li>
+
   </ul>
 </div></td>
        

@@ -57,10 +57,10 @@
                         
                         <th width="15%">Signature</th>
                           </tr>
-                            {{!!$c = 0}}
+                            <?php $c = 0; ?>
                       @foreach($u as $v)
                  
-                      {{!$c = ++$c}}
+                      <?php $c = ++$c; ?>
                       <tr>
                       
                       <td>{{$c}}</td>
@@ -68,7 +68,8 @@
 
                         <td>{{strtoupper($v->surname." ".$v->firstname." ".$v->othername)}}</td>
                          <!--<td><img src="{{asset('img/student/'.$v->image_url)}}"></td>-->
-                         <td><img src="https://unicalexams.edu.ng/assets/images/slides/cal2.jpg" width="100%"></td>
+                         {{!! $img ="https://unicalexams.edu.ng/img/student/".$v->image_url}}
+                         <td><img src="{{$img}}" width="100%"></td>
                    
                      <td></td>
                        

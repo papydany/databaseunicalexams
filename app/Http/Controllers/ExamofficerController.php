@@ -49,12 +49,19 @@ class ExamofficerController extends Controller
   $d =Auth::user()->department_id;
   $f =Auth::user()->faculty_id;
   $id=Auth::user()->id;
+  
   $fos_id =Fos::where([['department_id',$d],['programme_id',$p]])->get();
+  if(count($fos_id) == 0)
+  {
+    Session::flash('warning',"no field of study. contact system admin");
+    return back();
+  }
   foreach ($fos_id as $key => $value) {
   $f_id[] =$value->id;
   }
 
  $course =$course = $this->getRegisterAssign_courses($id,$l,$semester,$session,$d,$f,$f_id);
+
 return view('examofficer.eo_assign_courses')->withC($course)->withSm($semester)->withS($session)->withL($l)->withFos($f_id);
 
     }
@@ -83,7 +90,7 @@ return view('examofficer.eo_assign_courses')->withC($course)->withSm($semester)-
         $collection = new Collection($user);
 
         //Define how many items we want to be visible in each page
-        $perPage = 90;
+        $perPage = 50;
 
         //Slice the collection to get the items to display in current page
         $currentPageSearchResults = $collection->slice(($currentPage- 1) * $perPage, $perPage)->all();
@@ -96,11 +103,11 @@ return view('examofficer.eo_assign_courses')->withC($course)->withSm($semester)-
       return view('examofficer.eo_result_c')->withU($paginatedSearchResults)->withUrl($url)->withC($registercourse);
     }  
 
-//========================================== result insert for student percourse ==========================
+//=========================result insert for student percourse ==========================
 
     public function eo_insert_result(Request $request)
     {
-        $this->validate($request,array('id'=>'required',));
+        //$this->validate($request,array('id'=>'required',));
         $flag = "Sessional";
         $date = date("Y/m/d H:i:s");
         $url =$request->input('url');
@@ -278,10 +285,12 @@ $user= $this->getRegisterStudent($id,$l,$sm,$s,$period);
         ->where([['assign_courses.user_id',$id],['assign_courses.level_id',$l],['assign_courses.semester_id',$semester],['assign_courses.session',$session],['assign_courses.department_id',$d],['assign_courses.faculty_id',$f]])
         ->wherein('assign_courses.fos_id',$f_id)
         ->orderBy('register_courses.reg_course_code','ASC')
-        ->get();
+        ->get()->groupBy('fos_id');
 
         return $course;
  }
+
+ 
  //---------------------------------------------------------------------------------------------------
  public function getRegisterStudent($id,$l,$sm,$s,$period)
  {

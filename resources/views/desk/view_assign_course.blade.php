@@ -16,7 +16,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">View Assign Courses</div>
+                <div class="panel-heading">View Assigned Courses</div>
                 <div class="panel-body">
                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/view_assign_course') }}" data-parsley-validate>
                         {{ csrf_field() }}
@@ -98,9 +98,10 @@
                          @endif</span>
                         </p>
                        
-                     
+ <form class="form-horizontal" role="form" method="POST" action="{{ url('/remove_multiple_assign_course') }}" data-parsley-validate>
+                        {{ csrf_field() }}
                         <table class="table table-bordered table-striped">
-                        <tr>
+                        <tr><td>Select</td>
                       
                        <th>Code</th>
                        <th>Unit</th>
@@ -113,12 +114,12 @@
                     
                        @foreach($ac as $v)
                       <tr>
-                      
+                      <td><input type="checkbox" name="id[]" value="{{$v->id}}" class="form-control"></td>
                         
-                       <td> {{$v->reg_course->reg_course_code}} </td>
-                      <td> {{$v->reg_course->reg_course_unit}} </td>
-                      <td> {{$v->reg_course->reg_course_status}} </td>
-                         <td> {{$v->user->name}} </td>
+                       <td> {{isset($v->reg_course->reg_course_code) ? $v->reg_course->reg_course_code : ''}} </td>
+                      <td> {{isset($v->reg_course->reg_course_unit) ? $v->reg_course->reg_course_unit : ''  }} </td>
+                      <td> {{isset($v->reg_course->reg_course_status) ? $v->reg_course->reg_course_status : ''}} </td>
+                         <td> {{isset($v->user->name) ? $v->user->name : ''}} </td>
                          <td><div class="btn-group">
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Action <span class="caret"></span>
@@ -128,9 +129,12 @@
     
   </ul>
 </div></td>
+
                         </tr>
                        @endforeach
+                       <tr><td colspan="8"><input type="submit" value="Remove selected row" class="btn btn-danger"></td></tr>
                        </table>
+                     </form>
                       
                   
                        @else

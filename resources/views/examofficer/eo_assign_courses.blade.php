@@ -28,6 +28,7 @@
                    
                           @if(isset($c))
                         @if(count($c) > 0)
+                       
 
 
                       <form class="form-horizontal" role="form" method="GET" action="{{ url('/eo_result_c') }}" data-parsley-validate>
@@ -38,10 +39,14 @@
                      <option value="">-- select --</option>
                     
 
-                      @foreach($c as $v)
+                      @foreach($c as  $k => $value)
+                      <?php $fos = $r->get_fos($k); ?>
+                       <optgroup label="{{$fos}}">
+                       @foreach($value as $v)
                       <option value="{{$v->registercourse_id}}">{{$v->reg_course_code}}</option>
                       @endforeach
-           
+                         </optgroup>
+                    @endforeach
                      </select>
                       <input type="hidden" name="level" value="{{$l}}">
                      <input type="hidden" name="semester" value="{{$sm}}">

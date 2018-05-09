@@ -40,7 +40,8 @@
     <body>
         <div class="container">
             <div class="content">
-                <div class="title">Be right back.</div>
+                <h2>  <a href="{{url('/')}}" class="btn btn-success">Back to home page</a></h2>
+                <div class="title">Opps Some thing went wrong.</div>
             </div>
         </div>
     </body>

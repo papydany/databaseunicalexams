@@ -5,7 +5,19 @@
     <div class="col-xs-12">
 
     <table class="table table-bordered">
-   
+   <tr>
+    <td colspan="6">
+    </td>
+    <td colspan="4">
+        First Semester
+    </td>
+    <td colspan="4">
+       Second Semester
+    </td>
+     <td colspan="3">
+       Summary
+    </td>
+   </tr>
     <tr>
     <td>S/n</td>
     <td>Matric number</td>

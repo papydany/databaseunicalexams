@@ -11,12 +11,13 @@
 
 <!-- Custom CSS -->
 <link href="{{URL::to('panel/css/sb-admin.css')}}" rel="stylesheet">
-
+<link href="{{URL::to('panel/css/main.css')}}" rel="stylesheet">
 <!-- Morris Charts CSS -->
 <link href="{{URL::to('panel/css/plugins/morris.css')}}" rel="stylesheet">
 <link href="{{URL::to('parsley.css')}}" rel="stylesheet">
 <!-- Custom Fonts -->
 <link href="{{URL::to('panel/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet" type="text/css">
+<script type="text/javascript" charset="utf8" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>  
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->

@@ -1,6 +1,6 @@
 <?php
 namespace App\Http\Traits;
-
+use DB;
 
 
 trait MyTrait {
@@ -37,7 +37,11 @@ trait MyTrait {
   switch($total) {
       case $total =='No Score':
                $return['grade']  = '';
-             
+            case $total == '0':
+                 $return['grade']  = 'F';
+                
+                 return $return;
+                break; 
                  return $return;
                  break;
             case $total >= 70:
@@ -67,9 +71,17 @@ trait MyTrait {
                 
                  return $return;
                 break;
+
+                
             
         }
     
  }
-    
+      public function g_rolename($id){
+        $user = DB::table('roles')
+            ->join('user_roles', 'roles.id', '=', 'user_roles.role_id')
+            ->where('user_roles.user_id',$id)
+            ->first();
+            return $user->name;
+    }
 }

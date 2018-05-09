@@ -16,7 +16,7 @@
                             <li class="active" style="font-weight: bolder;">
                                Course Code : {{$c->reg_course_code}}
                                &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
-                               Course Unit : {{$c->reg_course_unit}}
+                               Course Uni : {{$c->reg_course_unit}}
                                &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
                                <?php $next = $c->session + 1;?>
                              Session: {{$c->session.' / '.$next}}
@@ -41,14 +41,14 @@
                         {{ csrf_field() }}
                  <table class="table table-bordered table-striped">
                  <tr>
-                        <th width="3%"></th>
-                        <th width="3%">S/N</th>
-                        <th>martic Number</th>
-                        <th>Names</th>
+                        <th width="3%" class="text-center"></th>
+                        <th width="3%" class="text-center">S/N</th>
+                        <th class="text-center">MATRIC NUMBERS</th>
+                        <th class="text-center">NAMES</th>
                     
-                        <th class="cc" >CA</th> 
-                        <th class="cc">Exams</th>
-                        <th class="cc">Total</th>
+                        <th class="cc text-center">CA</th> 
+                        <th class="cc text-center">EXAMS</th>
+                        <th class="cc text-center">TOTAL</th>
                         
                           </tr>
                             {{!!$c = 0}}
@@ -94,7 +94,9 @@
   <input type="" class="form-control fc " name="total[{{$c}}]"  value="{{$result->total}}" id='d{{$c}}' readonly='true' onChange="if (this.value!='') document.getElementById('check[{{$c}}]').checked=true"  />
    </td>
    @else
+   <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="" >
   <td>
+
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="{{$result->ca}}" readonly />
  </td>
   <td>
@@ -105,6 +107,7 @@
   </td>
    @endif
  @else
+ <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="" >
    <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="" />
   </td>

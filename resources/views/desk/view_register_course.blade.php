@@ -16,7 +16,7 @@
     <div class="row" style="min-height: 520px;">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">View Register Courses</div>
+                <div class="panel-heading">View Registerd Courses</div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/view_register_course') }}" target="_blank" data-parsley-validate>
                         {{ csrf_field() }}

@@ -3,7 +3,7 @@
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->  
  <html lang="en"> 
 <head>
- <link href="{{URL::to('cpanel/css/bootstrap.min.css')}}" rel="stylesheet" media="all">
+ <link href="{{URL::to('panel/css/bootstrap.min.css')}}" rel="stylesheet" media="all">
    
 </head> 
 <style type="text/css">
@@ -22,6 +22,7 @@
 <div class="col-sm-8 w2 text-center">
     <h4><b>UNIVERSITY OF CALABAR CALABAR</b></h4>
     <p>DIRECTORATE OF PRE-DEGREE PROGRAMME</p>
+    <p>SCIENCES</p>
     <?php $next = $ss+1; ?>
   <p class="text-danger">{{$ss.' / '.$next}} ACADEMIC SESSION</p>
    @if(isset($sm)) 

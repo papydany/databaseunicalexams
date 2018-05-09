@@ -77,13 +77,7 @@
                         </div>
                         </div>
                         </div>
-@endsection  
-@section('script')
-<script src="{{URL::to('js/main.js')}}"></script>
-
-@endsection
-
-     <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
+  <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
     <div class="modal-dialog">
     
       <!-- Modal content-->
@@ -96,4 +90,12 @@
       </div>
       
     </div>
-  </div>                    
+  </div>  
+                        
+@endsection  
+@section('script')
+<script src="{{URL::to('js/main.js')}}"></script>
+
+@endsection
+
+                     

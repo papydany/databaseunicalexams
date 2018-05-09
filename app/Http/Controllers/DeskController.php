@@ -14,11 +14,13 @@ use App\Fos;
 use App\Level;
 use App\Semester;
 use App\StudentResult;
+use App\StudentReg;
 use DB;
 use App\User;
 use App\Course;
 use App\RegisterCourse;
 use App\AssignCourse;
+use App\CourseReg;
 use Illuminate\Support\Facades\Session;
 use App\Http\Traits\MyTrait;
 class DeskController extends Controller
@@ -26,6 +28,8 @@ class DeskController extends Controller
     //
     use MyTrait;
 Const LECTURER = 5;
+Const FIRST = 1;
+Const SECOND = 2;
     /**
      * Create a new controller instance.
      *
@@ -171,6 +175,7 @@ public function new_course()
 
  foreach($clean_list as $kk=>$vv ){
 $course_code[] = $vv['course_code'];
+
 }
 
 $check =Course::whereIn('course_code',$course_code)
@@ -217,10 +222,10 @@ public function get_view_course(request $request)
         if($month != null)
         {
      $course =Course::where([['department_id',Auth::user()->department_id],['level',$level],['month',$month]])
-        ->orderBy('semester','ASC')->get();
+        ->orderBy('semester','ASC')->orderBy('status','ASC')->orderBy('course_code','ASC')->get();
         }else{
           $course =Course::where([['department_id',Auth::user()->department_id],['level',$level]])
-        ->orderBy('semester','ASC')->get();  
+        ->orderBy('semester','ASC')->orderBy('status','ASC')->orderBy('course_code','ASC')->get();  
         }
     	
     	return view('desk.view_course')->withCourse($course)->withL($l);
@@ -251,6 +256,37 @@ $c->save();
 Session::flash('success',"SUCCESSFULL.");
    return redirect()->action('DeskController@view_course');
 }
+
+//----------------------- delete course ------------------------------------------------------
+public function delete_course($id)
+{
+    if(Auth::user()->edit_right == 0)
+    {
+        Session::flash('danger',"You need edit right to delete course. contact the system admin.");
+   return redirect()->action('DeskController@view_course');
+    }
+$course = Course::destroy($id);
+ Session::flash('success',"SUCCESSFULL.");
+   return redirect()->action('DeskController@view_course');
+}
+
+public function delete_multiple_course(Request $request)
+{
+     if(Auth::user()->edit_right == 0)
+    {
+        Session::flash('danger',"You need edit right to delete course. contact the system admin.");
+   return redirect()->action('DeskController@view_course');
+    }
+     $variable = $request->input('id');
+     if($variable == null)
+{
+    return back();
+}
+
+$course = Course::destroy($variable);
+ Session::flash('success',"SUCCESSFULL.");
+   return redirect()->action('DeskController@view_course');
+}
 //------------------------------------------ register course --------------------------------------------
 
 public function register_course()
@@ -259,6 +295,7 @@ public function register_course()
 	$semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
 	return view('desk.register_course')->withL($level)->withS($semester);
 }
+
 //------------------------------------------------------------------------------
 public function get_register_course(request $request)
 {
@@ -351,6 +388,36 @@ $session =$request->session_id;
 $register_course =RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos],['level_id',$l],['session',$session]])->orderBy('semester_id','ASC')->orderBy('reg_course_status','ASC')->get();
 return view('desk.display_register_course')->withL($level)->withS($semester)->withF($fos_id)->withR($register_course)->withG_s($session)->withG_l($l)->withFos($fos);
 }
+//---------------------------------deleted registered course ----------------------------------------------
+function delete_register_course()
+{
+    $level =Level::where('programme_id',Auth::user()->programme_id)->get();
+   // $semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
+    // get fos
+$fos =$this->get_fos();
+    return view('desk.delete_register_course')->withL($level)->withF($fos);
+}
+
+//----------------------------------------------------------------------------------------------------
+function post_delete_register_course(request $request)
+{
+     $level =Level::where('programme_id',Auth::user()->programme_id)->get();
+    $semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
+    // get fos
+$fos_id =$this->get_fos();
+   
+$this->validate($request,array('fos'=>'required','session_id'=>'required','level'=>'required'));
+$session =$request->session_id;
+        $fos =$request->fos;
+
+        $l =$request->level;
+        $p =Auth::user()->programme_id;
+        $d =Auth::user()->department_id;
+        $f =Auth::user()->faculty_id;
+
+$register_course =RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos],['level_id',$l],['session',$session]])->orderBy('semester_id','ASC')->orderBy('reg_course_status','ASC')->get();
+return view('desk.delete_register_course')->withL($level)->withS($semester)->withF($fos_id)->withR($register_course)->withG_s($session)->withG_l($l)->withFos($fos);
+}
 //----------------------------------------assign courses ---------------------------------------------------
 public function assign_course()
 {
@@ -362,7 +429,58 @@ $fos =$this->get_fos();
 
   
 }
-//---------------------------------------------------------------------------------------------------------------
+function delete_desk_course($id,$s)
+{
+
+  $check = CourseReg::where([['registercourse_id',$id],['session',$s]])->first();
+if(count($check) > 0)
+{
+  Session::flash('warning',"The courses selected has been registered by students.so u can not delete it. contact admin");
+
+  return back();
+}
+$reg =RegisterCourse::destroy($id);
+$assign_course =AssignCourse::where('registercourse_id',$id)->first();
+if(count($assign_course) > 0 )
+{
+  $assign_course->delete();
+}
+Session::flash('success',"successfull.");
+return back();
+}
+
+function delete_desk_multiple_course(Request $request)
+{
+       $variable = $request->input('id');
+       $session = $request->input('session');
+     if($variable == null)
+{
+    return back();
+}
+$check = CourseReg::whereIn('registercourse_id',$variable)->where('session',$session)->get();
+if(count($check) > 0)
+{
+  Session::flash('warning',"Some of the courses selected has been registered by students.so u can not do mass deleting .delete one after the other.");
+
+  return back();
+}
+$reg =RegisterCourse::destroy($variable);
+
+$assign_course =AssignCourse::whereIn('registercourse_id',$variable)->get();
+
+
+if(count($assign_course) > 0 )
+{
+ foreach ($assign_course as $key => $value) {
+    $data [] =$value->id;
+  }
+
+ AssignCourse::destroy($data);
+}
+Session::flash('success',"successfull.");
+return back();
+}
+//--------------------------------------------------------------------------------------------------------
 function get_assign_course(request $request)
 {
     $this->validate($request,array('fos'=>'required','session_id'=>'required','level'=>'required','semester'=>'required'));
@@ -403,7 +521,80 @@ if(count($assign_course) > 0)
 
   return view('desk.assign_course')->withL($level)->withS($semester)->withF($fos)->withRs($register_course)->withLec($lecturer)->withG_s($session)->withG_l($l);           
 }
-//------------------------------------------------------------------------------------------------------------------
+
+//--------------------------assign courses other-----------------------------------
+public function assign_course_other()
+{
+  $level =$this->get_level();
+ $semester =$this->get_semester();
+    // get fos
+$fos =$this->get_fos();
+    return view('desk.assign_courses_other')->withL($level)->withS($semester)->withF($fos);
+
+  
+}
+
+public function post_assign_course_other(Request $request)
+{
+  $this->validate($request,array('fos'=>'required','session_id'=>'required','level'=>'required','semester'=>'required'));
+   $semester_id =$request->semester;
+    $session =$request->session_id;
+    $fos_id =$request->fos;
+    $l =$request->level;
+    
+    $level =$this->get_level();
+    $semester =$this->get_semester();
+    $fos =$this->get_fos();
+    $p =$this->p();
+    $f =$this->f();
+    $d =$this->d();
+$department =Department::orderBy('department_name','ASC')->get();
+
+ 
+$assign_course =AssignCourse::where([['department_id',$d],['faculty_id',$f],['fos_id',$fos_id],['level_id',$l],['session',$session],['semester_id',$semester_id]])->orderBy('semester_id','ASC')->select('registercourse_id')->get();
+if(count($assign_course) > 0)
+{
+    foreach ($assign_course as $key => $value) {
+        $register_course_id [] =$value->registercourse_id;
+    }
+
+   $register_course =RegisterCourse::whereNotIn('id',$register_course_id)
+   ->where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos_id],['level_id',$l],['session',$session],['semester_id',$semester_id]])->orderBy('semester_id','ASC')->get();
+  
+}else{
+ $register_course =RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos_id],['level_id',$l],['session',$session],['semester_id',$semester_id]])->orderBy('semester_id','ASC')->get();
+}
+
+
+
+  return view('desk.assign_courses_other')->withL($level)->withS($semester)->withF($fos)->withRs($register_course)->withDepart($department)->withG_s($session)->withG_l($l);           
+}
+
+//-------------------------------------------------------------------------------------
+public function post_assign_course_o(Request $request)
+{
+    $id = $request->input('id');
+$this->validate($request,array('Lecturer'=>'required',));
+if($id == null)
+{
+    return back();
+}
+$lecturer =$request->input('Lecturer');
+ $f =$this->f();
+$d =$this->d();
+// status 1 mean fos is assign and 0 mean not assigned
+foreach ($id as $key => $value) {
+  $v[] = ['registercourse_id'=>$value,'user_id'=>$lecturer,'department_id'=>$d,'faculty_id'=>$f,'fos_id'=>$request->input('fos_id')[$key],'level_id'=>$request->input('level')[$key],'session'=>$request->input('session')[$key],'semester_id'=>$request->input('semester_id')[$key]];
+
+}
+
+DB::table('assign_courses')->insert($v);
+Session::flash('success',"SUCCESSFULL.");
+return redirect()->action('DeskController@assign_course_other');
+
+}
+
+//-------------------------------------------------------------------------------------
 public function post_assign_course(Request $request)
 {
     $id = $request->input('id');
@@ -461,7 +652,13 @@ public function remove_assign_course($id)
     $r->delete();
     return redirect()->action('DeskController@view_assign_course');
 }
-
+public function remove_multiple_assign_course(Request $request)
+{
+  $id =$request->id;
+ 
+    $r =AssignCourse::destroy($id);
+   return redirect()->action('DeskController@view_assign_course');
+}
 //----------------------------------print assign course------------------------------------------------
 public function print_assign_course()
 {
@@ -776,7 +973,7 @@ return view('desk.e_result')->withF($fos)->withL($l)->withS($semester);
         $collection = new Collection($user);
 
         //Define how many items we want to be visible in each page
-        $perPage =90;
+        $perPage =50;
 
         //Slice the collection to get the items to display in current page
         $currentPageSearchResults = $collection->slice(($currentPage- 1) * $perPage, $perPage)->all();
@@ -798,6 +995,7 @@ return view('desk.e_result')->withF($fos)->withL($l)->withS($semester);
         $date = date("Y/m/d H:i:s");
             $url =$request->input('url');
         $id =$request->input('id');
+$result_id="";
 
         foreach ($id as $key => $value) {
         $coursereg_id =$request->input('coursereg_id')[$value];
@@ -812,12 +1010,19 @@ return view('desk.e_result')->withF($fos)->withL($l)->withS($semester);
         $ca =$request->input('ca')[$value];
         $exam=$request->input('exams')[$value];
         $total=$request->input('total')[$value];
+
         $grade_value =$this->get_grade($total);
+        
         $grade = $grade_value['grade'];
         $cp = $this->mm($grade, $cu);
-         $result_id =$request->input('result_id')[$value];
+      //  $result_id =$request->input('result_id')[$value];
+        //if($request->has('result_id'.[$value])) {
+       
+$result_id =$request->input('result_id')[$value];
 
-         if(isset($result_id))
+     //  }
+
+         if(!empty($result_id))
          {
 $update = StudentResult::find($result_id);
            $update->ca = $ca;
@@ -840,6 +1045,7 @@ $update = StudentResult::find($result_id);
          }
 
         }
+
                   if(isset($insert_data))
         {
         if(count($insert_data) > 0)
@@ -861,7 +1067,7 @@ $update = StudentResult::find($result_id);
  return view('desk.view_result')->withF($fos)->withL($l)->withS($semester);
     }
 
-//-----------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------
 
     public function post_view_result(Request $request)
     {
@@ -884,7 +1090,7 @@ $update = StudentResult::find($result_id);
   return view('desk.view_result')->withC($course)->withSm($semester)->withSi($session)->withLi($l)->withF($fos)->withL($l_id)->withS($semester_id)->withF_id($f_id);
 
     }    
-//------------------------------------------------------------------------------------------------------------------
+
 
 //-----------------------------------------display result ----------------------------------------------------
  
@@ -911,6 +1117,181 @@ $update = StudentResult::find($result_id);
   return view('desk.view_result_detail')->withU($user)->withSm($sm)->withS($s)->withL($l)->withFos_id($fos_id)->withCourse_code($course_code);
  }
 
+ //--------------------------------------------delete result --------------------------------------------------
+    public function delete_result()
+    {
+      $fos = $this->get_fos();
+        $l = $this->get_level();
+        $semester = $this->get_semester(); 
+ return view('desk.delete_result')->withF($fos)->withL($l)->withS($semester);
+    }
+
+//----------------------------------------------------------------------------------
+
+    public function post_delete_result(Request $request)
+    {
+
+      $fos = $this->get_fos();
+        $l_id = $this->get_level();
+        $semester_id = $this->get_semester(); 
+           
+  $this->validate($request,array('fos'=>'required','session'=>'required','level'=>'required','semester'=>'required',));
+  $f_id =$request->input('fos');
+  $l =$request->input('level');
+  $semester =$request->input('semester');
+  $session =$request->input('session');
+  $d =Auth::user()->department_id;
+  $f =Auth::user()->faculty_id;
+  $p =Auth::user()->programme_id;
+ 
+  $course=RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$f_id],['level_id',$l],['semester_id',$semester],['session',$session]])->orderBy('reg_course_code','ASC')->get();
+
+  return view('desk.delete_result')->withC($course)->withSm($semester)->withSi($session)->withLi($l)->withF($fos)->withL($l_id)->withS($semester_id)->withF_id($f_id);
+
+    }    
+
+function delete_desk_result($id)
+{
+
+
+$reg =StudentResult::destroy($id);
+
+Session::flash('success',"successfull.");
+return redirect()->action('DeskController@delete_result');
+}
+
+function delete_desk_multiple_result(Request $request)
+{
+ $variable = $request->input('id');
+  if($variable == null)
+{Session::flash('warning',"you have not select any result.");
+   return redirect()->action('DeskController@delete_result');
+}
+
+$reg =StudentResult::destroy($variable);
+
+Session::flash('success',"successfull.");
+return redirect()->action('DeskController@delete_result');
+}
+//-----------------------------------------display result ----------------------------------------------------
+ 
+ public function delete_result_detail(Request $request)
+ {
+   $id =$request->input('id');
+   $xc = explode('~', $id);
+    $reg_id = $xc[0];
+    $course_id = $xc[1];
+      $course_code = $xc[2];
+  $fos_id =$request->input('fos_id');
+  $l =$request->input('level');
+  $sm =$request->input('semester');
+  $s =$request->input('session');
+  $period =$request->input('period');
+
+ $user = DB::connection('mysql2')->table('users')
+        ->join('course_regs', 'course_regs.user_id', '=', 'users.id')
+        ->where([['course_regs.registercourse_id',$reg_id],['level_id',$l],['semester_id',$sm],['session',$s],['course_id',$course_id],['period',$period]])
+        ->orderBy('users.matric_number','ASC')
+        ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number')
+        ->get();
+       
+  return view('desk.delete_result_detail')->withU($user)->withSm($sm)->withS($s)->withL($l)->withFos_id($fos_id)->withCourse_code($course_code);
+ }
+ //=============.=============== REPORT ==============================================================
+//------------------------------ Report methods ------------------------------------------------------
+ public function report()
+ {
+   $fos =$this->get_fos();
+  return view('desk.report')->withF($fos);
+ }
+  public function post_report(Request $request)
+ {
+$d =Auth::user()->department_id;
+$f =Auth::user()->faculty_id;
+$p =Auth::user()->programme_id;
+$user_id = Auth::user()->id;
+$season ="NORMAL";
+$flag ="Sessional";
+
+$this->validate($request,array('fos'=>'required','session'=>'required','level'=>'required','result_type'=>'required',));
+$regc1 ='';   
+$reg2c ='';
+$fos =$request->input('fos');
+
+$s =$request->input('session');
+$l =$request->input('level');
+$result_type =$request->input('result_type');
+$duration=$request->input('duration');
+
+$regcourse1C =$this->getRegisteredCourses($p,$d,$f,$fos,$l,$s,1,'C');
+$regcourse2C =$this->getRegisteredCourses($p,$d,$f,$fos,$l,$s,2,'C');
+$users = $this->getRegisteredStudents($p,$d,$f,$fos,$l,$s);
+
+$course_id1 = array();
+$course_id2 = array();
+foreach ($regcourse1C as $key => $value) {
+$regc1 [] =$value;
+$course_id1 [] =$value->course_id;
+}
+
+foreach ($regcourse2C as $key => $value) {
+$reg2c [] =$value;
+$course_id2 [] =$value->course_id;
+}
+//dd($regc1);
+$no1C = count($regcourse1C);
+$no2C = count($regcourse2C);
+
+   if( $result_type == 1)
+   {
+    // ------- sessional
+ $title ="SESSIONAL";
+   }
+   elseif($result_type == 2)
+   {
+ // ------- omitted
+    $title ="OMITTED";
+   }
+ elseif($result_type == 3)
+   { // ------- correctional
+    $title ="CORRECTIONAL";
+   }
+
+  return view('desk.display_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2);
+ }
+// ------------------------------      custom methods---------------------------------------------------
+ public function getRegisteredCourses($p,$d,$f,$fos,$l,$s,$sm,$sts)
+ {
+   $reg =RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos],['level_id',$l],['session',$s],['semester_id',$sm],['reg_course_status',$sts]])->orderBy('reg_course_code','ASC')->get();
+   return $reg;
+ }
+ //---------------------------------------------------------------------------------------
+// get registered students
+  public function getRegisteredStudents($p,$d,$f,$fos,$l,$s)
+ {
+  // get student that did probation
+  $s1 = $s-1;
+  $prob_user_id = array();
+$prob_Student_reg = StudentReg::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['level_id',$l],['session',$s1]])->get();
+foreach ($prob_Student_reg as $key => $value) {
+ $prob_user_id [] = $value->user_id;
+}
+  $users = DB::connection('mysql2')->table('users')
+            ->join('student_regs', 'users.id', '=', 'student_regs.user_id')
+            ->where([['student_regs.programme_id',$p],['student_regs.department_id',$d],['student_regs.faculty_id',$f],['users.fos_id',$fos],['student_regs.level_id',$l],['student_regs.session',$s]])
+            ->whereNotIn('users.user_id',$prob_user_id)
+            ->orderBy('users.matric_number','ASC')
+            ->distinct()            
+            ->select('users.*')
+            ->get();
+   
+   return $users;
+ }
+
+ //----------------------------------------------------------------------------------------------------
+
+
+ //============================================END OF REPORT=============================================
 //================================== custom function =========================================================
 protected function get_fos()
 {
@@ -957,5 +1338,22 @@ public function getcourse($id,$l,$f,$s)
     return response()->json($d); 
 }
 
+ public function getFosPara($id)
+    {
+     $d =Fos::find($id);
+    return response()->json($d);
+    }
 
+    public function getLecturer($id)
+    { 
+      $l = DB::table('users')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->where('user_roles.role_id',self::LECTURER)
+            ->where('users.department_id',$id)
+            ->orderBy('users.name','ASC')
+            ->select('users.*')
+            ->get();
+            
+   return response()->json($l); 
+    }
 }

@@ -5,7 +5,8 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-
+use \Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Facades\Session;
 class Handler extends ExceptionHandler
 {
     /**
@@ -44,6 +45,12 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof TokenMismatchException){
+            //Redirect to login form if session expires
+             Session::flash('status',"session time out.");
+            return redirect(route('login'));
+           
+        }
         return parent::render($request, $exception);
     }
 

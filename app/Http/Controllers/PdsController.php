@@ -6,19 +6,19 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Session;
+use DB;
 use App\Http\Traits\MyTrait;
 use App\PdgUser;
 use App\PdsCourse;
 use Auth;
-use DB;
 use App\PdsResult;
-use App\Service\R;
 use App\PdsCourseCode;
-
+use App\PdsModernCourse;
 class PdsController extends Controller
 {
-
-	
+  use MyTrait;
+  Const Science =1;
+	Const ModernLanguage =2;
       public function __construct()
     {
         $this->middleware('auth');
@@ -38,28 +38,14 @@ class PdsController extends Controller
 
      public function pds_get_student(Request $request)
     {
-     
+
+
       $s =$request->input('session'); 
- $semester =$request->input('semester'); 
-      $user = PdgUser::where('entry_year',$s)->orderBy('surname','ASC')->get();
-        
-  //Get current page form url e.g. &page=6
-        $url ="pds_student1?session=".$s."&semester=".$semester;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
-        //Create a new Laravel collection from the array data
-        $collection = new Collection($user);
+      $user = PdgUser::where([['entry_year',$s],['student_type',$this->student_type()]])->orderBy('surname','ASC')->get();
+ 
 
-        //Define how many items we want to be visible in each page
-        $perPage = 20;
-
-        //Slice the collection to get the items to display in current page
-        $currentPageSearchResults = $collection->slice(($currentPage- 1) * $perPage, $perPage)->all();
-
-        //Create our paginator and pass it to the view
-        $paginatedSearchResults= new LengthAwarePaginator($currentPageSearchResults, count($collection), $perPage);
-
-  return view('pds.pds_student')->withU($paginatedSearchResults)->withUrl($url)->withS($semester)->withSs($s);
+  return view('pds.pds_displaystudent')->withS($s)->withU($user);
     }
 
     // ======================================more enter result =============================================
@@ -85,8 +71,15 @@ class PdsController extends Controller
  $s =$request->input('session'); 
  $semester =$request->input('semester');
  $course =$request->input('course'); 
- $user = PdgUser::where('entry_year',$s)->orderBy('surname','ASC')->get();
+ $user = PdgUser::where([['entry_year',$s],['student_type',$this->student_type()]])->orderBy('surname','ASC')->get();
+ if($this->student_type() == self::Science)
+  {
  $course_name =PdsCourse::find($course);
+  }elseif($this->student_type() == self::ModernLanguage)
+  {
+ $course_name =PdsModernCourse::find($course);
+  }
+
         
   //Get current page form url e.g. &page=6
         $url ="pds_enter_result1?session=".$s."&semester=".$semester."&course=".$course;
@@ -96,7 +89,7 @@ class PdsController extends Controller
         $collection = new Collection($user);
 
         //Define how many items we want to be visible in each page
-        $perPage = 20;
+        $perPage =1;
 
         //Slice the collection to get the items to display in current page
         $currentPageSearchResults = $collection->slice(($currentPage- 1) * $perPage, $perPage)->all();
@@ -104,7 +97,7 @@ class PdsController extends Controller
         //Create our paginator and pass it to the view
         $paginatedSearchResults= new LengthAwarePaginator($currentPageSearchResults, count($collection), $perPage);
 
-  return view('pds.pds_enter_result1')->withU($paginatedSearchResults)->withUrl($url)->withS($semester)->withSs($s)->withCourse($course)->withCn($course_name);
+  return view('pds.pds_enter_result1')->withU($paginatedSearchResults)->withUrl($url)->withS($semester)->withSs($s)->withCourse($course)->withCn($course_name)->withRole($this->student_type());
   }
 
 //------------------------------------------------------------------------------------------
@@ -174,9 +167,10 @@ foreach ($allcheck as $value) {
                     $update->examofficer =$examofficer;
                     $update->save();
 
-		}
+		}else{
 
 		$data[] =['course'=>$course_id,'session'=>$session,'semester'=>$semester,'pdg_user'=>$id,'matric_number'=>$mat_no,'ca'=>$ca,'exam'=>$exam,'total'=>$total,'grade'=>$grade,'point'=>$point,'examofficer'=>$examofficer,'date'=>$date];
+  }
 
 
 	}
@@ -201,7 +195,7 @@ return redirect($url);
     {
      $sm = $request->input('semester');
        $s = $request->input('session');
-        $user = PdgUser::where('entry_year',$s)->get();
+        $user = PdgUser::where([['entry_year',$s],['student_type',$this->student_type()]])->get();
         $course =PdsCourse::orderBy('id','ASC')->get();
 
         return view('pds.pds_display_result')->withU($user)->withC($course)->withSs($s)->withSm($sm);
@@ -241,4 +235,27 @@ return redirect($url);
  
         return view('pds.pds_display_final_result')->withU($user)->withC($course)->withSs($s);
     } 
+
+    public function student_type()
+    {
+
+$c = $this->g_rolename(Auth::user()->id);
+if($c =="science")
+{
+  $student_type =self::Science;
+}
+elseif($c=="modern_language")
+{
+  $student_type =self::ModernLanguage;
+}
+return  $student_type;
+    }
+
+
+ public function getModern($id)
+    {
+     $d =PdsModernCourse::where('semester', $id)->get();
+    return response()->json($d);
+    }
+
 }

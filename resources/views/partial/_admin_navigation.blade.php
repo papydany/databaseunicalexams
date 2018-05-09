@@ -11,7 +11,7 @@
         @if(Auth::user()->programme_id == 0 && Auth::user()->department_id == 0)
         <a class="navbar-brand" href="{{url('/admin')}}"><img id="logo" src="{{asset('logo.png')}}" alt="Logo"></a>
         @elseif(Auth::user()->programme_id == 1)
-<a class="navbar-brand" style="color:#fff;" href="{{url('/pds')}}"><strong>PDS</strong></a>
+<a class="navbar-brand" style="color:#fff;" href="{{url('/')}}"><strong>PDS</strong></a>
         @else
 
         <?php $dept= $r->get_departmetname(Auth::user()->department_id) ?>
@@ -32,16 +32,19 @@
                                             document.getElementById('logout-form').submit();">
                                             Logout
                                         </a>
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                            {{ csrf_field() }}
-                                        </form>
                                     </li>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    {{ csrf_field() }}
+                    
+                                            
+                                        </form>
+                                
              
             </ul>
         </li>
         @endif
     </ul>
-    <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
+    
        
 
   <?php $result= $r->getrolename(Auth::user()->id) ?>
@@ -49,10 +52,11 @@
 
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav side-nav">
-@if($result =="admin")
-            <li class="active">
-                <a href="{{url('admin')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+             <li class="active">
+                <a href="{{url('/')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
             </li>
+@if($result =="admin" || $result =="support")
+           
              <li>
                 <a href="javascript:;" data-toggle="collapse" data-target="#demo1"><i class="fa fa-fw fa-bar-chart-o"></i> FACULTY<i class="fa fa-fw fa-caret-down"></i></a>
                 <ul id="demo1" class="collapse">
@@ -126,11 +130,17 @@
                     <li>
                         <a href="{{url('pds_view_desk_officer')}}">View Desk Officer</a>
                     </li>
-                     <li>
-                        <a href="{{url('pds_create_course')}}">New course</a>
-                    </li>
+                   <!--  <li>
+                        <a href="{{url('pds_create_course')}}">New course Science</a>
+                    </li>-->
                     <li>
-                        <a href="{{url('pds_view_course')}}">View course</a>
+                        <a href="{{url('pds_view_course')}}">View course Science</a>
+                    </li>
+                    <!--   <li>
+                        <a href="{{url('pds_create_course')}}">New course Modern language</a>
+                    </li>-->
+                    <li>
+                        <a href="{{url('modern_view_course')}}">View course Modern language</a>
                     </li>
                 </ul>
             </li>
@@ -147,11 +157,40 @@
                     
                 </ul>
             </li>
+<li>
+                        <a href="{{url('adminreg_course')}}">View Registered Courses</a>
+                    </li>
+   
 
-@elseif($result =="Deskofficer")
- <li class="active">
-                <a href="{{url('Deskofficer')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+
+             <li>
+                <a href="javascript:;" data-toggle="collapse" data-target="#demo12"><i class="fa fa-fw fa-bar-chart-o"></i> PIN<i class="fa fa-fw fa-caret-down"></i></a>
+                <ul id="demo12" class="collapse">
+                  @if($result =="support")  
+                  <li>
+                        <a href="{{url('create_pin')}}">Create Pin</a>
+                    </li>
+                     <li>
+                        <a href="{{url('export_pin')}}">Export Pin</a>
+                    </li>
+                     <li>
+                        <a href="{{url('view_unused_pin')}}">View Unused Pin</a>
+                    </li>
+                     <li>
+                        <a href="{{url('convert_pin')}}">Convert Pin</a>
+                    </li>
+                    @endif 
+                   
+                    <li>
+                        <a href="{{url('view_used_pin')}}">View Used Pin</a>
+                    </li>
+                    
+                </ul>
             </li>
+             
+                       
+@elseif($result =="Deskofficer")
+ 
              <li>
                 <a href="javascript:;" data-toggle="collapse" data-target="#demo1"><i class="fa fa-fw fa-bar-chart-o"></i> Lecturer<i class="fa fa-fw fa-caret-down"></i></a>
                 <ul id="demo1" class="collapse">
@@ -180,7 +219,10 @@
                         <a href="{{url('register_course')}}">Register Courses</a>
                     </li>
                     <li>
-                        <a href="{{url('view_register_course')}}">View Register Courses</a>
+                        <a href="{{url('view_register_course')}}">View Registered Courses</a>
+                    </li>
+                    <li>
+                        <a href="{{url('delete_register_course')}}">Delete Registered Courses</a>
                     </li>
                 </ul>
             </li>
@@ -191,10 +233,14 @@
                         <a href="{{url('assign_course')}}">Assign Courses</a>
                     </li>
                     <li>
-                        <a href="{{url('view_assign_course')}}">View Assign Courses</a>
+                        <a href="{{url('view_assign_course')}}">View Assigned Courses</a>
                     </li>
                      <li>
-                        <a href="{{url('print_assign_course')}}">Print Assign Courses</a>
+                        <a href="{{url('print_assign_course')}}">Print Assigned Courses</a>
+                    </li>
+
+                    <li>
+                        <a href="{{url('assign_course_other')}}">Assign Courses(Other Lecturer)</a>
                     </li>
                 </ul>
             </li>
@@ -206,7 +252,7 @@
                         <a href="{{url('view_student')}}">Veiw Student </a>
                     </li>
                     <li>
-                        <a href="{{url('register_student')}}">Register Student</a>
+                        <a href="{{url('register_student')}}">Registered Student</a>
                     </li>
 
                    
@@ -223,15 +269,20 @@
                     <li>
                         <a href="{{url('view_result')}}">View result</a>
                     </li>
+                     <li>
+                        <a href="{{url('delete_result')}}">Delete result</a>
+                    </li>
                 </ul>
             </li>
             
 
+  <li>
+                <a href="{{url('report')}}"><i class="fa fa-fw fa-edit"></i>Report</a>
+               
+            </li>
 
 @elseif($result =="examsofficer")
- <li class="active">
-                <a href="{{url('Deskofficer')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
-            </li>
+
           <li>
                 <a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>
                 <ul id="demo5" class="collapse">
@@ -247,13 +298,11 @@
             <li>
                         <a href="{{url('r_student')}}">Registered Student</a>
                     </li>
+    <li>
+                <a href="{{url('report')}}"><i class="fa fa-fw fa-edit"></i>Report</a>
+               
+            </li>                
 @elseif($result =="lecturer")
-<li class="active">
-                <a href="{{url('lecturer')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
-            </li>
-          
-             
-
   <li>
                 <a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>
                 <ul id="demo5" class="collapse">
@@ -268,24 +317,11 @@
              <li>
                         <a href="{{url('r_student')}}">Registered Student</a>
                     </li>
-@elseif($result =="pds")
- <li class="active">
-                <a href="{{url('pds')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
-            </li>
-          
-   <li>
-                <a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="fa fa-fw fa-edit"></i>Student<i class="fa fa-fw fa-caret-down"></i></a>
-                <ul id="demo5" class="collapse">
-                    <li>
-                        <a href="{{url('pds_student')}}">View Student</a>
-                    </li>
-                    <li>
-                        <a href="{{url('pds_registered')}}">View Registred</a>
-                    </li>
-                </ul>
-            </li>          
-
-  <li>
+@elseif($result =="science")
+<li>
+<a href="{{url('pds_student')}}">View Student</a>
+</li>
+<li>
                 <a href="javascript:;" data-toggle="collapse" data-target="#demo6"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>
                 <ul id="demo6" class="collapse">
                     <li>
@@ -303,53 +339,40 @@
                 </ul>
             </li>
 
-@elseif($result =="support")
+@elseif($result =="modern_language")
 
-<li class="active">
-                <a href="{{url('support')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
-            </li>
-             <li>
-                <a href="javascript:;" data-toggle="collapse" data-target="#demo1"><i class="fa fa-fw fa-bar-chart-o"></i> PIN<i class="fa fa-fw fa-caret-down"></i></a>
-                <ul id="demo1" class="collapse">
-                  <li>
-                        <a href="{{url('create_pin')}}">Create Pin</a>
+<li>
+<a href="{{url('pds_student')}}">View Student</a>
+</li>
+<li>
+                <a href="javascript:;" data-toggle="collapse" data-target="#demo6"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>
+                <ul id="demo6" class="collapse">
+                    <li>
+                        <a href="{{url('pds_enter_result')}}">Enter result</a>
                     </li>
                     <li>
-                        <a href="{{url('view_unused_pin')}}">View Unused Pin</a>
+                        <a href="{{url('pds_view_result')}}">View result</a>
                     </li>
-                    <li>
-                        <a href="{{url('view_used_pin')}}">View Used Pin</a>
-                    </li>
-                     <li>
-                        <a href="{{url('export_pin')}}">Export Pin</a>
-                    </li>
+                     
                 </ul>
             </li>
-             
-         
-           
-              <li>
-                <a href="{{url('admin')}}" target="_blank"><i class="fa fa-fw fa-edit"></i>Admin<i class="fa fa-fw fa-caret-down"></i></a>
-       
-            </li>
 
-            <li>
-                <a href="{{url('fake_pop')}}" target="_blank"><i class="fa fa-fw fa-edit"></i>Fake POP<i class="fa fa-fw fa-caret-down"></i></a>
-       
-            </li>
             @endif
              <li>
                 <a href="{{url('changepassword')}}"><i class="fa fa-fw fa-edit"></i>Change Password<i class="fa fa-fw fa-caret-down"></i></a>
                 </li>
-<li>
-                 <a href="{{ route('logout') }}" onclick="event.preventDefault();
+ <li>
+                                              <a href="{{ route('logout') }}" onclick="event.preventDefault();
                                             document.getElementById('logout-form').submit();">
                                             Logout
                                         </a>
+                                        </li>
+               
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                             {{ csrf_field() }}
+                                           
                                         </form>
-                                    </li>
+                                    
 
 
 

@@ -19,9 +19,9 @@
       <p class="text-center" style="font-size:14px; font-weight:700;">ASSIGNED COURSES</p>
     <div class="col-sm-9 www">
   
-    <p>FACULTY: {{$faculty}}</p>
-      <p>DEPARTMENT: {{$department}}</p>
-          <p>PROGRAMME:  {{$fos}}</p>
+    <p><b>FACULTY : </b>{{$faculty}}</p>
+    <p><b>DEPARTMENT :</b> {{$department}}</p>
+    <p><b>PROGRAMME : </b> {{$fos}}</p>
  
       </div>
   <div class="col-sm-3 ww">
@@ -54,10 +54,10 @@
                         <table class="table table-bordered table-striped">
                         <tr>
                       
-                       <th>Code</th>
-                       <th>Unit</th>
-                       <th>Status</th>
-                       <th>Lecturer Assigned To</th>
+                       <th>COURSE CODE</th>
+                       <th>UNIT</th>
+                       <th>STATUS</th>
+                       <th>LECTURER ASSIGNED TO</th>
                
                        
                        </tr>
@@ -67,10 +67,10 @@
                       <tr>
                       
                         
-                       <td> {{$v->reg_course->reg_course_code}} </td>
-                      <td> {{$v->reg_course->reg_course_unit}} </td>
-                      <td> {{$v->reg_course->reg_course_status}} </td>
-                         <td> {{$v->user->title.'&nbsp; &nbsp;' .$v->user->name}} </td>
+                       <td> {{isset($v->reg_course->reg_course_code) ? $v->reg_course->reg_course_code : ''}} </td>
+                      <td> {{isset($v->reg_course->reg_course_unit) ? $v->reg_course->reg_course_unit : ''}} </td>
+                      <td> {{isset($v->reg_course->reg_course_status) ? $v->reg_course->reg_course_status : ''}} </td>
+                         <td> {{strtoupper($v->user->title)}}&nbsp; &nbsp;&nbsp; {{strtoupper($v->user->name)}} </td>
                         </tr>
                        @endforeach
                        </table>

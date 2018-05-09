@@ -7,9 +7,7 @@
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Dashboard <small>Statistics Overview</small>
-                        </h1>
+                     
                         <ol class="breadcrumb">
                             <li class="active">
                                 <i class="fa fa-dashboard"></i> Dashboard
@@ -34,7 +32,14 @@
                @elseif($s== 2)
 Second Semester
                @endif
-               &nbsp; &nbsp; &nbsp;&nbsp; Session {{$ss}} &nbsp; &nbsp; &nbsp;&nbsp;{{strtoupper($cn->course_title)}}
+               &nbsp; &nbsp; &nbsp;&nbsp; Session {{$ss}} &nbsp; &nbsp; &nbsp;&nbsp;
+               @if($role == 1)
+    {{strtoupper($cn->course_title)}}
+               @elseif($role == 2)
+{{strtoupper($cn->title)}}
+               @endif
+
+               
                </h4>
                         <form class="form-horizontal" role="form" method="POST" action="{{ url('/pds_enter_result1') }}" data-parsley-validate>
                                         {{ csrf_field() }}

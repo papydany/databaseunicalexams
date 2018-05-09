@@ -1,13 +1,12 @@
 @extends('layouts.admin')
 @section('title','Register Students')
 @section('content')
-
+@inject('r','App\R')
+  <?php $result= $r->getrolename(Auth::user()->id) ?>
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
-                        <h1 class="page-header">
-                            Dashboard <small>Statistics Overview</small>
-                        </h1>
+                        
                         <ol class="breadcrumb">
                             <li class="active">
                                 <i class="fa fa-dashboard"></i> Dashboard
@@ -17,7 +16,7 @@
                 </div>
 
                  <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12" style="min-height: 520px;">
             <div class="panel panel-default">
                 <div class="panel-heading">View Student</div>
                 <div class="panel-body">
@@ -36,9 +35,28 @@
                               </select>
                              
                             </div>
+                            @if($result =="modern_language")
+                              <div class="col-sm-3">
+                              <label for="semester" class=" control-label">Semester</label>
+                              <select class="form-control" name="semester" id="semester">
+                                 <option value=""> - - Select - -</option>
+                                 <option value="1">First Semester</option>
+                                  <option value="2">Second Semester</option>
+                              </select>
+                             
+                            </div>
+
+                              <div class="col-sm-3">
+                              <label for="session" class=" control-label">Course</label>
+                              <select class="form-control" name="course" id="course">
+                             </select>
+                             
+                            </div>
+
+                            @elseif($result =="science")
                                <div class="col-sm-3">
                               <label for="semester" class=" control-label">Semester</label>
-                              <select class="form-control" name="semester" required>
+                              <select class="form-control" name="semester">
                                  <option value=""> - - Select - -</option>
                                  <option value="1">First Semester</option>
                                   <option value="2">Second Semester</option>
@@ -48,7 +66,7 @@
 
                             <div class="col-sm-3">
                               <label for="session" class=" control-label">Course</label>
-                              <select class="form-control" name="course" required>
+                              <select class="form-control" name="course">
                                  <option value=""> - - Select - -</option>
                                
                                   @foreach ($c as $v)
@@ -59,7 +77,7 @@
                              
                             </div>
 
-                          
+                          @endif
                        
 
                            <div class="col-sm-3">
@@ -126,5 +144,24 @@
                         </div>
                         </div>
                         </div>
+
+  <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+       
+        <div class="modal-body text-danger text-center">
+          <p>... processing ...</p>
+        </div>
+       
+      </div>
+      
+    </div>
+  </div>                          
+
+@endsection
+@section('script')
+<script src="{{URL::to('js/main.js')}}"></script>
 
 @endsection

@@ -16,7 +16,7 @@
     <div class="row" style="min-height: 520px;">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Crhange Password</div>
+                <div class="panel-heading">Change Password</div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/changepassword') }}" data-parsley-validate>
                         {{ csrf_field() }}

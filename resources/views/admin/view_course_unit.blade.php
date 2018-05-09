@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 @section('title','Create Course Unit')
 @section('content')
+@inject('R','App\R')
  <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -66,10 +67,24 @@
                         </tr>
                         {{!!$i = 0}}
                         @foreach($c as $v)
+                        
+                        <?php if($v->fos != 0)
+                        {
+                          $fos =$R->get_fos($v->fos);
+                        }else{ 
+                          $fos ="General";
+                           }
+                           ?> 
 <tr>
                           <td>{{++$i}}</td>
-                             <td></td>
-                           <td></td>
+                             <td>@if($v->level == 0)
+                              All Level
+
+                              @else
+                              {{$v->level}}00
+
+                             @endif</td>
+                           <td>{{$fos}}</td>
                           <td>{{$v->min}}</td>
                             <td>{{$v->max}}</td>
                              <td><div class="btn-group">

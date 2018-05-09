@@ -22,14 +22,14 @@
     <td>Total point</td>
     </tr>
     {{!!$cc= 0}}
-    {{!!$Total = 0}}
+  
 
       @inject('r','App\R')
     
   
     @foreach($u as $v)
 
-
+  {{!!$Total = 0}}
     <tr>
     <td>{{++$cc}}</td>
     <td>{{$v->matric_number}}</td>
@@ -48,10 +48,12 @@ $gp = $r->get_course_grade_point($avg);
        <td>{{$gp['grade']}}</td>
         <td>{{$gp['point']}}</td>
 
-<?php   
+
+   
+ <?php   
 $Total += $gp['point'];
 ?>
-    @endfor
+ @endfor  
 <td>{{$Total}}</td>
      
     </tr>

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('title','Registered Student')
 @section('content')
-
+  @inject('r','App\R')
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -99,9 +99,17 @@
                   <label for="level" class=" control-label">Course</label>
                      <select class="form-control" name="id" required>
                      <option value="">-- select --</option>
-                      @foreach($c as $v)
+                      @foreach($c as  $k => $value)
+                      <?php $fos = $r->get_fos($k); ?>
+                      <optgroup label="{{$fos}}">
+                      
+                      @foreach($value as $v)
                       <option value="{{$v->registercourse_id.'~'.$v->fos_id.'~'.$v->reg_course_code}}">{{$v->reg_course_code}}</option>
+                     
                       @endforeach
+                        </optgroup>
+                        @endforeach
+                     
                      </select>
 
                       <input type="hidden" name="level" value="{{$l}}">

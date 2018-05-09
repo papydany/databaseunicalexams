@@ -3,7 +3,7 @@
 @section('content')
  <!-- Page Heading -->
                 <div class="row">
-                    <div class="col-lg-12">
+                    <div class="col-sm-6">
                        
                         <ol class="breadcrumb">
                             <li class="active">
@@ -11,6 +11,19 @@
                             </li>
                         </ol>
                     </div>
+                <div class="col-sm-6">    
+
+                    <form method="POST" action="{{url('search')}}">
+          
+<div class="form-group col-sm-8">    
+ <input type="text" placeholder="Search By Department"  name="search_code" class="typeahead form-control" autofocus="">
+</div>
+<div class="form-group col-sm-2"> 
+    <input type="submit" value="Continue" class="btn btn-danger">
+  
+   </div> 
+ </form>
+</div>
                 </div>
 
     <div class="row" style="min-height: 520px;"">
@@ -76,11 +89,13 @@
     Action <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
+    <li><a href="{{url('/edit_right',[$v->id,0])}}">0</a></li>
     <li><a href="{{url('/edit_right',[$v->id,6])}}">6</a></li>
     <li><a href="{{url('/edit_right',[$v->id,8])}}">8</a></li>
     <li><a href="{{url('/edit_right',[$v->id,10])}}">10</a></li>
     <li><a href="{{url('/edit_right',[$v->id,12])}}">12</a></li>
-
+ <li><a href="{{url('/edit_right',[$v->id,15])}}">15</a></li>
+  <li><a href="{{url('/edit_right',[$v->id,20])}}">20</a></li>
   </ul>
 </div></td>
 
@@ -96,5 +111,16 @@
                         </div>
                         </div>
                         </div>
+
+  <script type="text/javascript">
+    var path = "{{ route('autocomplete_department') }}";
+    $('input.typeahead').typeahead({
+        source:  function (query, process) {
+        return $.get(path, { query: query }, function (data) {
+                return process(data);
+            });
+        }
+    });
+</script>                      
 
   @endsection                      

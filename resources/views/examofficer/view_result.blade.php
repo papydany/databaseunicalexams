@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 @section('title','Exams Officer')
 @section('content')
-
+ @inject('r','App\R')
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -16,7 +16,7 @@
                 <!-- /.row -->
   
                  <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12" style="min-height: 300px;">
             <div class="panel panel-default">
                 <div class="panel-heading">View Result</div>
                 <div class="panel-body">
@@ -99,8 +99,13 @@
                   <label for="level" class=" control-label">Course</label>
                      <select class="form-control" name="id" required>
                      <option value="">-- select --</option>
-                      @foreach($c as $v)
+                      @foreach($c as  $k => $value)
+                      <?php $fos = $r->get_fos($k); ?>
+                      <optgroup label="{{$fos}}">
+                      @foreach($value as $v)
                       <option value="{{$v->registercourse_id.'~'.$v->fos_id.'~'.$v->reg_course_code}}">{{$v->reg_course_code}}</option>
+                      @endforeach
+                         </optgroup>
                       @endforeach
                      </select>
 
@@ -140,14 +145,7 @@
 
 <div class="row" style="min-height: 220px;">
 </div>
-
-@endsection
-@section('script')
-<script src="{{URL::to('js/main.js')}}"></script>
-
-@endsection
-
-     <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
+ <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
     <div class="modal-dialog">
     
       <!-- Modal content-->
@@ -160,4 +158,11 @@
       </div>
       
     </div>
-  </div>         
+  </div> 
+@endsection
+@section('script')
+<script src="{{URL::to('js/main.js')}}"></script>
+
+@endsection
+
+            

@@ -24,6 +24,7 @@
                      <div class="col-sm-4">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level">
+                                <option value="">select</option>
                                   @if(isset($l))
                                   @foreach($l as $v)
                                   <option value="{{$v->level_id}}">{{$v->level_name}}</option>
@@ -60,8 +61,11 @@
                         </form>
                          @if(isset($course))
                         @if(count($course) > 0)
+                          <form class="form-horizontal" role="form" method="POST" action="{{ url('/delete_multiple_course') }}" data-parsley-validate>
+                        {{ csrf_field() }}
                         <table class="table table-bordered table-striped">
-                        <tr>
+                        <tr> 
+                        <th>Select</th>
                         <th>S/N</th>
                         <th>Title</th>
                         <th>Code</th>
@@ -73,6 +77,7 @@
                        {{!!$c = 0}}
                        @foreach($course as $v)
                        <tr>
+                        <td><input type="checkbox" name="id[]" value="{{$v->id}}"> </td>
                        <td>{{++$c}}</td>
                        <td>{{$v->course_title}}</td>
                        <td>{{$v->course_code}}</td>
@@ -89,12 +94,14 @@
   </button>
   <ul class="dropdown-menu">
     <li><a href="{{url('edit_course',$v->id)}}">Edit</a></li>
-    
+    <li><a href="{{url('delete_course',$v->id)}}">Delete</a></li>
   </ul>
 </div></td>
                        </tr>
                        @endforeach
+<tr><td colspan="8"><input type="submit" value="Delete selected row" class="btn btn-primary"></td></tr>
                         </table>
+                      </form>
 
                         @else
  <div class=" col-sm-10 col-sm-offset-1 alert alert-warning" role="alert" >

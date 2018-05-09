@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use App\Http\Requests;
 use Auth;
 use App\Pin;
@@ -82,7 +83,7 @@ for ($i = 0; $i <=$request->number; $i++) {
  public function view_unused_pin()
  {
  	
- 	$unused_pin = Pin::where('status',0)->paginate(500);
+ 	$unused_pin = Pin::where('status',0)->orderBy('id','ASC')->paginate(500);
  	
  	return view('support.view_unused_pin')->withUnused_pin($unused_pin);
  }
@@ -90,10 +91,80 @@ for ($i = 0; $i <=$request->number; $i++) {
 
  public function view_used_pin()
  {
- 	$used_pin = Pin::where('status',1)->paginate(500);
- 	return view('support.view_used_pin')->withUsed_pin($used_pin);
+ 	//$used_pin = Pin::where('status',1)->paginate(500);
+ 	return view('support.view_used_pin');
+ }
+ public function post_used_pin(Request $request)
+ {
+      $s =$request->input('session');
+
+    $used_pin = Pin::where([['status',1],['session',$s]])->orderBy('updated_at','DSC')->get();  
+  
+        $url ="get_used_pin?session=".$s;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+        //Create a new Laravel collection from the array data
+        $collection = new Collection($used_pin);
+
+        //Define how many items we want to be visible in each page
+        $perPage = 500;
+
+        //Slice the collection to get the items to display in current page
+        $currentPageSearchResults = $collection->slice(($currentPage- 1) * $perPage, $perPage)->all();
+
+        //Create our paginator and pass it to the view
+        $paginatedSearchResults= new LengthAwarePaginator($currentPageSearchResults, count($collection), $perPage);
+
+       // return view('search', ['results' => $paginatedSearchResults]);
+   
+    return view('support.view_used_pin')->withU($paginatedSearchResults)->withUrl($url)->withUsed_pin($used_pin);
+ }
+// =======================  seria number  ==================
+  public function post_serial_number(Request $request)
+ {
+      $id =$request->input('serial_number');
+
+    $pin = Pin::find($id);
+   if(count($pin) == 0)
+   {
+    $request->session()->flash('warning', ' No Records is not available');
+ return redirect()->action('SupportController@view_used_pin'); 
+   }
+    return view('support.view_used_pin')->withPin($pin);
+ }
+ // =================== convert pin =================================
+
+ public function convert_pin()
+ {
+return view('support.pin.convert');
  }
 
+ //========post convert pin ================
+ public function post_convert_pin(Request $request)
+ {
+    $s =$request->start_serial_number;
+  
+    $e =$request->end_serial_number;
+    for ($i=$s; $i <= $e; $i++) {
+
+     
+        $pin =Pin::find($i);
+        if(count($pin) > 0)
+        {
+        if($pin->status == 0)
+        {
+//var_dump($pin->id);
+      $pin->session =$request->session;
+     
+        $pin->save();
+    }
+}
+    }
+   //dd();
+    $request->session()->flash('success', ' SUCCESSFULL');
+ return redirect()->action('SupportController@convert_pin');
+ }
+ //================== export pin =========================================
  public function export_pin()
  {
    

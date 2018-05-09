@@ -16,7 +16,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Register Courses</div>
+                <div class="panel-heading">Registered Courses</div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/register_course') }}" data-parsley-validate>
                         {{ csrf_field() }}
@@ -34,7 +34,7 @@
                              
                             </div>
    <div class="col-sm-3">
-                              <label for="semester" class=" control-label">semester</label>
+                              <label for="semester" class=" control-label">Semester</label>
                               <select class="form-control" name="semester">
                               <option value=""> - - Select - -</option>
                                   @if(isset($s))

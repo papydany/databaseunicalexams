@@ -16,7 +16,7 @@
                 </div>
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12" style="min-height: 420px;">
             <div class="panel panel-default">
                 <div class="panel-heading">Create Field Of Study</div>
                 <div class="panel-body">
@@ -104,11 +104,6 @@
                         </div>
                         </div>
                         </div>
-@endsection  
-@section('script')
-<script src="{{URL::to('js/main.js')}}"></script>
-
-@endsection
 
      <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
     <div class="modal-dialog">
@@ -123,4 +118,10 @@
       </div>
       
     </div>
-  </div>                    
+  </div>                        
+@endsection  
+@section('script')
+<script src="{{URL::to('js/main.js')}}"></script>
+
+@endsection
+                   

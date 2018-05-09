@@ -126,11 +126,11 @@
 
                 <table class="table table-bordered table-striped">
                     <tr>
-                        <th>S/N</th>
+                        <th class="text-center">S/N</th>
                        <!-- <th>Select</th>-->
-                        <th>Matric Number</th>
-                        <th>Name</th>
-                       <!-- <th>View Course</th>-->
+                        <th class="text-center">MATRIC NUMBERS</th>
+                        <th class="text-center">NAMES</th>
+                      
 
                     </tr>
                     {{!!$c = 0}}
@@ -140,6 +140,7 @@
                             <!--<td><input type="checkbox" value="{{$v->id}}" name="id[]"> </td>-->
                             <td>{{$v->matric_number}}</td>
                             <td>{{$v->surname." ".$v->firstname." ".$v->othername}}</td>
+                            
                            <!-- <td>
                                 <button type="button" class="btn btn-danger " data-toggle="modal" data-target="#myModal{{$v->id}}">Enter Result</button></td>-->
                         </tr>

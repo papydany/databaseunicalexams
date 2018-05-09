@@ -21,9 +21,9 @@
       <p class="text-center" style="font-size:14px; font-weight:700;">REGISTERED COURSES</p>
     <div class="col-sm-9 www">
   
-    <p>FACULTY: {{$faculty}}</p>
-      <p>DEPARTMENT: {{$department}}</p>
-          <p>PROGRAMME:  {{$fos}}</p>
+    <p><b>FACULTY :</b> {{$faculty}}</p>
+      <p><b>DEPARTMENT :</b> {{$department}}</p>
+          <p><b>PROGRAMME :</b>  {{$fos}}</p>
  
       </div>
   <div class="col-sm-3 ww">
@@ -43,24 +43,24 @@
                       
                         <table class="table table-bordered table-striped">
                         <tr>
-                        <th>S/N</th>
-                        <th>Title</th>
-                        <th>Code</th>
-                        <th>Status</th>
-                      <th>Unit</th>
-                         <th>Semester</th>
+                        <th class="text-center">S/N</th>
+                        <th class="text-center">TITLE</th>
+                        <th class="text-center">CODE</th>
+                        <th class="text-center">STATUS</th>
+                      <th class="text-center">UNIT</th>
+                         <th class="text-center">SEMESTER</th>
                       
                        </tr>
                        {{!!$c = 0}}
                        @foreach($r as $v)
                        <tr>
-                       <td>{{++$c}}</td>
+                       <td class="text-center">{{++$c}}</td>
                        <td>{{$v->reg_course_title}}</td>
-                       <td>{{$v->reg_course_code}}</td>
-                       <td>{{$v->reg_course_status}}</td>
-                       <td>{{$v->reg_course_unit}}</td>
-                       <td>@if($v->semester_id == 1)
-                       First Semeter
+                       <td class="text-center">{{$v->reg_course_code}}</td>
+                       <td class="text-center">{{$v->reg_course_status}}</td>
+                       <td class="text-center">{{$v->reg_course_unit}}</td>
+                       <td class="text-center">@if($v->semester_id == 1)
+                       First Semester
                        @else
                        Second Semester
                        @endif</td>

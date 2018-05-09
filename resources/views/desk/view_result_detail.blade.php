@@ -50,13 +50,13 @@
                  <table class="table table-bordered table-striped">
                  <tr>
                      
-                        <th>S/N</th>
-                        <th>Martic Number</th>
-                        <th>Names</th>
-                        <th>Ca</th>
-                        <th>Exams</th>
-                        <th>Total</th>
-                        <th>Grade</th>
+                        <th class="text-center">S/N</th>
+                        <th class="text-center">MATRIC NUMBERS</th>
+                        <th class="text-center">NAMES</th>
+                        <th class="text-center">CA</th>
+                        <th class="text-center">EXAMS</th>
+                        <th class="text-center">TOTAL</th>
+                        <th class="text-center">GRADE</th>
                           </tr>
                             {{!!$c = 0}}
                       @foreach($u as $v)

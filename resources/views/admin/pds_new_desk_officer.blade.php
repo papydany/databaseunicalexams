@@ -21,22 +21,23 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/pds_new_desk_officer') }}" data-parsley-validate>
                         {{ csrf_field() }}
 
-                        <div class="form-group{{ $errors->has('department_name') ? ' has-error' : '' }}">
+                        <div class="form-group{{ $errors->has('role') ? ' has-error' : '' }}">
                          
                       <div class="col-md-4">
-                                <label for="programme_id" class="control-label">Select Programme</label>
-                                 <select class="form-control" name="programme_id" id="programme_id" required>
+                                <label for="role" class="control-label">PDS Type</label>
+                                 <select class="form-control" name="role"  required>
                       
-                               @if(count($p) > 0)
+                           
+                             <option value="">Select</option> 
+                             <option value="6">Science</option>
+                        <option value="7">Modern Language</option>
                             
-                        <option value="{{$p->id}}">{{$p->programme_name}}</option>
-                            
-                                @endif
+                      
                              </select>
 
-                                @if ($errors->has('programme_id'))
+                                @if ($errors->has('role'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('programme_id') }}</strong>
+                                        <strong>{{ $errors->first('role') }}</strong>
                                     </span>
                                 @endif
                             </div>
@@ -99,9 +100,7 @@
                         </div>
                         </div>
                         </div>
-@endsection  
-
-     <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
+                        <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
     <div class="modal-dialog">
     
       <!-- Modal content-->
@@ -114,4 +113,7 @@
       </div>
       
     </div>
-  </div>                    
+  </div>
+@endsection  
+
+                         

@@ -97,6 +97,7 @@
                                 <th>S/N</th>
                                 <th>matric Number</th>
                                 <th>Name</th>
+                                <th>Phone Number</th>
                                 <th>Gender</th>
 
                             </tr>
@@ -106,6 +107,7 @@
                                     <td>{{++$c}}</td>
                                     <td>{{$v->matric_number}}</td>
                                     <td>{{$v->surname." ".$v->firstname." ".$v->othername}}</td>
+                                    <td>{{$v->phone}}</td>
                                     <td>{{$v->gender}}</td>
                                 </tr>
                             @endforeach
@@ -113,7 +115,7 @@
 
                     @else
                         <div class=" col-sm-10 col-sm-offset-1 alert alert-warning" role="alert" >
-                            No Student is avalable!!!
+                            No Student is available!!!
                         </div>
 
                     @endif

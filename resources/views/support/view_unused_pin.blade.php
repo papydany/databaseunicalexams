@@ -24,12 +24,14 @@
                 <table class="table table-bordered table-striped">
                 <tr>
                 <th>S/N</th>
+                  <th>Serial Number</th>
                  <th>Pin</th>
                 </tr>
                 {{!!$c = 0}}
                 @foreach($unused_pin as $v)
                 <tr>
                 <td>{{++$c }}</td>
+                <td>{{$v->id}}</td>
                 <td>{{$v->pin}}</td>
                 </tr>
                 

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use DB;
 use App\User;
+use Auth;
 class LoginController extends Controller
 {
     /*
@@ -69,7 +70,7 @@ class LoginController extends Controller
              $u->edit_right =$new_e;
              $u->save();
             }    
-            return redirect($role->name); 
+            return redirect('/'); 
 
     
 
@@ -80,5 +81,11 @@ class LoginController extends Controller
         }
 
    
+}
+
+ public function logout(Request $request)
+{
+Auth::logout();
+return redirect('/');
 }
 }
