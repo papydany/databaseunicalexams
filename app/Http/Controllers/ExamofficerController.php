@@ -80,7 +80,7 @@ return view('examofficer.eo_assign_courses')->withC($course)->withSm($semester)-
         ->join('course_regs', 'course_regs.user_id', '=', 'users.id')
         ->where([['course_regs.registercourse_id',$id],['level_id',$l],['semester_id',$sm],['session',$s],['period',$period]])
         ->orderBy('users.matric_number','ASC')
-        ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number')
+        ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.entry_year')
         ->get();
   //Get current page form url e.g. &page=6
         $url ="eo_result_c?id=".$id."&level=".$l."&semester=".$sm."&session=".$s."&period=".$period;
@@ -127,13 +127,14 @@ return view('examofficer.eo_assign_courses')->withC($course)->withSm($semester)-
          $ca =$request->input('ca')[$value];
         $exam=$request->input('exams')[$value];
         $total=$request->input('total')[$value];
-        $grade_value =$this->get_grade($total);
+        $entry_year=$request->input('entry_year')[$value];
+        $grade_value =$this->get_grade($total,$entry_year);
         $grade = $grade_value['grade'];
-        $cp = $this->mm($grade, $cu);
+        $cp = $this->mm($grade, $cu,$entry_year);
      
 
       $check_result = StudentResult::where([['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id],['flag',$flag]])->first();
-                    if (count($check_result) > 0) {
+                    if ($check_result != null) {
         $result_id =$request->input('result_id')[$value];
 
 
@@ -142,8 +143,9 @@ $update = StudentResult::find($result_id);
             $update->ca = $ca;
             $update->exam = $exam;
             $update->total = $total;
-           $update->grade = $grade;
+            $update->grade = $grade;
             $update->cp = $cp['cp'];
+            $update->examofficer = Auth::user()->id;
             $update->save();
          }else{
 
@@ -226,9 +228,7 @@ $user= $this->getRegisterStudent($id,$l,$sm,$s,$period);
     public function r_student()
     {
          $p =$this->getp();
-
-  
-      return view('examofficer.r_student')->withP($p);
+return view('examofficer.r_student')->withP($p);
     }
 
 //-----------------------------------------------------------------------------------------------------------------
@@ -320,9 +320,10 @@ protected function p()
 return $p;
 }
 //=====================without pds ==================
-protected function getp()
-{
-  $p =Programme::where('id','!=',1)->get();
-return $p;
-}
+
+public function getFos_hod($id)
+    {
+     $d =Fos::where([['department_id', Auth::user()->department_id],['programme_id',$id]])->get();
+    return response()->json($d);
+    }
 }

@@ -33,6 +33,8 @@ class HomeController extends Controller
     Const DESKOFFICER =3;
     Const PDS =6;
     Const ModernLanguage =7;
+    Const LECTURER = 5;
+    Const HOD = 7;
     /**
      * Create a new controller instance.
      *
@@ -700,6 +702,78 @@ return back();
   }
 }
 
+//========================== assign hod role =========================================
+public function assign_hod_role()
+{
+  $f =Faculty::get();
+  return view('admin.hod_role.index')->withF($f);
+}
+//------------------------------ get lecturer 4 hod --------------------------------------
+public function get_lecturer_4_hod(Request $request)
+{
+ $f =Faculty::get(); 
+$f_id =$request->faculty_id;
+$d =$request->department_id;
+    $user = DB::table('users')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->where('user_roles.role_id',self::LECTURER)
+            ->where([['users.faculty_id',$f_id],['users.department_id',$d]])
+            ->orderBy('users.name','ASC')
+            ->select('users.*')
+            ->paginate(50);
+  return view('admin.hod_role.index')->withU($user)->withF($f);           
+}
+//----------------------------------- assign hod----------------------------------------------------
+public function assign_hod(Request $request)
+{
+
+$id =$request->optradio;
+$id = explode('~',$id);
+ $user = DB::table('users')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->where('user_roles.role_id',self::HOD)
+            ->where('users.department_id',$id[1])
+            ->get()
+            ->count();
+          
+            if($user == 0)
+            {
+
+ $user_role =DB::table('user_roles')->where('user_id',$id[0])->update(['role_id' => self::HOD]);
+ 
+
+            }else
+            {
+           Session::flash('warning',"HOD exist in these department.You have to remove existing person before you can assign another person.");     
+            }
+return back();
+ 
+}
+
+//-----------------------view hod -------------------------------------------------------------------
+public function view_assign_hod()
+{
+  $user = DB::table('users')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->where('user_roles.role_id',self::HOD)
+            ->orderBy('users.department_id','ASC')
+            ->select('users.*')
+            ->get();
+  return view('admin.hod_role.view')->withU($user);  
+}
+
+//==============================remove hod=============================================================
+public function remove_hod($id)
+{
+  if(isset($id))
+  {
+
+
+$user_role =DB::table('user_roles')->where('user_id',$id)->update(['role_id' => self::LECTURER]);
+}
+   Session::flash('success',"SUCCESSFULL.");
+return back();
+}
 //-----------------------------------create course unit -----------------------------------------------
 public function create_course_unit()
 {
@@ -757,14 +831,16 @@ public function adminreg_course()
 
 function post_adminreg_course(request $request)
 {
+  $d = Department::orderBy('department_name','ASC')->get();
 $this->validate($request,array('fos'=>'required','session'=>'required','level'=>'required'));
 $session =$request->session;
 $fos =$request->fos;
 $l =$request->level;
-$d =$request->department;
-$register_course =RegisterCourse::where([['department_id',$d],['fos_id',$fos],['level_id',$l],['session',$session]])->orderBy('semester_id','ASC')->orderBy('reg_course_status','ASC')->get();
+$dd =$request->department;
 
-return view('admin.display_register_course')->withR($register_course)->withG_s($session)->withG_l($l)->withFos($fos)->withD($d);
+$register_course =RegisterCourse::where([['department_id',$dd],['fos_id',$fos],['level_id',$l],['session',$session]])->orderBy('semester_id','ASC')->orderBy('reg_course_status','ASC')->get();
+
+return view('admin.reg_course')->withR($register_course)->withG_s($session)->withG_l($l)->withFos($fos)->withDd($dd)->withD($d);
 }
 // edit courses reg
 function edit_adminreg_course($id,$s)
@@ -826,20 +902,41 @@ foreach ($getcourse as $key => $value) {
     Session::flash('warning',"Please check not on course table.");
   }
 
-return redirect()->action('HomeController@adminreg_course');
+return redirect($request->pre_url);
 
 }
 
-function delete_adminreg_course($id,$s)
+function delete_adminreg_course($id,$s,$yes=null)
 {
 
-  $check = CourseReg::where([['registercourse_id',$id],['session',$s]])->first();
-if(count($check) > 0)
-{
-  Session::flash('warning',"The courses selected has been registered by students.so u can not delete it.");
+  
 
-  return back();
+if($yes != 1)
+{
+session()->put('url',url()->previous());
+  return view('admin.regcourse.confirmation');
 }
+
+$course =CourseReg::where([['registercourse_id',$id],['session',$s]])->get();
+if(count($course) > 0)
+{
+foreach ($course as $key => $value) {
+  $data [] =$value->id;
+}
+$del_course =CourseReg::destroy($data);
+
+// result
+$result =StudentResult::whereIn('coursereg_id',$data)->get();
+if(count($result) > 0)
+{
+  foreach ($result as $kr => $vr) {
+  $dat_r [] =$vr->id;
+}
+$del_result =StudentResult::destroy($dat_r);
+}
+
+}
+
 $reg =RegisterCourse::destroy($id);
 $assign_course =AssignCourse::where('registercourse_id',$id)->first();
 if(count($assign_course) > 0 )
@@ -847,7 +944,7 @@ if(count($assign_course) > 0 )
   $assign_course->delete();
 }
 Session::flash('success',"successfull.");
-return back();
+return redirect(session()->get('url'));
 }
 
 function delete_adminreg_multiple_course(Request $request)
@@ -858,18 +955,27 @@ function delete_adminreg_multiple_course(Request $request)
 {
     return back();
 }
-$check = CourseReg::whereIn('registercourse_id',$variable)->where('session',$session)->get();
-if(count($check) > 0)
+$course = CourseReg::whereIn('registercourse_id',$variable)->where('session',$session)->get();
+if(count($course) > 0)
 {
-  Session::flash('warning',"Some of the courses selected has been registered by students.so u can not do mass deleting .delete one after the other.");
+foreach ($course as $k => $v) {
+  $dat [] =$v->id;
+}
+$del_course =CourseReg::destroy($dat);
+// result
+$result =StudentResult::whereIn('coursereg_id',$dat)->get();
+if(count($result) > 0)
+{
+  foreach ($result as $kr => $vr) {
+  $dat_r [] =$vr->id;
+}
+$del_result =StudentResult::destroy($dat_r);
+}
 
-  return back();
 }
 $reg =RegisterCourse::destroy($variable);
 
 $assign_course =AssignCourse::whereIn('registercourse_id',$variable)->get();
-
-
 if(count($assign_course) > 0 )
 {
  foreach ($assign_course as $key => $value) {
@@ -880,6 +986,47 @@ if(count($assign_course) > 0 )
 }
 Session::flash('success',"successfull.");
 return back();
+}
+
+
+//---------------------------- add course to students ---------------------------------------------
+function add_adminreg_course($id,$s,$yes=null)
+{
+
+if($yes != 1)
+{
+session()->put('url',url()->previous());
+  return view('admin.regcourse.add_confirmation');
+}
+$data =array();
+$reg =RegisterCourse::find($id);
+/// get resiter students
+$user = DB::connection('mysql2')->table('users')
+        ->join('student_regs', 'student_regs.user_id', '=', 'users.id')
+        ->where([['student_regs.level_id',$reg->level_id],['student_regs.semester',$reg->semester_id],['users.fos_id',$reg->fos_id],['student_regs.season','NORMAL'],['student_regs.session',$s]])
+        ->select('student_regs.*')
+        ->get();
+        //dd($reg->reg_course_unit);
+
+        // check for students that have not register for the courses
+foreach ($user as $key => $v) {
+$course =CourseReg::where([['registercourse_id',$id],['session',$s],['studentreg_id',$v->id],['user_id',$v->user_id],['semester_id',$v->semester],['course_id',$reg->course_id],['level_id',$v->level_id]])->first();
+if($course == null)
+{
+
+$data[] =['studentreg_id'=>$v->id,'registercourse_id'=>$id,'user_id'=>$v->user_id,'level_id'=>$v->level_id,'semester_id'=>$v->semester,'course_id'=>$reg->course_id,'course_title'=>$reg->reg_course_title,'course_code'=>$reg->reg_course_code,'course_unit'=>$reg->reg_course_unit,'course_status'=>$reg->reg_course_status,'session'=>$reg->session,'period'=>'NORMAL'];
+}
+
+}
+//dd($data);
+if(!empty($data))
+{
+  DB::connection('mysql2')->table('course_regs')->insert($data);
+  Session::flash('success',"successfull.");
+}else{
+Session::flash('warning',"all students have register these course.");
+}
+return redirect(session()->get('url'));
 }
 // ================ change password ===========================
 public function changepassword()

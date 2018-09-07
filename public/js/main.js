@@ -1,6 +1,12 @@
   
     $(document).ready(function(){
 
+$("#all_ids").change(function(){  //"select all" change 
+    var status = this.checked; // "select all" checked status
+    $('.ids').each(function(){ //iterate all listed checkbox items
+        this.checked = status; //change ".checkbox" checked status
+    });
+});
 
 $("#faculty_id").change( function() {
  $("#myModal").modal();	
@@ -45,6 +51,22 @@ var id =$(this).val();
     });
 });
 
+$("#p_id").change( function() {
+ $("#myModal").modal(); 
+var id =$(this).val();
+//$("#lga").hide();
+   $.getJSON("/getfos/"+id, function(data, status){
+    var $fos_id = $("#fos_id");
+             $fos_id.empty();
+               $fos_id.append('<option value="">Field Of Study</option>');
+                $.each(data, function(index, value) {
+                    $fos_id.append('<option value="'+ value.id +'">' + value.fos_name + '</option>');
+                });
+             $("#myModal").modal("hide"); 
+    });
+
+
+});
 
 
 $("#department_id").change( function() {

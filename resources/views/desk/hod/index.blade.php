@@ -21,7 +21,7 @@
                     <form class="form-horizontal" role="form" method="GET" action="{{ url('getreport') }}" target="_blank" data-parsley-validate>
                         {{ csrf_field() }}
                         <div class="form-group">
- <div class="col-sm-2">
+ <div class="col-sm-4">
                               <label for="session" class=" control-label">Session</label>
                               <select class="form-control" name="session"  required>
                               <option value=""> - - Select - -</option>
@@ -34,20 +34,32 @@
                               </select>
                              
                             </div>
- <div class="col-sm-3">
-                              <label for="fos" class=" control-label">Field Of Study</label>
-                              <select class="form-control" name="fos" id="fos_id" required>
+                             <div class="col-sm-4">
+                              <label for="fos" class=" control-label">Programme</label>
+                              <select class="form-control" name="p" id="p_id" required>
                                <option value=""> - - Select - -</option>
                                  
-                                  @foreach($f as $v)
-                                  <option value="{{$v->id}}">{{$v->fos_name}}</option>
+                                  @foreach($p as $v)
+                                  <option value="{{$v->id}}">{{$v->programme_name}}</option>
                                   @endforeach
                                   
                               </select>
                              
                             </div>
+ <div class="col-sm-4">
+                              <label for="fos" class=" control-label">Field Of Study</label>
+                              <select class="form-control" name="fos" id="fos_id" required>
+                               <option value=""> - - Select - -</option>
+                                 
+                                 
+                                  <option value=""></option>
+                               
+                                  
+                              </select>
+                             
+                            </div>
 
-                     <div class="col-sm-2">
+                     <div class="col-sm-4">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level" id="level_id" required>
                                   <option value=""> - - Select - -</option>
@@ -60,7 +72,7 @@
                             
 
                               
-                          <div class="col-sm-3">
+                          <div class="col-sm-4">
                               <label for="semester" class=" control-label">Result Type</label>
                               <select class="form-control" name="result_type" id="result_type"  required>
                                   <option value=""> - - Select - -</option>

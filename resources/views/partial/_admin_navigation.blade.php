@@ -179,6 +179,9 @@
                      <li>
                         <a href="{{url('convert_pin')}}">Convert Pin</a>
                     </li>
+                    <li>
+                        <a href="{{url('student_pin')}}">Student Pin</a>
+                    </li>
                     @endif 
                    
                     <li>
@@ -301,7 +304,26 @@
     <li>
                 <a href="{{url('report')}}"><i class="fa fa-fw fa-edit"></i>Report</a>
                
-            </li>                
+            </li> 
+ @elseif($result =="HOD")
+
+          <li>
+                <a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>
+                <ul id="demo5" class="collapse">
+                   <li>
+                        <a href="{{url('lecturer')}}">Enter result</a>
+                    </li>
+                    <li>
+                        <a href="{{url('v_result')}}">View  result</a>
+                    </li>
+                </ul>
+
+            </li>
+            
+    <li>
+                <a href="{{url('departmentreport')}}"><i class="fa fa-fw fa-edit"></i> Generate Report</a>
+               
+            </li>                                     
 @elseif($result =="lecturer")
   <li>
                 <a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>

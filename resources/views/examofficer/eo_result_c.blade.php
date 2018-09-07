@@ -67,7 +67,7 @@
                         <input type="hidden" name="semester[{{$c}}]" value="{{$v->semester_id}}">
                       <input type="hidden" name="level_id[{{$c}}]" value="{{$v->level_id}}">
                        <input type="hidden" name="season[{{$c}}]" value="{{$v->period}}">
-                        
+                         <input type="hidden" name="entry_year[{{$c}}]" value="{{$v->entry_year}}">
 
 
 
@@ -85,7 +85,7 @@
                        ?>
 
                       <?php $result= $r->getresult($v->id) ?>
-                        @if(count($result) > 0)
+                        @if($result != null)
    
 <!-- ===========================check if it has edit right ================================-->
     @if(Auth::user()->edit_right > 0) 

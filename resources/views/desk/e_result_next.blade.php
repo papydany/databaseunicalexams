@@ -44,7 +44,12 @@
                      <option value="">-- select --</option>
                      
                       <option value="NORMAL">NORMAL</option>
-                       <option value="VACATION">VACATION</option>
+                       @if(Auth::user()->programme_id == 2)
+                                <option value="RESIT">RESIT</option>
+                                @else
+                                <option value="VACATION">VACATION</option>
+
+                                @endif
                  
                      </select>
                       </div>

@@ -70,25 +70,25 @@ top:15px;
 
                      if(empty($n1c))
                       {
-                      	 $n1c = 1;
+                         $n1c = 1;
                          $regc1 = array('');
                       }
                      
                        if(empty($n2c))
                       {
-                      	 $n2c = 1;
+                         $n2c = 1;
                          $regc2 = array('');
                       }
                       
 
                       if($l > 1)
                       {
-                      	// greater than 1 condition
-                     $no1 =$n1c + 2; 	
+                        // greater than 1 condition
+                     $no1 =$n1c + 2;  
                      $no2 =$n2c + 2;
                       }else{
-                      	// equal to 1 condition
-                     $no1 =$n1c + 1; 	
+                        // equal to 1 condition
+                     $no1 =$n1c + 1;  
                      $no2 =$n2c + 1;
                       }
 
@@ -189,7 +189,7 @@ top:15px;
                    ?>
                    <table  class="table table-bordered">
                       <tr>
-                      	  <td>
+                          <td>
                              <p class="text-center" style="font-size:18px; font-weight:700;">
                                 UNIVERSITY OF CALABAR </br>
                             CALABAR</p>
@@ -210,34 +210,34 @@ top:15px;
                        </tr>
                        <tr>
                           <td bgcolor="#cec">
-                          	  <div class="col-sm-12 text-center"> 
-                          	  <p><strong>EXAMINATION REPORT SHEET<br/>
-                          	  {{$t}} RESULTS</strong></p> 
-                          	  </div>
+                              <div class="col-sm-12 text-center"> 
+                              <p><strong>EXAMINATION REPORT SHEET<br/>
+                              {{$t}} RESULTS</strong></p> 
+                              </div>
                           </td>
                       </tr>
                   </table>
                   <table class="table table-bordered">
                     <thead>
-                  	<tr class="thead">
-                  		<th class="text-center text-size">S/N</th>
-                  		<th class="text-center">NAME</th>
-                  		<th  class="text-center">REG NO</th>
+                    <tr class="thead">
+                      <th class="text-center text-size">S/N</th>
+                      <th class="text-center">NAME</th>
+                      <th  class="text-center">REG NO</th>
                       <?php
                      echo  $set['rpt'][0],
                       $set['carry'][0];
                       ?>
-                  		<th class="text-center" colspan="{{$no1}}">FIRST SEMESTER RESULTS</th>
-                  		<th class="text-center" colspan="{{$no2}}">SECOND SEMESTER RESULTS</th>
-                  		<th class="text-center">GPA</th>
+                      <th class="text-center" colspan="{{$no1}}">FIRST SEMESTER RESULTS</th>
+                      <th class="text-center" colspan="{{$no2}}">SECOND SEMESTER RESULTS</th>
+                      <th class="text-center">GPA</th>
                       <?php
                       echo $set['cpga'][0],
                           $set['class'][0];
                           ?>
-                  		<th  class="text-center">REMARKS</th>
-                  		
-                  	</tr>
-                  		
+                      <th  class="text-center">REMARKS</th>
+                      
+                    </tr>
+                      
                   <tr class="thead">
                   <th></th>
                   <th></th>
@@ -264,12 +264,12 @@ top:15px;
 
       if( $i == $sizea ) {
         // input 1st elective
-        echo '<th class="tB s9 bbt">Elective</th>';
+        echo '<th class="tB s9 bbt"></th>';
         continue;
       }
       if( $i == $sizeb ) {
         // input 2nd elective
-        echo '<th class="tB s9 bbt">Elective</th>';
+        echo '<th class="tB s9 bbt"></th>';
         continue;
       }
       
@@ -359,10 +359,6 @@ $first_semester = empty($first_grade) ? array('') : $first_grade;
 
 $second_semester = empty($second_grade) ? array('') : $second_grade;
 
-$elective_grade1 = $R->fetch_electives($v->id,$s,$l,1,$season,$reg_course_elective_id1);
-
-$elective_grade2 = $R->fetch_electives($v->id,$s,$l,2,$season,$reg_course_elective_id2);
-
  $ll = array_merge($first_semester, array(1=>array()), array(1=>array()), $second_semester, array(1=>array()) );
 
 $gpa = $R->get_gpa($s,$v->id,$l,$season);
@@ -370,7 +366,7 @@ $gpa = $R->get_gpa($s,$v->id,$l,$season);
 $cgpa =$R->auto_cgpa($s,$v->id,$l,$season);
 
 
-$remark = $R->result_check_pass_sessional($l,$v->id,$s, $cgpa,$take_ignore=false, $season);
+$remark = $R->result_check_pass_sessional_diploma($l,$v->id,$s, $cgpa,$take_ignore=false,$season);
 
  ?>
  <tbody>
@@ -383,13 +379,13 @@ for($i=0; $i<$k; $i++) {
             
             if( $i == $sizea ) {
  
-              echo '<td class="tB s9">',$elective_grade1,'</td>';
+              echo '<td class="tB s9"></td>';
               continue;
             }
             if( $i == $sizeb ) {
 
 
-              echo '<td class="tB s9">',$elective_grade2,'</td>';
+              echo '<td class="tB s9"></td>';
               continue;
 
 

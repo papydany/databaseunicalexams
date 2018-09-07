@@ -79,9 +79,13 @@
                             <label for="level" class=" control-label">Season</label>
                             <select class="form-control" name="season">
                                 <option value=""> - - Select - -</option>
-
-                                        <option value="NORMAL">NORMAL</option>
+                                <option value="NORMAL">NORMAL</option>
+                                 @if(Auth::user()->programme_id == 2)
+                                <option value="RESIT">RESIT</option>
+                                @else
                                 <option value="VACATION">VACATION</option>
+
+                                @endif
 
                             </select>
 
@@ -105,8 +109,7 @@
         @if(count($u) > 0)
             {{!$next = $ss+1}}
             <div class="col-sm-12">
- <form class="form-horizontal" role="form" method="POST" action="{{ url('/more_result') }}" data-parsley-validate>
-                                        {{ csrf_field() }}
+
 
                 <p>
                     <span><strong>Entry Year : </strong>{{$ss." / ".$next}}</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -115,7 +118,7 @@
                     @if(Auth::user()->programme_id == 4)
 
                     @else
-                        @if($l_id == 1)
+                        @if($s_id == 1)
                          First
                         @else
                        Second
@@ -130,7 +133,7 @@
                        <!-- <th>Select</th>-->
                         <th class="text-center">MATRIC NUMBERS</th>
                         <th class="text-center">NAMES</th>
-                      
+                      <th class="text-center">ACTION</th>
 
                     </tr>
                     {{!!$c = 0}}
@@ -141,13 +144,14 @@
                             <td>{{$v->matric_number}}</td>
                             <td>{{$v->surname." ".$v->firstname." ".$v->othername}}</td>
                             
-                           <!-- <td>
-                                <button type="button" class="btn btn-danger " data-toggle="modal" data-target="#myModal{{$v->id}}">Enter Result</button></td>-->
+                         <td>
+                                <button type="button" class="btn btn-danger " data-toggle="modal" data-target="#myModal{{$v->id}}">Enter Result</button></td>
                         </tr>
 <!-- ======== =============== for student course reg ========================================-->
                         
                         {{! $course =DB::connection('mysql2')->table('course_regs')
                          ->where('studentreg_id',$v->id)
+                         ->orderBy('course_code','ASC')
                          ->get()
                          }}
 @if(isset($course))
@@ -168,8 +172,10 @@
                                     <div class="modal-body">
                                         <div class="col-sm-offset-1 col-sm-10" style="margin-bottom: 5px;">
                                         <div class="col-sm-3 text-center" >Code</div>
-                                        <div class="col-sm-3 text-center" >Unit</div>
-                                        <div class="col-sm-3 text-center" >Grade</div>
+                                        <div class="col-sm-2 text-center" >Unit</div>
+                                        <div class="col-sm-2 text-center" >CA</div>
+                                        <div class="col-sm-2 text-center" >Exams</div>
+                                        <div class="col-sm-3 text-center" >Total</div>
                                          <input type="hidden" name="fos_id" value="{{$v->fos_id}}"/>
                                             <input type="hidden" name="user_id" value="{{$v->user_id}}"/>
                                             <input type="hidden" name="matric_number" value="{{$v->matric_number}}"/>
@@ -177,6 +183,7 @@
                                             <input type="hidden" name="semester_id" value="{{$v->semester}}"/>
                                             <input type="hidden" name="level_id" value="{{$v->level_id}}"/>
                                             <input type="hidden" name="season" value="{{$v->season}}"/>
+                                              <input type="hidden" name="entry_year" value="{{$v->entry_year}}"/>
                                             </div>
                                         @foreach($course as $vv)
 <!-- ================================== for student result ========================================-->
@@ -186,18 +193,34 @@
                          }}        
                                             <div class="col-sm-offset-1 col-sm-10" style="margin-bottom: 9px;">
                                             <div class="col-sm-3 text-center text-success" > {{$vv->course_code}}</div>
-                                            <div class="col-sm-3 text-center text-info" >{{$vv->course_unit}}</div>
-                                            <div class="col-sm-3 text-center text-danger">
+                                            <div class="col-sm-2 text-center text-info" >{{$vv->course_unit}}</div>
+                                          
                                             @if(count($result) > 0)
                                             @foreach($result as $rv)
- <input type="text" class="form-control" name="grade[{{$rv->id.'~'.$vv->id.'~'.$vv->course_id.'~'.$vv->course_unit}}]" value="{{$rv->grade}}"/>
+                                              <div class="col-sm-2 text-center text-danger">
+ <input type="text" class="form-control" name="ca[{{$rv->id}}]" onKeyUp="CA(this,'exam{{$rv->id}}','d{{$rv->id}}')" value="{{$rv->ca}}" id="ca{{$rv->id}}"/>
+</div>
+  <div class="col-sm-2 text-center text-danger">
+ <input type="text"  class="form-control" name="exam[{{$rv->id}}]"  onKeyUp="updA(this,'ca{{$rv->id}}','d{{$rv->id}}')" value="{{$rv->exam}}" id="exam{{$rv->id}}" />
+</div>
+  <div class="col-sm-2 text-center text-danger">
+ <input type="text"  class="form-control" name="total[{{$rv->id.'~'.$vv->id.'~'.$vv->course_id.'~'.$vv->course_unit}}]" value="{{$rv->total}}" id="d{{$rv->id}}" readonly />
+</div>
                                             @endforeach
                                             @else
- <input type="text" class="form-control" name="grade[{{$vv->id.'~'.$vv->course_id.'~'.$vv->course_unit}}]" value=""/>
+    <div class="col-sm-2 text-center text-danger">                                          
+ <input type="text"  class="form-control" name="ca[{{$vv->id}}]" onKeyUp="CA(this,'exam{{$vv->id}}','d{{$vv->id}}')" value="" id="ca{{$vv->id}}"/>
+</div>
+  <div class="col-sm-2 text-center text-danger">
+ <input type="text"  class="form-control" name="exam[{{$vv->id}}]" onKeyUp="updA(this,'ca{{$vv->id}}','d{{$vv->id}}')" value="" id="exam{{$vv->id}}"/>
+</div>
+  <div class="col-sm-2 text-center text-danger">
+ <input type="text"  class="form-control" name="total[{{$vv->id.'~'.$vv->course_id.'~'.$vv->course_unit}}]" value="" id="d{{$vv->id}}"  readonly/>
+</div>
                                             @endif
                                                
 
-                                                </div>
+                                                
                                                 </div>
                                                 <div class="clearfix"></div>
 
@@ -239,3 +262,72 @@
 
 
 @endsection
+
+@section('script')
+
+  <script >
+
+
+      function updA(e,c,d){
+var c=document.getElementById(c);
+var t=document.getElementById(d);
+
+ if(e.value > 70){alert('Exam scores can not be more than 70');e.value='';
+
+var ca =c.value;
+var ex =e.value;
+var total =Number(ca) + Number(ex);
+  t.value = total;}
+else{
+ 
+if(e.value < 71){
+var ca =c.value;
+var ex =e.value;
+var total =Number(ca) + Number(ex);
+if(total >100)
+{
+  alert('Total scores can not be more than 100');total='';e.value='';
+}
+
+  t.value = total;
+}
+  
+}
+
+}
+
+
+ function CA(c,e,d)
+ {
+
+  var e=document.getElementById(e); 
+  var t=document.getElementById(d); 
+  
+  if(c.value > 40)
+    {alert('CA scores can not be more than 40');
+  c.value='';
+e.value='';
+
+t.value = '';
+
+}
+else{
+ 
+if(c.value < 41){
+var ca =c.value;
+var ex =e.value;
+var total =Number(ca) + Number(ex);
+if(total >100)
+{
+  alert('Total scores can not be more than 100');total='';c.value='';e.value='';
+}
+
+  t.value = total;
+  }
+}
+}
+
+  </script>
+
+
+@endsection              

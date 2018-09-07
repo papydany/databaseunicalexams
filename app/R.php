@@ -260,7 +260,7 @@ $coursereg =CourseReg::whereIn('registercourse_id',$reg_id)->where([['user_id',$
 
    $grade = $this->getSingleResult($id,$s,$l,$sem,$season,$value->course_id);
    if ($grade!=NULL && $grade!=''){
-    $elec .= $value->course_unit.' '.substr_replace($value->course_code, ' ',3,0).' '.$grade->grade."<br/>";
+    $elec .= $value->course_unit.' '.substr_replace($value->course_code, '',3,0).' '.$grade->grade."<br/>";
    }
     }
   } 
@@ -274,6 +274,8 @@ $coursereg =CourseReg::whereIn('registercourse_id',$reg_id)->where([['user_id',$
 function get_gpa($s,$id,$l,$season){
   
   $tcu = 0; $tgp = 0;  $course_id = array();
+  $entry_year = $this->get_entry_sesssion($id);
+  
   //, level_id, std_mark_custom_2, period
    $creg =CourseReg::where([['user_id',$id],['session',$s],['period',$season]])->get();
    foreach ($creg as $key => $value) {
@@ -285,7 +287,7 @@ $s_result = $this->getResult_grade($id,$s,$l,$season,$course_id);
   {
 foreach ($s_result as $key => $value) {
   $cu = $this->get_crunit($value->course_id, $s, $id,$season);
-  $gp = $this->get_gradepoint ($value->grade, $cu );
+  $gp = $this->get_gradepoint ($value->grade, $cu, $entry_year );
    
     $tcu = $tcu + $cu;
     $tgp = $tgp + $gp;
@@ -300,13 +302,22 @@ return 0;
 }
 // get course unit
 private function get_crunit ($courseid, $s, $id,$season ) {
-   $creg =CourseReg::where([['user_id',$id],['session',$s],['period',$season],['course_id',$courseid]])->first();
+  if($season == "VACATION")
+  {
+    $creg =CourseReg::where([['user_id',$id],['session',$s],['course_id',$courseid]])->whereIn('period',['NORMAL','VACATION'])->first();
+  }elseif($season == "RESIT"){
+   $creg =CourseReg::where([['user_id',$id],['session',$s],['course_id',$courseid]])->whereIn('period',['NORMAL','RESIT'])->first();
+  }else{
+    $creg =CourseReg::where([['user_id',$id],['session',$s],['period',$season],['course_id',$courseid]])->first();
+  }
 
   $cu = $creg['course_unit'];
   return $cu;
 }
 // get grade point
-private function get_gradepoint ($grade, $cu){
+private function get_gradepoint ($grade, $cu,$entry_year){
+   if($entry_year <= 2016)
+   {
   if ($grade == 'A' )
     return 5.0 * $cu;
   else if ($grade == 'B' )
@@ -319,6 +330,20 @@ private function get_gradepoint ($grade, $cu){
     return 1.0 * $cu;
   else if ($grade == 'F' )
     return 0.0 * $cu ;
+}
+else{
+  if ($grade == 'A' )
+        return 4.0 * $cu;
+    else if ($grade == 'B' )
+        return 3.0 * $cu;
+    else if ($grade == 'C' )
+        return 2.0 * $cu;
+    else if ($grade == 'D' )
+        return 1.0 * $cu;
+    
+    else if ($grade == 'F' )
+        return 0.0 * $cu ;
+    }
 }
 // get result
 private function getResult_grade($id,$s,$l,$season,$course_id_array)
@@ -360,16 +385,18 @@ $sql1 = StudentResult::where([['user_id',$id],['session','<=',$s],['grade','!=',
 
 $sql2 = StudentResult::where([['user_id',$id],['session','<=',$s],['grade',"F"],['level_id','<=',$l],['course_id',$value->course_id]])->get();
     
-if (count($sql1)!=0){ //found that failed course passed in the level
+if ($sql1 != null){ //found that failed course passed in the level
 
 $pass .= ','.$sql1->course_id;
 
 }else{
 $rowc = CourseReg::where([['user_id',$id],['course_id',$value->course_id],['level_id','<=',$l],['session','<=',$s]])->first();
-    
+if($rowc != null )
+{
 $code = substr($rowc->course_code,0,3).' '.substr($rowc->course_code,3,4);
             
 $type = substr($rowc->course_code,0,3); // GSSS
+
 $n = count($sql2);
 //$n == $c;            
 if ($n >= 3)
@@ -387,6 +414,7 @@ if ($n >= 3)
 } elseif($n < 3) 
 {
     $rept .= ', '.$code;
+}
 }
 }
 }
@@ -419,6 +447,52 @@ if ($n >= 3)
 }
 }
 
+
+// =========================  diploma remarks ======================================
+
+ function result_check_pass_sessional_diploma($l, $id, $s, $cgpa,$take_ignore=false, $taketype='')
+{ $fail=''; $pass='';$c=0;$rept='';
+ 
+  $check =StudentResult::where([['user_id',$id],['session',$s],['level_id',$l]])->get()->COUNT();
+  if($check != 0){
+ /*$sql_num = StudentResult::where([['user_id',$id],['session','<=',$s],['grade',"F"],['level_id','<=',$l]])->groupBy('course_id','id')->select('course_id','cu')->COUNT('course_id');*/
+$sql =StudentResult::where([['user_id',$id],['session',$s],['grade',"F"],['level_id',$l],['flag',"Sessional"],['season',$taketype]])->groupBy('course_id','id')->select('course_id')->get();
+
+$c=count($sql);
+
+if($c !=0){
+foreach($sql as $key => $value)
+{
+
+$rowc = CourseReg::where([['user_id',$id],['course_id',$value->course_id],['level_id',$l],['session',$s]])->first();
+if($rowc != null )
+{
+$code = substr($rowc->course_code,0,3).' '.substr($rowc->course_code,3,4);
+$rept .= ', '.$code;
+
+}
+}
+}
+
+  $take = $this->take_courses_sessional($id, $l, $s, $taketype);
+
+
+  $rept = $rept != '' ? '<b>RESIT</b> '. substr($rept,2) : '';
+  $rept = $take != '' ? '<b>TAKE</b> '. $take ."<br>".$rept : $rept;
+ 
+  
+  if($rept == ''){
+    $fail = "PASS <br>";
+  } else if ($rept != '') {
+    $fail = $rept;
+  }else { $fail = 'PASS' ;}
+  
+  return $fail;
+}else{
+   return $fail;
+}
+}
+
 function get_entry_sesssion($id)
 {
   $users = DB::connection('mysql2')->table('users')
@@ -428,8 +502,14 @@ function get_entry_sesssion($id)
 
 function new_Probtion($l,$id,$s,$cgpa){
   $fail_cu=$this->get_fail_crunit($l,$id,$s);
+
+ $entry_year = $this->get_entry_sesssion($id);
+
 $return ='';
-     if($fail_cu > 15 || $cgpa >=0.00 && $cgpa <=0.99 ){
+
+if($entry_year <= 2016)
+{
+   if($fail_cu > 15 || $cgpa >=0.00 && $cgpa <=0.99 ){
       
     $return = 'WITHDRAW';
     }
@@ -440,7 +520,24 @@ $return ='';
     }elseif( $cgpa > 1.49 && $cgpa <=1.5 && $fail_cu ==15 ){
     $return = 'WITHDRAW OR CHANGE PROGRAMME';
     }
-  
+
+}else
+{
+     if($fail_cu > 15 || $cgpa >=0.00 && $cgpa <=0.54 ){
+      
+    $return = 'WITHDRAW';
+    }
+    elseif($cgpa >=0.75 && $cgpa <=0.99){
+
+      $return = 'PROBATION';
+
+    }elseif( $cgpa > 0.54 && $cgpa <=0.74){
+    $return = 'WITHDRAW OR CHANGE PROGRAMME';
+    }
+
+}
+
+    
     return $return;
 }
 function get_fail_crunit($l,$id,$s){
@@ -478,7 +575,14 @@ function take_courses_sessional($id, $l, $s, $taketype='')
       
     
 
-  } else { //ignore vac result for take remark
+  }  elseif ($taketype == 'RESIT')
+  { 
+    
+      $result = StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])
+      ->whereIn('season',['RESIT'])->get();
+  }
+
+  else { //ignore vac result for take remark
      $result = StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])
       ->whereIn('season',['NORMAL'])->get();
   }
@@ -487,8 +591,23 @@ if(count($result) > 0)
       foreach ($result as $key => $value) {
         $result_array [] = $value->course_id;
       }
-      $sql =RegisterCourse::where([['fos_id',$fos],['level_id',$l],['session',$s],['reg_course_status','C']])
+      if ($taketype == 'RESIT')
+      {
+        //var_dump($result_array);
+    $cos =CourseReg::where([['user_id',$id],['level_id',$l],['session',$s],['course_status','R']])
       ->whereNotIn('course_id',$result_array)->get();
+
+      foreach ($cos as $key => $v) {
+      $regcos_array [] =$v->registercourse_id;
+      }
+$sql =RegisterCourse::whereIn('id',$regcos_array)->get();
+     // dd($sql);
+      }else
+      {
+        $sql =RegisterCourse::where([['fos_id',$fos],['level_id',$l],['session',$s],['reg_course_status','C']])
+      ->whereNotIn('course_id',$result_array)->get();
+      }
+      
       if(count($sql) > 0)
       {
         foreach ($sql as $key => $value) {
@@ -539,6 +658,9 @@ function auto_cgpa( $s, $id, $l,$season ) {
 function get_cgpa($s,$id,$season){
 
 $tcu = 0; $tgp = 0;$coursereg_id =array();
+
+$entry_year = $this->get_entry_sesssion($id);
+
 $coursereg =CourseReg::where([['user_id',$id],['session','<=',$s]])->get();
 foreach ($coursereg as $key => $value) {
 $coursereg_id [] =$value->id;
@@ -549,7 +671,15 @@ if($season == 'VACATION')
     $result = StudentResult::where([['user_id',$id],['level_id','!=',0],['session','<=',$s]])
       ->whereIn('season',['NORMAL','VACATION'])
       ->whereIn('coursereg_id',$coursereg_id)->get();
-}else
+}
+elseif($season =='RESIT')
+{
+  $result = StudentResult::where([['user_id',$id],['level_id','!=',0],['session','<=',$s]])
+      ->whereIn('season',['NORMAL','RESIT'])
+      ->whereIn('coursereg_id',$coursereg_id)->get();
+
+}
+else
 {
 $result = StudentResult::where([['user_id',$id],['level_id','!=',0],['session','<=',$s],['season',$season]])->whereIn('coursereg_id',$coursereg_id)->get();
 }
@@ -560,7 +690,7 @@ if(count($result) > 0)
   foreach ($result as $key => $value) {
    
   $cu = $this->get_crunit($value->course_id,$s,$id,$season);
-  $gp = $this->get_gradepoint ($value->grade,$cu);
+  $gp = $this->get_gradepoint ($value->grade,$cu,$entry_year);
 
     $tcu += $cu;
     $tgp += $gp;
@@ -584,6 +714,15 @@ function get_count_session_used( $id, $l = 6 ) {
   
     return '';  
   }
+
+}
+
+public function get_pin_year($mat,$year)
+{$p =Pin::where([['matric_number',$mat],['session',$year]])->get();
+
+
+return $p;
+
 
 }
 

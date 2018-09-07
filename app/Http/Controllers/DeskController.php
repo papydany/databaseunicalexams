@@ -28,6 +28,7 @@ class DeskController extends Controller
     //
     use MyTrait;
 Const LECTURER = 5;
+Const HOD = 7;
 Const FIRST = 1;
 Const SECOND = 2;
     /**
@@ -100,7 +101,7 @@ public function view_lecturer()
 {
 	  $user = DB::table('users')
             ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->where('user_roles.role_id',self::LECTURER)
+            ->whereIn('user_roles.role_id',[self::LECTURER,self::HOD])
             ->where([['users.faculty_id',Auth::user()->faculty_id],['users.department_id',Auth::user()->department_id]])
             ->orderBy('users.name','ASC')
             ->select('users.*')
@@ -252,6 +253,7 @@ $c->course_title =strtoupper($request->course_title);
 $c->course_code =strtoupper($request->course_code);
 $c->course_unit =$request->course_unit;
 $c->status =$request->status;
+$c->semester =$request->semester;
 $c->save();
 Session::flash('success',"SUCCESSFULL.");
    return redirect()->action('DeskController@view_course');
@@ -703,7 +705,7 @@ $this->validate($request,array('fos'=>'required','session_id'=>'required','level
         $p =$this->p();
         $f =$this->f();
         $d =$this->d();
-       $user = DB::connection('mysql2')->table('users')->where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos_id],['entry_year',$session],['entry_month',$entry_month]])->get();
+       $user = DB::connection('mysql2')->table('users')->where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos_id],['entry_year',$session],['entry_month',$entry_month]])->orderBy('matric_number','ASC')->get();
 
         return view('desk.view_student')->withF($fos)->withU($user)->withS($session);
     }
@@ -723,22 +725,26 @@ $this->validate($request,array('fos'=>'required','session_id'=>'required','level
         $fos = $this->get_fos();
         $l = $this->get_level();
         $semester = $this->get_semester();
-        $semester_id =$request->input('semester_id');
         $season =$request->input('season');
+      
+          $semester_id =$request->input('semester_id');
+        
         $fos_id = $request->input('fos_id');
         $l_id =$request->input('level');
         $session =$request->input('session_id');
+        
         $p =$this->p();
         $f =$this->f();
         $d =$this->d();
-
+//dd($semester_id);
         $user = DB::connection('mysql2')->table('users')
             ->join('student_regs', 'student_regs.user_id', '=', 'users.id')
             ->where('users.fos_id',$fos_id)
             ->where([['student_regs.programme_id',$p],['student_regs.department_id',$d],['student_regs.faculty_id',$f],['student_regs.season',$season],
                 ['student_regs.session',$session],['student_regs.semester',$semester_id],['student_regs.level_id',$l_id]])
-            ->select('student_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.fos_id')
-            ->paginate(50);
+            ->orderBy('users.matric_number','ASC')
+            ->select('student_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.fos_id','users.entry_year')
+            ->get();
         return view('desk.register_student')->withU($user)->withSs($session)->withF($fos)->withL($l)->withS($semester)
             ->withL_id($l_id)->withS_id($semester_id) ;
     }
@@ -751,23 +757,25 @@ $this->validate($request,array('fos'=>'required','session_id'=>'required','level
         $fos_id = $request->input('fos_id');
         $semester_id = $request->input('semester_id');
         $season = $request->input('season');
+        $entry_year= $request->input('entry_year');
         $l_id = $request->input('level_id');
         $session = $request->input('session_id');
         $user_id = $request->input('user_id');
         $mat_no = $request->input('matric_number');
-        $variable = $request->input('grade');
+
+        $variable = $request->input('total');
+
         $flag = "Sessional";
         $date = date("Y/m/d H:i:s");
      
         foreach ($variable as $k => $v) {
+
             $xc = explode('~', $k);
             $v = strtoupper($v);
-
-            if (!in_array($v, array('A', 'B', 'C', 'D', 'E', 'F'))) {
-                continue;
-            }
-
             if (!empty($v)) {
+              $grade_value =$this->get_grade($v,$entry_year);
+              $grade = $grade_value['grade'];
+
 
                 $size = count($xc);
                 if (4 == $size) {
@@ -776,13 +784,24 @@ $this->validate($request,array('fos'=>'required','session_id'=>'required','level
                     $coursereg_id = $xc[1];
                     $course_id = $xc[2];
                     $cu = $xc[3];
+                    $x = $this->mm($grade, $cu,$entry_year);
 
-                    $x = $this->mm($v, $cu);
+                    $ca=$request->input('ca')[$result_id];
+
+                    $exam =$request->input('exam')[$result_id];
 
                     $update = StudentResult::find($result_id);
-                    $update->grade = $v;
+                    if($update->total != $v) // only updates when the total is different
+                    {
+                    $update->ca =$ca;
+                    $update->exam =$exam;
+                    $update->total =$v;
+                    $update->grade = $grade;
                     $update->cp = $x['cp'];
+                    $update->examofficer=Auth::user()->id;
+                    $update->post_date=$date;
                     $update->save();
+                 }
 
 
                 } else {
@@ -790,12 +809,15 @@ $this->validate($request,array('fos'=>'required','session_id'=>'required','level
                     $coursereg_id = $xc[0];
                     $course_id = $xc[1];
                     $cu = $xc[2];
-                    $x = $this->mm($v, $cu);
+                    $x = $this->mm($grade, $cu,$entry_year);
+                   
+                    $ca=$request->input('ca')[$coursereg_id];
+                    $exam =$request->input('exam')[$coursereg_id];
+                    $cp = $x['cp'];
 
                     $check_result = StudentResult::where([['user_id', $user_id], ['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->first();
-                    if (count($check_result) == 0) {
-                        $insert_data[] = ['user_id'=>$user_id,'matric_number'=>$mat_no,'course_id'=>$course_id,'coursereg_id'=>$coursereg_id,'grade'=> $v,'cu'=>$cu,'cp'=>$x['cp'],'level_id'=>$l_id,
-                            'session'=>$session,'semester'=>$semester_id,'status'=>0,'season'=>$season,'flag'=>$flag,'examofficer'=>Auth::user()->id,'post_date'=>$date,'approved'=>0];
+                    if ($check_result == null) {
+                        $insert_data[] = ['user_id'=>$user_id,'matric_number'=>$mat_no,'course_id'=>$course_id,'coursereg_id'=>$coursereg_id,'ca'=>$ca,'exam'=>$exam,'total'=>$v,'grade'=>$grade,'cu'=>$cu,'cp'=>$x['cp'],'level_id'=>$l_id,'session'=>$session,'semester'=>$semester_id,'status'=>0,'season'=>$season,'flag'=>$flag,'examofficer'=>Auth::user()->id,'post_date'=>$date,'approved'=>0];
                     }
                   
                 }
@@ -829,8 +851,9 @@ $this->validate($request,array('fos'=>'required','session_id'=>'required','level
             ->where('users.fos_id',$fos_id)
             ->where([['student_regs.programme_id',$p],['student_regs.department_id',$d],['student_regs.faculty_id',$f],['student_regs.season',$season],
                 ['student_regs.session',$session],['student_regs.semester',$semester_id],['student_regs.level_id',$l_id]])
-            ->select('student_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.fos_id')
-            ->paginate(50);
+            ->select('student_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.fos_id','users.entry_year')
+            ->orderBy('users.matric_number','ASC')
+            ->get();
         return view('desk.register_student')->withU($user)->withSs($session)->withF($fos)->withL($l)->withS($semester)
             ->withL_id($l_id)->withS_id($semester_id) ;
 
@@ -839,6 +862,7 @@ $this->validate($request,array('fos'=>'required','session_id'=>'required','level
 // ======================================more enter result =============================================
     public function more_result(Request $request)
     {
+
         $variable = $request->input('id');
         $user = DB::connection('mysql2')->table('users')
         ->join('student_regs', 'student_regs.user_id', '=', 'users.id')
@@ -963,7 +987,7 @@ return view('desk.e_result')->withF($fos)->withL($l)->withS($semester);
         ->where('course_regs.registercourse_id',$id)
         ->where('course_regs.period',$period)
         ->orderBy('users.matric_number','ASC')
-        ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number')
+        ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.entry_year')
         ->get();
   //Get current page form url e.g. &page=6
         $url ="e_result_c?id=".$id.'&period='.$period;
@@ -1010,11 +1034,12 @@ $result_id="";
         $ca =$request->input('ca')[$value];
         $exam=$request->input('exams')[$value];
         $total=$request->input('total')[$value];
+        $entry_year=$request->input('entry_year')[$value];
 
-        $grade_value =$this->get_grade($total);
+        $grade_value =$this->get_grade($total,$entry_year);
         
         $grade = $grade_value['grade'];
-        $cp = $this->mm($grade, $cu);
+        $cp = $this->mm($grade, $cu,$entry_year);
       //  $result_id =$request->input('result_id')[$value];
         //if($request->has('result_id'.[$value])) {
        
@@ -1034,7 +1059,7 @@ $update = StudentResult::find($result_id);
          }else{
 
 
-               $check_result = StudentResult::where([['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->first();
+               $check_result = StudentResult::where([['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->get();
                     if (count($check_result) == 0) {
                         $insert_data[] = ['user_id'=>$user_id,'matric_number'=>$mat_no,'course_id'=>$course_id,'coursereg_id'=>$coursereg_id,'ca'=>$ca,'exam'=>$exam,'total'=>$total,'grade'=> $grade,'cu'=>$cu,'cp'=>$cp['cp'],'level_id'=>$l_id,
                             'session'=>$session,'semester'=>$semester,'status'=>0,'season'=>$season,'flag'=>$flag,'examofficer'=>Auth::user()->id,'post_date'=>$date,'approved'=>0];
@@ -1199,19 +1224,31 @@ return redirect()->action('DeskController@delete_result');
  }
  //=============.=============== REPORT ==============================================================
 //------------------------------ Report methods ------------------------------------------------------
+  public function departmentreport()
+ {
+   $p =$this->getp();
+
+  return view('desk.hod.index')->withP($p);
+ }
  public function report()
  {
    $fos =$this->get_fos();
   return view('desk.report')->withF($fos);
  }
+
   public function post_report(Request $request)
- {
+ {set_time_limit(0);
 $d =Auth::user()->department_id;
 $f =Auth::user()->faculty_id;
 $p =Auth::user()->programme_id;
+if($p == 0)
+{
+  $p =$request->p;
+}
 $user_id = Auth::user()->id;
-$season ="NORMAL";
 $flag ="Sessional";
+$page_number =$request->input('page');
+//dd($page_number);
 
 $this->validate($request,array('fos'=>'required','session'=>'required','level'=>'required','result_type'=>'required',));
 $regc1 ='';   
@@ -1225,10 +1262,22 @@ $duration=$request->input('duration');
 
 $regcourse1C =$this->getRegisteredCourses($p,$d,$f,$fos,$l,$s,1,'C');
 $regcourse2C =$this->getRegisteredCourses($p,$d,$f,$fos,$l,$s,2,'C');
-$users = $this->getRegisteredStudents($p,$d,$f,$fos,$l,$s);
+// seasional result
+
+if ($result_type == 12) {
+  // resit students
+ $users = $this->getResitRegisteredStudents($p,$d,$f,$fos,$l,$s,'RESIT');
+}else
+{
+  $users = $this->getRegisteredStudents($p,$d,$f,$fos,$l,$s);
+}
+
+
 
 $course_id1 = array();
 $course_id2 = array();
+$regc1 =array();
+$reg2c =array();
 foreach ($regcourse1C as $key => $value) {
 $regc1 [] =$value;
 $course_id1 [] =$value->course_id;
@@ -1238,14 +1287,33 @@ foreach ($regcourse2C as $key => $value) {
 $reg2c [] =$value;
 $course_id2 [] =$value->course_id;
 }
-//dd($regc1);
+
 $no1C = count($regcourse1C);
 $no2C = count($regcourse2C);
 
-   if( $result_type == 1)
+//Get current page form url e.g. &page=6
+        $url =url()->full();
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+        //Create a new Laravel collection from the array data
+        $collection = new Collection($users);
+
+        //Define how many items we want to be visible in each page
+        $perPage =50;
+
+        //Slice the collection to get the items to display in current page
+        $currentPageSearchResults = $collection->slice(($currentPage- 1) * $perPage, $perPage)->all();
+
+        //Create our paginator and pass it to the view
+        $paginatedSearchResults= new LengthAwarePaginator($currentPageSearchResults, count($collection), $perPage);
+
+   if($result_type == 1)
    {
     // ------- sessional
  $title ="SESSIONAL";
+$season ="NORMAL";
+ return view('desk.display_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($page_number);
    }
    elseif($result_type == 2)
    {
@@ -1256,14 +1324,36 @@ $no2C = count($regcourse2C);
    { // ------- correctional
     $title ="CORRECTIONAL";
    }
+elseif($result_type == 11)
+   {
+    // ------- sessional
+ $title ="SESSIONAL";
+ $season ="NORMAL";
+ return view('desk.report.sessional_diploma')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($page_number);
+   }
+   
+   elseif($result_type == 12)
+   {
+    // ------- sessional
+ $title ="RESIT";
+ $season ="RESIT";
+ return view('desk.report.resit_diploma')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($page_number);
+   }
 
-  return view('desk.display_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2);
+ 
+
+  
  }
 // ------------------------------      custom methods---------------------------------------------------
  public function getRegisteredCourses($p,$d,$f,$fos,$l,$s,$sm,$sts)
  {
    $reg =RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos],['level_id',$l],['session',$s],['semester_id',$sm],['reg_course_status',$sts]])->orderBy('reg_course_code','ASC')->get();
-   return $reg;
+   if(count($reg) > 0)
+   {
+    return $reg;
+  }
+  return '';
+   
  }
  //---------------------------------------------------------------------------------------
 // get registered students
@@ -1280,6 +1370,22 @@ foreach ($prob_Student_reg as $key => $value) {
             ->join('student_regs', 'users.id', '=', 'student_regs.user_id')
             ->where([['student_regs.programme_id',$p],['student_regs.department_id',$d],['student_regs.faculty_id',$f],['users.fos_id',$fos],['student_regs.level_id',$l],['student_regs.session',$s]])
             ->whereNotIn('users.user_id',$prob_user_id)
+            ->orderBy('users.matric_number','ASC')
+            ->distinct()            
+            ->select('users.*')
+            ->get();
+   
+   return $users;
+ }
+
+
+  //------------------------get resit registered students-----------------------------------------------
+
+  public function getResitRegisteredStudents($p,$d,$f,$fos,$l,$s,$season)
+ {
+  $users = DB::connection('mysql2')->table('users')
+            ->join('student_regs', 'users.id', '=', 'student_regs.user_id')
+            ->where([['student_regs.programme_id',$p],['student_regs.department_id',$d],['student_regs.faculty_id',$f],['users.fos_id',$fos],['student_regs.level_id',$l],['student_regs.session',$s],['student_regs.season',$season]])
             ->orderBy('users.matric_number','ASC')
             ->distinct()            
             ->select('users.*')

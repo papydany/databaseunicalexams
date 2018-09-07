@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title','Registered Course')
+@section('title','Student Pin')
 @section('content')
 @inject('R','App\R')
  <!-- Page Heading -->
@@ -17,9 +17,9 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Registered Course</div>
+                <div class="panel-heading">Students</div>
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="GET" action="{{ url('/get_adminreg_course') }}" data-parsley-validate>
+                    <form class="form-horizontal" role="form" method="GET" action="{{ url('/get_student_pin') }}" data-parsley-validate>
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('department_name') ? ' has-error' : '' }}">
@@ -59,24 +59,6 @@
                              
                             </div>
 
-                              <div class="col-sm-2">
-                              <label for="level" class=" control-label">Level</label>
-                              <select class="form-control" name="level" required>
-                              <option value=""> - - Select - -</option>
-                               
-                                 
-                                  <option value="1">100</option>
-                                  <option value="2">200</option>
-                                  <option value="3">300</option>
-                                  <option value="4">400</option>
-                                  <option value="5">500</option>
-                                  <option value="6">600</option>
-                                  <option value="7">700</option>
-                                  <option value="8">800</option>
-                                
-                              </select>
-                             
-                            </div>
                       
                           
                             
@@ -84,7 +66,7 @@
                             <div class="col-md-2">
                             <br/>
                                 <button type="submit" class="btn btn-success">
-                                    <i class="fa fa-btn fa-user"></i> View
+                                    <i class="fa fa-btn fa-user"></i> Continue
                                 </button>
                             </div>
 
@@ -95,39 +77,26 @@
                         </div>
                         </div>
                         </div>
-                            <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-       
-        <div class="modal-body text-danger text-center">
-          <p>... processing ...</p>
-        </div>
-       
-      </div>
-      
-    </div>
-  </div> 
+  
           <div class="col-sm-12">
-@if(isset($r))
-                        @if(count($r) > 0)
-       <?php  $department = $R->get_departmetname($dd);
+@if(isset($u))
+                        @if(count($u) > 0)
+       <?php  $department = $R->get_departmetname($di);
  
-        $fos_name =$R->get_fos($fos);    
+        $fos =$R->get_fos($fos);    
 
 
      ?>
      <table  class="table table-bordered">
 <tr><td>
 
-      <p class="text-center" style="font-size:14px; font-weight:700;">REGISTERED COURSES</p>
+      <p class="text-center" style="font-size:14px; font-weight:700;">Students</p>
     <div class="col-sm-8 www">
-   <p>DEPARTMENT: {{$department}} ( {{$fos_name}})</p>
+   <p>DEPARTMENT: {{$department}} ( {{$fos}})</p>
      </div>
   <div class="col-sm-4 ww">
    {{!$next = $g_s + 1}}
-      <p> <strong>Level : </strong>{{$g_l}}00 &nbsp;&nbsp; <strong>Session : </strong>{{$g_s.' / '.$next}}</p>
+      <p>  <strong>Session : </strong>{{$g_s.' / '.$next}}</p>
     </div>
 
     </td></tr>
@@ -135,47 +104,36 @@
   
   
 </table>
-     <form class="form-horizontal" role="form" method="POST" action="{{ url('/delete_adminreg_multiple_course') }}" data-parsley-validate>
-                        {{ csrf_field() }}
-            <input type="hidden" name="session" value="{{$g_s}}">          
+   
+                 
                         <table class="table table-bordered table-striped">
                         <tr>
-                          <th>Select</th>
-                        <th>S/N</th>
-                        <th>Title</th>
-                        <th>Code</th>
-                        <th>Status</th>
-                      <th>Unit</th>
-                         <th>Semester</th>
-                         <th>Action</th>
+                          <th>S/N</th>
+                        <th>Matric Number</th>
+                        <th>Names</th>
+                        <th>serial - Pin</th>
+                     
+                      <th>Date</th>
+                         
                        </tr>
                        {{!!$c = 0}}
-                       @foreach($r as $v)
+                       @foreach($u as $v)
+                        <?php  $depart = $R->get_departmetname($v->department_id); 
+                     $pin = $R->get_pin_year($v->matric_number,$v->entry_year);
+
+               ?>
                        <tr>
-                        <td><input type="checkbox" name="id[]" value="{{$v->id}}">
-
-                         </td> 
+                      
                        <td>{{++$c}}</td>
-                       <td>{{$v->reg_course_title}}</td>
-                       <td>{{$v->reg_course_code}}</td>
-                       <td>{{$v->reg_course_status}}</td>
-                       <td>{{$v->reg_course_unit}}</td>
-                       <td>@if($v->semester_id == 1)
-                       First Semeter
-                       @else
-                       Second Semester
-                       @endif</td>
-                         <td><div class="btn-group">
-  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Action <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu">
-      <li><a href="{{url('add_adminreg_course',[$v->id,$g_s])}}">Add</a></li>
+                       <td>{{$v->matric_number}}</td>
+                       <td>{{$v->surname .' '.$v->firstname.' '.$v->othername}}</td>
+                       <td>@foreach($pin as $vs)
+                    {{$vs->id."--".$vs->pin}}
 
-  <li><a href="{{url('delete_adminreg_course',[$v->id,$g_s])}}">Delete</a></li>
-  <li><a href="{{url('edit_adminreg_course',[$v->id,$g_s])}}">Edit</a></li>
-  </ul>
-</div></td>
+                @endforeach</td>
+                   
+                       <td>{{date('F j , Y - h:i:sa',strtotime($v->created_at))}}</td>
+
                        
                        </tr>
                        @endforeach
@@ -197,4 +155,17 @@
 
 @endsection
 
-                    
+                          <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+       
+        <div class="modal-body text-danger text-center">
+          <p>... processing ...</p>
+        </div>
+       
+      </div>
+      
+    </div>
+  </div> 

@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use App\Http\Requests;
 use Auth;
 use App\Pin;
+use App\Department;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use DB;
@@ -77,6 +78,14 @@ for ($i = 0; $i <=$request->number; $i++) {
        Session::flash('success',"SUCCESSFULL.");
     	return view('support.get_create_pin');
 
+    }
+    //============== get_student_with_entry_year===========
+    public function get_student_with_entry_year(Request $request)
+    {
+        $entry_year =$request->entry_year;
+   $user = DB::connection('mysql2')->table('users')->where('entry_year',$entry_year)->orderBy('department_id','ASC')->paginate(500);
+
+return view('support.entry_year')->withU($user);
     }
 
 //========================================view un_used_ Pin =====================================
@@ -179,6 +188,7 @@ return view('support.pin.convert');
         // Build the spreadsheet, passing in the payments array
         $excel->sheet('sheet1', function($sheet)  {
 $pin = Pin::orderBy('id','ASC')->take(15000)->get();
+//$pin = Pin::where('id','>=','48582')->orderBy('id','ASC')->get();
     // Define the Excel spreadsheet headers
    
  foreach ($pin as $v) {
@@ -196,7 +206,7 @@ $sheet->prependRow(1, $headings);
  }
  /*--------------------------------------function  --------------------------------------------------*/
  private function generateRandomString($length) {
-        $characters = '123456789ABCDEFGHIJKLMNPQRSTUVWXYZabcdeghnqrty';
+        $characters = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
         for ($i = 0; $i < $length; $i++) {
@@ -204,4 +214,19 @@ $sheet->prependRow(1, $headings);
         }
         return $randomString;
      }
+// =================== get student pin ===========================
+     public function student_pin()
+     { $d = Department::orderBy('department_name','ASC')->get(); 
+          return view('support.student_pin')->withD($d);
+     }
+
+      public function get_student_pin(Request $request)
+     { 
+     $session =$request->session;
+     $department =$request->department;
+     $fos =$request->fos;
+  $d = Department::orderBy('department_name','ASC')->get(); 
+   $user = DB::connection('mysql2')->table('users')->where([['entry_year',$session],['fos_id',$fos]])->orderBy('matric_number','ASC')->get();
+          return view('support.student_pin')->withD($d)->withU($user)->withDi($department)->withFos($fos)->withG_s($session);
+     } 
 }

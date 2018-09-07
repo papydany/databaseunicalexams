@@ -47,7 +47,9 @@ Route::post('updatedepartment', 'HomeController@updatedepartment');
 Route::get('getFosPara/{id}','DeskController@getFosPara');
 
 // support
-
+Route::get('student_pin', ['uses' =>'SupportController@student_pin','middleware' => 'roles','roles'=>'support']);
+Route::get('get_student_pin', ['uses' =>'SupportController@get_student_pin','middleware' => 'roles','roles'=>'support']);
+Route::get('get_student_with_entry_year', ['uses' =>'SupportController@get_student_with_entry_year','middleware' => 'roles','roles'=>'support']);
 Route::get('create_pin', ['uses' =>'SupportController@get_create_pin','middleware' => 'roles','roles'=>'support']);
 Route::post('create_pin', ['uses' =>'SupportController@post_create_pin','middleware' => 'roles','roles'=>'support']);
 Route::get('view_unused_pin', ['uses' =>'SupportController@view_unused_pin','middleware' => 'roles','roles'=>['admin','support']]);
@@ -62,6 +64,14 @@ Route::post('convert_pin', ['uses' =>'SupportController@post_convert_pin','middl
 Route::get('get_serial_number', ['uses' =>'SupportController@post_serial_number','middleware' => 'roles','roles'=>['admin','support']]);
 Route::get('contactMail', ['uses' =>'HomeController@contactMail','middleware' => 'roles','roles'=>['admin','support']]);
 Route::post('replyemail', ['uses' =>'HomeController@replyemail','middleware' => 'roles','roles'=>['admin','support']]);
+
+//====================== assign hod role========================================
+Route::get('assign_hod_role', ['uses' =>'HomeController@assign_hod_role','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('get_lecturer_4_hod', ['uses' =>'HomeController@get_lecturer_4_hod','middleware' => 'roles','roles'=>['admin','support']]);
+
+Route::post('assign_hod', ['uses' =>'HomeController@assign_hod','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('view_assign_hod', ['uses' =>'HomeController@view_assign_hod','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('remove_hod/{id}', ['uses' =>'HomeController@remove_hod','middleware' => 'roles','roles'=>['admin','support']]);
 /*===================================student detail ===============================================*/
 Route::get('admin_studentdetails', ['uses' =>'HomeController@admin_studentdetails','middleware' => 'roles','roles'=>['admin','support']]);
 // edit images
@@ -143,14 +153,17 @@ Route::post('create_course_unit_special', ['uses' =>'HomeController@post_create_
 Route::get('view_course_unit', ['uses' =>'HomeController@view_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
 Route::post('view_course_unit', ['uses' =>'HomeController@post_view_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
 Route::get('adminreg_course', ['uses' =>'HomeController@adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('adminreg_course', ['uses' =>'HomeController@post_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
-Route::get('delete_adminreg_course/{id}/{s}', ['uses' =>'HomeController@delete_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('get_adminreg_course', ['uses' =>'HomeController@post_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('delete_adminreg_course/{id}/{s}/{yes?}', ['uses' =>'HomeController@delete_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
 Route::post('delete_adminreg_multiple_course', ['uses' =>'HomeController@delete_adminreg_multiple_course','middleware' => 'roles','roles'=>['admin','support']]);
 // edit course registration 
 Route::get('edit_adminreg_course/{id}/{s}', ['uses' =>'HomeController@edit_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
 Route::post('edit_adminreg_course', ['uses' =>'HomeController@update_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
 // edit of registration
 Route::get('deleteRegistration/{id}', ['uses' =>'HomeController@deleteRegistration','middleware' => 'roles','roles'=>['admin','support']]);
+
+//-----------       add course to students ---------------------------------
+Route::get('add_adminreg_course/{id}/{s}/{yes?}', ['uses' =>'HomeController@add_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
 //================================================Desk Officer =================
 
 // lecturer
@@ -233,28 +246,32 @@ Route::get('delete_result', ['uses' =>'DeskController@delete_result','middleware
 Route::get('delete_desk_result/{id}', ['uses' =>'DeskController@delete_desk_result','middleware' => 'roles','roles'=>'Deskofficer']);
 Route::post('delete_desk_multiple_result', ['uses' =>'DeskController@delete_desk_multiple_result','middleware' => 'roles','roles'=>'Deskofficer']);
 // report  
-Route::get('report', ['uses' =>'DeskController@report','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
-Route::get('getreport', ['uses' =>'DeskController@post_report','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
+Route::get('report', ['uses' =>'DeskController@report','middleware' => 'roles','roles'=>['Deskofficer','examsofficer','HOD']]);
+Route::get('getreport', ['uses' =>'DeskController@post_report','middleware' => 'roles','roles'=>['Deskofficer','examsofficer','HOD']]);
+Route::get('departmentreport', ['uses' =>'DeskController@departmentreport','middleware' => 'roles','roles'=>['examsofficer','HOD']]);
 
 //================== Exams Officer ===============================================
 
 
-Route::get('getlevel/{id}',  ['uses' =>'ExamofficerController@getlevel','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
-Route::get('getsemester/{id}',  ['uses' =>'ExamofficerController@getsemester','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
-Route::post('eo_assign_courses',  ['uses' =>'ExamofficerController@eo_assign_courses','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
+Route::get('getlevel/{id}',  ['uses' =>'ExamofficerController@getlevel','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 
-Route::get('eo_result_c', ['uses' =>'ExamofficerController@eo_result_c','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
-Route::post('eo_insert_result', ['uses' =>'ExamofficerController@eo_insert_result','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
-Route::post('v_result', ['uses' =>'ExamofficerController@post_v_result','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
+Route::get('getfos/{id}',  ['uses' =>'ExamofficerController@getfos_hod','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 
-Route::get('v_result', ['uses' =>'ExamofficerController@v_result','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
-Route::post('d_result', ['uses' =>'ExamofficerController@display_result','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
+Route::get('getsemester/{id}',  ['uses' =>'ExamofficerController@getsemester','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
+Route::post('eo_assign_courses',  ['uses' =>'ExamofficerController@eo_assign_courses','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 
-Route::get('lecturer',  ['uses' =>'ExamofficerController@index','middleware' => 'roles','roles'=>'lecturer']);
+Route::get('eo_result_c', ['uses' =>'ExamofficerController@eo_result_c','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
+Route::post('eo_insert_result', ['uses' =>'ExamofficerController@eo_insert_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
+Route::post('v_result', ['uses' =>'ExamofficerController@post_v_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
+
+Route::get('v_result', ['uses' =>'ExamofficerController@v_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
+Route::post('d_result', ['uses' =>'ExamofficerController@display_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
+
+Route::get('lecturer',  ['uses' =>'ExamofficerController@index','middleware' => 'roles','roles'=>['lecturer','HOD']]);
 // registere student
 Route::get('r_student', ['uses' =>'ExamofficerController@r_student','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
 Route::post('r_student', ['uses' =>'ExamofficerController@post_r_student','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
-Route::post('d_student', ['uses' =>'ExamofficerController@d_student','middleware' => 'roles','roles'=>['examsofficer','lecturer']]);
+Route::post('d_student', ['uses' =>'ExamofficerController@d_student','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 //=========================================PDS===================================================
 Route::get('/modern/{id}', ['uses' =>'PdsController@getModern','middleware' => 'roles','roles'=>['science','modern_language']]);
 Route::get('pds_student',  ['uses' =>'PdsController@pds_student','middleware' => 'roles','roles'=>['science','modern_language']]);

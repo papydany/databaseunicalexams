@@ -30,6 +30,7 @@
                         
                         <th>Course Unit</th>
                         <th>Status</th>
+                        <th>Semeter</th>
                    <th>Action</th>
                        </tr>
                        
@@ -44,6 +45,18 @@
                                 <option value="C">Compulsary</option>
                                   <option value="E">Elective</option>
                                   </select></td>
+                                  <td>
+                              
+                              <select class="form-control" name="semester" required>
+                                <option value=""> -- Select -- </option>
+                                <option value="1">First Semester</option>
+                                <option value="2">Second Semester</option>
+                                 
+                              </select>
+                             
+                             
+
+                                  </td>
                       
        <td><input type="submit" name="" class="btn btn-success" value="submit"></td>
 

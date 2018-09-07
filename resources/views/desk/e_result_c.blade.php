@@ -49,7 +49,7 @@
                         <th class="cc text-center">CA</th> 
                         <th class="cc text-center">EXAMS</th>
                         <th class="cc text-center">TOTAL</th>
-                        
+                      
                           </tr>
                             {{!!$c = 0}}
                       @foreach($u as $v)
@@ -66,6 +66,7 @@
                         <input type="hidden" name="semester[{{$c}}]" value="{{$v->semester_id}}">
                       <input type="hidden" name="level_id[{{$c}}]" value="{{$v->level_id}}">
                        <input type="hidden" name="season[{{$c}}]" value="{{$v->period}}">
+                       <input type="hidden" name="entry_year[{{$c}}]" value="{{$v->entry_year}}">
                         </td>
                       <td>{{$c}}</td>
                        <td>{{$v->matric_number}}</td>
@@ -79,7 +80,7 @@
                         
                         ?>
 
-                         @if(count($result) > 0)
+                         @if($result != null)
    
 <!-- ===========================check if it has edit right ================================-->
     @if(Auth::user()->edit_right > 0) 
@@ -210,5 +211,8 @@ if(t.value!=''){chk.checked=true;}else{chk.checked=false;}}
 
   </script>
 
+<!--https://mediacity.co.in/quickquiz/public/admin
 
+  https://www.laravel-vuejs.com/quick-quiz-laravel-quiz-and-exam-system/
+-->
 @endsection              

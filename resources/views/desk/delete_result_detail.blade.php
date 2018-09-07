@@ -43,7 +43,7 @@
                        
                  <table class="table table-bordered table-striped">
                  <tr>
-                     <td>Select</td>
+                     <th>ALL <input type="checkbox" id="all_ids" name="" value=""></th>
                         <th class="text-center">S/N</th>
                         <th class="text-center">MATRIC NUMBERS</th>
                         <th class="text-center">NAMES</th>
@@ -61,7 +61,7 @@
                         
                        <td>
                         @if(isset($result->id))
-                        <input type="checkbox" name="id[]" value="{{$result->id}}">
+                        <input type="checkbox" class="ids" name="id[]" value="{{$result->id}}">
                        @endif
                         </td>
                       
@@ -105,4 +105,8 @@
                     </div>
                     </div>
   @endsection 
+  @section('script')
+<script src="{{URL::to('js/main.js')}}"></script>
+
+@endsection
              

@@ -95,7 +95,7 @@
                         <table class="table table-bordered table-striped">
                             <tr>
                                 <th>S/N</th>
-                                <th>matric Number</th>
+                                <th>Matric Number</th>
                                 <th>Name</th>
                                 <th>Phone Number</th>
                                 <th>Gender</th>

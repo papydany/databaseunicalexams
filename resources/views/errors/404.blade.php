@@ -38,6 +38,19 @@
         </style>
     </head>
     <body>
+<!--     RewriteCond %{HTTP_HOST} ^(www\.)?database\.unicalexams\.edu.ng$ [NC]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://database.unicalexams\.edu.ng%{REQUEST_URI} [R=301,L,NE]
+
+RewriteCond %{HTTP_HOST} ^(www\.)?result\.unicalexams\.edu.ng$ [NC]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://result.unicalexams\.edu.ng%{REQUEST_URI} [R=301,L,NE]
+
+
+ RewriteCond %{HTTP_HOST} ^(www\.)?unicalexams\.edu.ng$ [NC]
+RewriteCond %{HTTPS} !=on 
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+-->
     
     
     

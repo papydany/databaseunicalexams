@@ -42,6 +42,7 @@
 <div class="col-sm-8">
      <form class="form-horizontal" role="form" method="POST" action="{{ url('/edit_adminreg_course') }}" data-parsley-validate>
                         {{ csrf_field() }}
+             <input type="hidden" name="pre_url" value="{{url()->previous()}}">            
             <input type="hidden" name="session" value="{{$r->session}}"> 
             <input type="hidden" name="id" value="{{$r->id}}">          
                         <table class="table table-bordered table-striped">

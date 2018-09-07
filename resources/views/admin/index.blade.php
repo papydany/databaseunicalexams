@@ -17,22 +17,18 @@
                 </div>
                 <!-- /.row -->
 
-
-
-                
-
-
 <div class="row" style="min-height: 420px;">
       <?php $result= $r->getrolename(Auth::user()->id) ?>
+
   @if($result =="admin" || $result =="support" )
   <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-6">
            <form class="form-horizontal" role="form" method="GET" action="{{ url('/admin_studentdetails') }}" data-parsley-validate>
                       {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('first_name') ? ' has-error' : '' }}">
                       
-                       <div class="col-md-4">
+                       <div class="col-md-8">
                                 <label for="student_type" class="control-label">Matric Number</label>
                                 <input type="text" name="matric_number" value="" class="form-control" />
                       
@@ -54,6 +50,32 @@
 
                         </form>
   </div>
+   @if($result =="support")
+      <div class="col-sm-6">
+           <form class="form-horizontal" role="form" method="GET" action="{{ url('get_student_with_entry_year') }}" data-parsley-validate>
+                      
+
+                        <div class="form-group{{ $errors->has('first_name') ? ' has-error' : '' }}">
+                      
+                       <div class="col-md-8">
+                                <label for="student_type" class="control-label">Entry Year</label>
+                                <input type="text" name="entry_year" value="" class="form-control" />
+                      
+
+                               
+                            </div>
+<br/>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-btn fa-user"></i>Continue
+                                </button>
+                            </div>
+
+                        </div>
+
+                        </form>
+  </div>
+  @endif
 </div>
 <hr/>
  <div class="row">
@@ -147,6 +169,59 @@
                             </a>
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="panel panel-red">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-comments fa-3x"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge">
+                                    
+                                        </div>
+                                        <div>Assign HOD Role</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{url('assign_hod_role')}}">
+                                <div class="panel-footer">
+                                    <span class="pull-left">View Details</span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                     <!-- <div class="col-lg-3 col-md-6">
+                        <div class="panel panel-red">
+                            <div class="panel-heading">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <i class="fa fa-comments fa-3x"></i>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <div class="huge">
+                                    
+                                        </div>
+                                        <div>Add Courses</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{url('assign_hod_role')}}">
+                                <div class="panel-footer">
+                                    <span class="pull-left">View Details</span>
+                                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>-->
+               
+                
                 </div>
                 @endif
 </div>

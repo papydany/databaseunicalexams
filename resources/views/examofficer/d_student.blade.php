@@ -11,13 +11,9 @@
      <?php  $department = $r->get_departmetname(Auth::user()->department_id);
      $faculty = $r->get_facultymetname(Auth::user()->faculty_id);
             $fos =$r->get_fos($f_id);
-
-
-     ?>
-                   
-                   {{!$next = $s + 1}}
-                  {{! $semester =DB::table('semesters')
-                  ->where('semester_id',$sm)->first()}}
+    $next = $s + 1;
+    $semester =DB::table('semesters')->where('semester_id',$sm)->first();
+                  ?>
                            
 <table  class="table table-bordered">
 <tr><td>
@@ -68,8 +64,8 @@
 
                         <td>{{strtoupper($v->surname." ".$v->firstname." ".$v->othername)}}</td>
                          <!--<td><img src="{{asset('img/student/'.$v->image_url)}}"></td>-->
-                         {{!! $img ="https://unicalexams.edu.ng/img/student/".$v->image_url}}
-                         <td><img src="{{$img}}" width="100%"></td>
+                         {{! $img ="https://unicalexams.edu.ng/img/student/".$v->image_url}}
+                         <td><img src="{{$img}}" width="25%"></td>
                    
                      <td></td>
                        
