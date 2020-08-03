@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title','Assign HOD Role')
+@section('title','Assign HOD And Examsofficer Role')
 @section('content')
  <!-- Page Heading -->
                 <div class="row">
@@ -15,7 +15,7 @@
     <div class="row">
         <div class="col-sm-12" style="min-height: 520px;">
             <div class="panel panel-default">
-                <div class="panel-heading">Assign HOD Role <a href="{{url('view_assign_hod')}}" class="btn btn-danger pull-right">View HOD</a></div>
+                <div class="panel-heading">Assign HOD & Examsofficer Role <a href="{{url('view_assign_hod')}}" class="btn btn-danger pull-right">View HOD</a></div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="GET" action="{{ url('get_lecturer_4_hod') }}" data-parsley-validate>
                         {{ csrf_field() }}
@@ -70,46 +70,64 @@
                         <form class="form-horizontal" role="form" method="POST" action="{{ url('assign_hod') }}" data-parsley-validate>
                         {{ csrf_field() }}
                         <table class="table table-bordered table-striped">
-                        <tr>
+                        <tr >
                           <td>Select</td>
                         <th>S/N</th>
                           <th>Title</th>
                         <th>Name</th>
                          <th>Username</th>
-                        <th>Password</th>
+                    
                   
                         <th>Edit Right Status</th>
                        <th>Edit Right</th>
                        </tr>
                        {{!!$c = 0}}
                        @foreach($u as $v)
-                       <tr>
+                      @if($v->status == 0) 
+                      <tr>
+                      @else
+                      <tr style="background-color:goldenrod">
+                      @endif
+                      
                         <td><label><input type="radio" name="optradio" value="{{$v->id.'~'.$v->department_id}}"></label></td>
                        <td>{{++$c}}</td>
                          <td>{{$v->title}}</td>
                        <td>{{$v->name}}</td>
                        <td>{{$v->username}}</td>
-                       <td>{{$v->plain_password}}</td>
+                      <!-- <td>{{$v->password}}</td>-->
                        
 <td>{{$v->edit_right}}</td>
 <td><div class="btn-group">
-  <button type="button" class="btn btn-success dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Enabled <span class="caret"></span>
+  <button type="button" class="btn btn-success dropdown-toggle " data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Action  <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
+      @if($v->status ==1)
+      <li><a href="{{url('activate',[$v->id,0])}}">Activate</a></li>
+         @else
     <li><a href="{{url('/edit_right',[$v->id,0])}}">0</a></li>
     <li><a href="{{url('/edit_right',[$v->id,6])}}">6</a></li>
     <li><a href="{{url('/edit_right',[$v->id,8])}}">8</a></li>
     <li><a href="{{url('/edit_right',[$v->id,10])}}">10</a></li>
     <li><a href="{{url('/edit_right',[$v->id,12])}}">12</a></li>
-
+    
+   
+        <li class="divider"></li>
+        <li><a href="{{url('activate',[$v->id,1])}}">Deactivate</a></li>
+        <li class="divider"></li>
+        <li><a href="{{url('update_email',$v->id)}}">Update Email</a></li>
+        @endif
   </ul>
 </div></td>
        
 
                        </tr>
                        @endforeach
-                     <tr><td colspan="3"><input type="submit" class="btn btn-success btn-block" value="Assign HOD"></td></tr>
+                     <tr>
+                     <td colspan="3"><input type="submit" class="btn btn-success btn-block" name="hod" value="Assign HOD"></td>
+                     <td></td>
+                     <td colspan="2"><input type="submit" class="btn btn-primary btn-block" name="eo" value="Assign Exams Officer"></td>
+                     </tr>
                         </table>
                       </form>
   {{ $u->links() }}

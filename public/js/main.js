@@ -25,6 +25,75 @@ var id =$(this).val();
 
 });
 
+$("#faculty_id1").change( function() {
+  $("#myModal").modal();	
+ var id =$(this).val();
+ //$("#lga").hide();
+    $.getJSON("/depart/"+id, function(data, status){
+     var $d = $("#department_id1");
+              $d.empty();
+                $d.append('<option value="">Select Department</option>');
+                 $.each(data, function(index, value) {
+                     $d.append('<option value="' +value.id +'">' + value.department_name + '</option>');
+                 });
+                 $("#myModal").modal("hide");
+     });
+ 
+ 
+ });
+
+$("#fac_id").change( function() {
+ $("#myModal").modal(); 
+var id =$(this).val();
+//$("#lga").hide();
+   $.getJSON("/depart/"+id, function(data, status){
+    var $d = $("#dept_id");
+             $d.empty();
+               $d.append('<option value="">Select Department</option>');
+                $.each(data, function(index, value) {
+                    $d.append('<option value="' +value.id +'">' + value.department_name + '</option>');
+                });
+                $("#myModal").modal("hide");
+    });
+
+
+});
+
+$("#m_fac_id").change( function() {
+ $("#myModal").modal(); 
+var id =$(this).val();
+//$("#lga").hide();
+   $.getJSON("/depart/"+id, function(data, status){
+    var $d = $("#m_dept_id");
+             $d.empty();
+               $d.append('<option value="">Select Department</option>');
+                $.each(data, function(index, value) {
+                    $d.append('<option value="' +value.id +'">' + value.department_name + '</option>');
+                });
+                $("#myModal").modal("hide");
+    });
+
+
+});
+
+$("#dept_id").change( function() {
+ $("#myModal").modal(); 
+var i =$(this).val();
+//$("#lga").hide();
+   $.getJSON("/username/"+i, function(data, status){
+    var $d = $("#officer_id");
+             $d.empty();
+               $d.append('<option value="">Select Desk Officer</option>');
+                $.each(data, function(index, value) {
+                    $d.append('<option value="' +value.id +'">' + value.username + " - ("+ value.name+')</option>');
+                });
+                $("#myModal").modal("hide");
+    });
+
+
+});
+
+
 
 $("#programme_id").change( function() {
  $("#myModal").modal(); 
@@ -75,6 +144,7 @@ var id =$(this).val();
   $.getJSON("/fos/"+id, function(data, status){   
   var $d = $("#fos_id"); 
   $d.empty();
+  $d.append('<option value=""> ---- Select ----</option>');
     $.each(data, function(index, value) {
                     $d.append('<option value="' +value.id +'">' + value.fos_name + '</option>');
                 });
@@ -149,12 +219,15 @@ $rt.append('<option value="' +0 +'"> --- Select --- </option>');
      
      $rt.append('<option value="' +1 +'">Sessional Result</option>');
      $rt.append('<option value="' +2 +'">Omited Result </option>');
-     $rt.append('<option value="' +3 +'"> Correctional Result </option>');
+     $rt.append('<option value="' +3 +'">Probational Result </option>');
+     $rt.append('<option value="' +4 +'">Correctional Result </option>');
+
   }else if(pg == 2)
   {
   
      $rt.append('<option value="' +11 +'">Sessional Result</option>');
      $rt.append('<option value="' +12 +'">Resit Result </option>');
+     $rt.append('<option value="' +13 +'">Correctional Result </option>');
    
   }
               
@@ -167,6 +240,8 @@ $rt.append('<option value="' +0 +'"> --- Select --- </option>');
 
 
 });
+
+
 
 
 $('#updatedepartment').click(function(event){ 

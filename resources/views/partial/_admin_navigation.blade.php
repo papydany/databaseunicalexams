@@ -9,7 +9,7 @@
         </button>
         @inject('r','App\R')
         @if(Auth::user()->programme_id == 0 && Auth::user()->department_id == 0)
-        <a class="navbar-brand" href="{{url('/admin')}}"><img id="logo" src="{{asset('logo.png')}}" alt="Logo"></a>
+        <a class="navbar-brand" href="{{url('/')}}"><img id="logo" src="{{asset('logo.png')}}" alt="Logo"></a>
         @elseif(Auth::user()->programme_id == 1)
 <a class="navbar-brand" style="color:#fff;" href="{{url('/')}}"><strong>PDS</strong></a>
         @else
@@ -53,7 +53,8 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav side-nav">
              <li class="active">
-                <a href="{{url('/')}}"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
+                <a href="{{url('/')}}"><i class="fa fa-fw fa-dashboard"></i>
+                 Dashboard</a>
             </li>
 @if($result =="admin" || $result =="support")
            
@@ -118,6 +119,9 @@
                     <li>
                         <a href="{{url('view_desk_officer')}}">View Desk Officer</a>
                     </li>
+                     <li>
+                        <a href="{{url('suspend_desk_officer')}}">Suspend Desk Officer</a>
+                    </li>
                 </ul>
             </li>
             
@@ -130,6 +134,9 @@
                     <li>
                         <a href="{{url('pds_view_desk_officer')}}">View Desk Officer</a>
                     </li>
+                    <!--  <li>
+                        <a href="{{url('pds_create_course')}}">New course Science</a>
+                    </li>-->
                    <!--  <li>
                         <a href="{{url('pds_create_course')}}">New course Science</a>
                     </li>-->
@@ -176,19 +183,48 @@
                      <li>
                         <a href="{{url('view_unused_pin')}}">View Unused Pin</a>
                     </li>
+                    @endif 
                      <li>
                         <a href="{{url('convert_pin')}}">Convert Pin</a>
                     </li>
                     <li>
                         <a href="{{url('student_pin')}}">Student Pin</a>
                     </li>
-                    @endif 
+                    
                    
                     <li>
                         <a href="{{url('view_used_pin')}}">View Used Pin</a>
                     </li>
+                    <li>
+                        <a href="{{url('reset_pin')}}">Reset Pin</a>
+                    </li>
                     
                 </ul>
+            </li>
+               <li>
+                <a href="javascript:;" data-toggle="collapse" data-target="#demo9"><i class="fa fa-fw fa-edit"></i>Assign Courses<i class="fa fa-fw fa-caret-down"></i></a>
+                <ul id="demo9" class="collapse">
+                
+                    <li>
+                        <a href="{{url('assign_course_other')}}">Assign Courses</a>
+                    </li>
+                    <li>
+                        <a href="{{url('view_assign_course')}}">View Assigned Courses</a>
+                    </li>
+                <!-- <li>
+                       <li>
+                        <a href="{{url('assign_course')}}">Assign Courses</a>
+                    </li>
+                        <a href="{{url('print_assign_course')}}">Print Assigned Courses</a>
+                    </li>-->
+
+                    
+                </ul>
+            </li>
+
+            <li>
+                <a href="{{url('reports')}}"><i class="fa fa-fw fa-edit"></i>Report</a>
+               
             </li>
              
                        
@@ -222,10 +258,10 @@
                         <a href="{{url('register_course')}}">Register Courses</a>
                     </li>
                     <li>
-                        <a href="{{url('view_register_course')}}">View Registered Courses</a>
+                        <a href="{{url('view_register_course')}}">Print Registered Courses</a>
                     </li>
                     <li>
-                        <a href="{{url('delete_register_course')}}">Delete Registered Courses</a>
+                        <a href="{{url('registeredcourse')}}">View Registered Courses</a>
                     </li>
                 </ul>
             </li>
@@ -275,36 +311,33 @@
                      <li>
                         <a href="{{url('delete_result')}}">Delete result</a>
                     </li>
+                    <li>
+                        <a href="{{url('enter_probation_result')}}">Enter Probation Result</a>
+                    </li>
                 </ul>
             </li>
             
 
   <li>
-                <a href="{{url('report')}}"><i class="fa fa-fw fa-edit"></i>Report</a>
+                <a href="{{url('reports')}}"><i class="fa fa-fw fa-edit"></i>Report</a>
                
-            </li>
-
-@elseif($result =="examsofficer")
-
-          <li>
-                <a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>
-                <ul id="demo5" class="collapse">
-                   <li>
-                        <a href="{{url('examsofficer')}}">Enter result</a>
-                    </li>
-                    <li>
-                        <a href="{{url('v_result')}}">View  result</a>
-                    </li>
-                </ul>
-
             </li>
             <li>
-                        <a href="{{url('r_student')}}">Registered Student</a>
+                <a href="javascript:;" data-toggle="collapse" data-target="#demopin"><i class="fa fa-fw fa-edit"></i>PIN<i class="fa fa-fw fa-caret-down"></i></a>
+                <ul id="demopin" class="collapse">
+                    <li>
+                        <a href="{{url('student_pin')}}">Student Pin</a>
                     </li>
-    <li>
-                <a href="{{url('report')}}"><i class="fa fa-fw fa-edit"></i>Report</a>
-               
-            </li> 
+                    <li>
+                        <a href="{{url('view_used_pin')}}">View Used Pin</a>
+                    </li>
+                    <li>
+                        <a href="{{url('reset_pin')}}">Reset Pin</a>
+                    </li>
+                </ul>
+            </li>
+
+
  @elseif($result =="HOD")
 
           <li>
@@ -316,6 +349,9 @@
                     <li>
                         <a href="{{url('v_result')}}">View  result</a>
                     </li>
+                    <li>
+                        <a href="{{url('eo_delete_result')}}">Delete result</a>
+                    </li>
                 </ul>
 
             </li>
@@ -324,7 +360,7 @@
                 <a href="{{url('departmentreport')}}"><i class="fa fa-fw fa-edit"></i> Generate Report</a>
                
             </li>                                     
-@elseif($result =="lecturer")
+@elseif($result =="lecturer" || $result =="examsofficer")
   <li>
                 <a href="javascript:;" data-toggle="collapse" data-target="#demo5"><i class="fa fa-fw fa-edit"></i>Result<i class="fa fa-fw fa-caret-down"></i></a>
                 <ul id="demo5" class="collapse">
@@ -334,11 +370,30 @@
                     <li>
                         <a href="{{url('v_result')}}">View result</a>
                     </li>
+                    <li>
+                        <a href="{{url('eo_delete_result')}}">Delete result</a>
+                    </li>
+                    @if($result =="examsofficer")
+                    <li>
+                        <a href="{{url('enter_probation_result')}}">Enter Probation Result</a>
+                    </li>
+                    @endif
                 </ul>
             </li>
+            @if($result =="lecturer")
              <li>
                         <a href="{{url('r_student')}}">Registered Student</a>
                     </li>
+                    @endif
+                    @if($result =="examsofficer")
+                    <li>
+                            <a href="{{url('register_student')}}">Registered Student</a>
+                        </li>
+                    <li>
+                        <a href="{{url('departmentreport')}}"><i class="fa fa-fw fa-edit"></i> Generate Report</a>
+                       
+                    </li> 
+                    @endif
 @elseif($result =="science")
 <li>
 <a href="{{url('pds_student')}}">View Student</a>
@@ -380,6 +435,9 @@
             </li>
 
             @endif
+            <li>
+                <a href="{{url('changeemail')}}"><i class="fa fa-fw fa-edit"></i>Update Email<i class="fa fa-fw fa-caret-down"></i></a>
+                </li>
              <li>
                 <a href="{{url('changepassword')}}"><i class="fa fa-fw fa-edit"></i>Change Password<i class="fa fa-fw fa-caret-down"></i></a>
                 </li>

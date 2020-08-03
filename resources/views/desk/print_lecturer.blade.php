@@ -38,7 +38,7 @@
                           <th>Title</th>
                         <th>Name</th>
                          <th>Username</th>
-                        <th>Password</th>
+                        <th>Email</th>
                        
                   
                        </tr>
@@ -49,7 +49,7 @@
                          <td>{{$v->title}}</td>
                        <td>{{$v->name}}</td>
                        <td>{{$v->username}}</td>
-                       <td>{{$v->plain_password}}</td>
+                       <td>{{$v->email}}</td>
                       
        
 

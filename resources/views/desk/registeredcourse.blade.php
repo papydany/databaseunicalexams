@@ -14,11 +14,12 @@
                 </div>
 
     <div class="row" style="min-height: 520px;">
+       
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Delete Register Courses</div>
+                <div class="panel-heading">Register Courses</div>
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/delete_register_course') }}"  data-parsley-validate>
+                    <form class="form-horizontal" role="form" method="GET" action="{{ url('get_registeredcourse') }}"  data-parsley-validate>
                         {{ csrf_field() }}
                         <div class="form-group">
                      <div class="col-sm-2">
@@ -90,13 +91,20 @@
 
                         </div>
                         @if(isset($r))
+                        <div class="col-sm-6 www">
+                          <p><b>Unit:</b> ( {{$fn->fos_name}})</p>
+                            </div>
+                         <div class="col-sm-6 ww">
+                          {{!$next = $g_s + 1}}
+                             <p> <strong>Level : </strong>{{$g_l}}00 &nbsp;&nbsp; <strong>Session : </strong>{{$g_s.' / '.$next}}</p>
+                           </div>
                         <div class="col-sm-12">
 
 @inject('R','App\R')
 
        @if(count($r) > 0)
        
-     <form class="form-horizontal" role="form" method="POST" action="{{ url('/delete_desk_multiple_course') }}" data-parsley-validate>
+     <form class="form-horizontal" role="form" method="POST" action="{{ url('delete_adminreg_multiple_course') }}" data-parsley-validate>
                         {{ csrf_field() }}
           <input type="hidden" name="session" value="{{$g_s}}">             
                         <table class="table table-bordered table-striped">
@@ -114,7 +122,10 @@
                        {{!!$c = 0}}
                        @foreach($r as $vs)
                        <tr>
-                         <td><input type="checkbox" name="id[]" value="{{$vs->id}}">
+                         <td>
+                            @if($vs->reg_course_status != 'G')
+                           <input type="checkbox" name="id[]" value="{{$vs->id}}">
+                           @endif
                       
                          </td>
                        <td class="text-center">{{++$c}}</td>
@@ -127,14 +138,23 @@
                        @else
                        Second Semester
                        @endif</td>
-                                              <td><div class="btn-group">
+                                              <td>
+                                                  @if($vs->reg_course_status != 'G')
+                                                  <div class="btn-group">
   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Action <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
-  <li><a href="{{url('delete_desk_course',[$vs->id,$g_s])}}">Delete</a></li>
+    
+      <li><a href="{{url('add_adminreg_course',[$vs->id,$g_s])}}">Add</a></li>
+       <li><a href="{{url('edit_adminreg_course',[$vs->id,$g_s])}}">Edit</a></li>
+       <li><a href="{{url('delete_adminreg_course',[$vs->id,$g_s])}}">Delete</a></li>
+     
+
+  
   </ul>
-</div></td>
+</div>
+@endif</td>
                        </tr>
                        @endforeach
                        <tr><td colspan="8"><input type="submit" value="Delete selected row" class="btn btn-danger"></td></tr>

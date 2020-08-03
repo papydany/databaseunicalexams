@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddColumnToContactsTable extends Migration
+class CreatePublishResultsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class AddColumnToContactsTable extends Migration
      */
     public function up()
     {
-        Schema::table('contacts', function (Blueprint $table) {
-             $table->integer('status')->after('matric_number')->nullable();
-             $table->string('phone')->after('matric_number')->nullable();
+        Schema::create('publish_results', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('fos_id');
+            $table->integer('level_id');
+            $table->string('session');
+            $table->timestamps();
         });
     }
 
@@ -26,8 +29,6 @@ class AddColumnToContactsTable extends Migration
      */
     public function down()
     {
-        Schema::table('contacts', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('publish_results');
     }
 }

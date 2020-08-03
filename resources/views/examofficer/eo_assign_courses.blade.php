@@ -31,7 +31,7 @@
                        
 
 
-                      <form class="form-horizontal" role="form" method="GET" action="{{ url('/eo_result_c') }}" data-parsley-validate>
+                      <form class="form-horizontal" role="form" method="GET" action="{{ url('eo_result_c') }}" data-parsley-validate>
                     
                   <div class="form-group">
                   <label for="level" class=" control-label">Course</label>
@@ -43,7 +43,7 @@
                       <?php $fos = $r->get_fos($k); ?>
                        <optgroup label="{{$fos}}">
                        @foreach($value as $v)
-                      <option value="{{$v->registercourse_id}}">{{$v->reg_course_code}}</option>
+                      <option value="{{isset($v->registercourse_id) ? $v->registercourse_id : $v->id}}">{{$v->reg_course_code}}&nbsp;&nbsp;=&nbsp;&nbsp;{{$v->reg_course_status}}</option>
                       @endforeach
                          </optgroup>
                     @endforeach
@@ -51,16 +51,34 @@
                       <input type="hidden" name="level" value="{{$l}}">
                      <input type="hidden" name="semester" value="{{$sm}}">
                       <input type="hidden" name="session" value="{{$s}}">
+                      <input type="hidden" name="programme_id" value="{{$p}}">
                       </div>
   <div class="form-group">
                   <label for="level" class=" control-label">Period</label>
                      <select class="form-control" name="period" required>
                      <option value="">-- select --</option>
                      <option value="NORMAL">NORMAL</option>
-                      <option value="VACATION">VACATION</option>
+                     @if(Auth::user()->programme_id == 2)
+                                <option value="RESIT">RESIT</option>
+                                @else
+                                <option value="VACATION">VACATION</option>
+
+                                @endif
+                  
                 
                      </select>
                       </div>
+                            @if(Auth::user()->programme_id != 2)
+                <div class="form-group">
+                  <label for="result_type" class=" control-label">Result Type</label>
+                <select class="form-control" name="result_type" required>
+                     <option value="">-- select --</option>
+                     <option value="Sessional">Sessional</option>
+                     <option value="Omitted">Omitted</option>
+                     <!--<option value="Correctional">Correctional</option>-->
+               </select>
+                      </div>
+                       @endif
 
                          <div class="form-group ">
  

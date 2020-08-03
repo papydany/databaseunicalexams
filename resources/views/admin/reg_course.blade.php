@@ -170,10 +170,13 @@
     Action <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
+    @if($v->reg_course_status != 'G')
       <li><a href="{{url('add_adminreg_course',[$v->id,$g_s])}}">Add</a></li>
+       <li><a href="{{url('edit_adminreg_course',[$v->id,$g_s])}}">Edit</a></li>
+      @endif
 
   <li><a href="{{url('delete_adminreg_course',[$v->id,$g_s])}}">Delete</a></li>
-  <li><a href="{{url('edit_adminreg_course',[$v->id,$g_s])}}">Edit</a></li>
+ 
   </ul>
 </div></td>
                        

@@ -33,14 +33,21 @@
                   <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Enter Result</div>
+                <div class="panel-heading">Enter Result
+                  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                  <span class="text-center text-success"><strong>Result Type :</strong>&nbsp;{{$rt}}</span></div>
+
+                
                 <div class="panel-body">
                 <div class="col-sm-12">
                  @if(isset($u))
-                   
+                
                       <form class="form-horizontal" role="form" method="POST" action="{{ url('/eo_insert_result') }}" data-parsley-validate>
                    
                         {{ csrf_field() }}
+                  <input type="hidden" name="flag" value="{{$rt}}">
                  <table class="table table-bordered table-striped">
                  <tr>
                         <th width="3%"></th>

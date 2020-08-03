@@ -11,11 +11,41 @@
       </ol>
   </div>
 </div>
+  <div class="row">
+    <div class="col-sm-6">
+           <form class="form-horizontal" role="form" method="GET" action="{{ url('/admin_studentdetails') }}" data-parsley-validate>
+                      {{ csrf_field() }}
+
+                        <div class="form-group{{ $errors->has('first_name') ? ' has-error' : '' }}">
+                      
+                       <div class="col-md-8">
+                                <label for="student_type" class="control-label">Matric Number</label>
+                                <input type="text" name="matric_number" value="" class="form-control" />
+                      
+
+                                @if ($errors->has('student_type'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('student_type') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+<br/>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-btn fa-user"></i> Search for Student
+                                </button>
+                            </div>
+
+                        </div>
+
+                        </form>
+  </div>
+  </div>
 
     <div class="row" style="min-height: 520px;">
       <div class="panel-heading"> Student Details</div>
 @if(isset($u))
- @if(count($u))
+ @if(!empty($u))
                       <?php  $department =$R->get_departmetname($u->department_id);
 
                       $fos = $R->get_fos($u->fos_id);
@@ -72,9 +102,11 @@
                         </div>
 <div class="col-sm-2">
   <p><img id="logo" src="{{$img_url}}" alt="student image"></p>
-  <p><a href="{{$url}}" class="btn btn-xs  btn-primary" target="_blank"> Edit Image</a> </p>
+  <p><a href="{{$url}}" class="btn   btn-warning btn-block" target="_blank"> Edit Image</a> </p>
 
-
+  <p><a href="{{url('edit_matric_number',$u->id)}}" class="btn   btn-primary btn-block" target="_blank"> Edit Matric Number</a> </p>
+  <p><a href="{{url('edit_profile',$u->id)}}" class="btn   btn-warning btn-block" target="_blank"> Edit Profile </a> </p>
+ 
 </div>
 <div class="clear-fix"></div>
 @if(count($sr) > 0)

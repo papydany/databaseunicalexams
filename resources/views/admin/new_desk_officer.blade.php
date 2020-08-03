@@ -111,6 +111,16 @@
                                     </span>
                                 @endif
                             </div>
+                             <div class="col-md-4">
+                              <label for="password" class=" control-label">Email</label>
+                                <input  type="email" class="form-control" name="email" value="{{ old('email') }}" required>
+
+                                @if ($errors->has('email'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('email') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
 
                             <div class="col-md-3">
                             <br/>

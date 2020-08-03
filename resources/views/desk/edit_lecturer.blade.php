@@ -54,7 +54,7 @@
                                </select></td>
                        <td><input type="text" class="form-control" name="name" value="{{$l->name}}" required></td>
                 
-                       <td><input type="text" class="form-control" name="password" value="{{$l->plain_password}}" required></td>
+                      <!-- <td><input type="text" class="form-control" name="password" value="" required></td>-->
                        <td><input type="submit" value="submit" class="btn btn-success"></td>
                       
        

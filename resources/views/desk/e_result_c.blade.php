@@ -16,7 +16,7 @@
                             <li class="active" style="font-weight: bolder;">
                                Course Code : {{$c->reg_course_code}}
                                &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
-                               Course Uni : {{$c->reg_course_unit}}
+                               Course Unit : {{$c->reg_course_unit}}
                                &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
                                <?php $next = $c->session + 1;?>
                              Session: {{$c->session.' / '.$next}}
@@ -31,7 +31,11 @@
                   <div class="row" style="min-height: 520px;">
        
             <div class="panel panel-default">
-                <div class="panel-heading">Enter Result</div>
+                <div class="panel-heading">Enter Result 
+                  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                  &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                  <span class="text-center text-success"><strong>Result Type :</strong>&nbsp;{{$rt}}</span></div>
                 <div class="panel-body">
              
                  @if(count($u) > 0)
@@ -39,6 +43,11 @@
                       <form class="form-horizontal" role="form" method="POST" action="{{ url('/insert_result') }}" data-parsley-validate>
                    
                         {{ csrf_field() }}
+                        @if($rt =='Correctional')
+                        <input type="text" class='form-control' name="reason" value="" placeholder="Enter Reason for correction" required>
+                        <br/>
+                        @endif
+                        <input type="hidden" name="flag" value="{{$rt}}">
                  <table class="table table-bordered table-striped">
                  <tr>
                         <th width="3%" class="text-center"></th>
@@ -54,6 +63,8 @@
                             {{!!$c = 0}}
                       @foreach($u as $v)
                       {{!$c = ++$c}}
+                    
+
                       <tr>
                       <td>
                       <input type="checkbox" class="checkbox" name="id[{{$c}}]" id="check[{{$c}}]" value="{{$c}}">
@@ -67,23 +78,30 @@
                       <input type="hidden" name="level_id[{{$c}}]" value="{{$v->level_id}}">
                        <input type="hidden" name="season[{{$c}}]" value="{{$v->period}}">
                        <input type="hidden" name="entry_year[{{$c}}]" value="{{$v->entry_year}}">
-                        </td>
+
+                      </td>
                       <td>{{$c}}</td>
                        <td>{{$v->matric_number}}</td>
                         <td>{{strtoupper($v->surname." ".$v->firstname." ".$v->othername)}}</td>
                         
                         
                      
-                     <?php $result =DB::connection('mysql2')->table('student_results')
-                         ->where('coursereg_id',$v->id)
-                         ->first();
-                        
-                        ?>
+                     <?php 
+                     if($rt == 'Correctional')
+                     {
+$result =DB::connection('mysql2')->table('student_results')
+->where([['coursereg_id',$v->id],['approved',1]])->first();
+
+                     }else{
+$result =DB::connection('mysql2')->table('student_results')->where('coursereg_id',$v->id)->first();
+                     }
+                     
+                     ?>
 
                          @if($result != null)
    
 <!-- ===========================check if it has edit right ================================-->
-    @if(Auth::user()->edit_right > 0) 
+   {{-- @if(Auth::user()->edit_right > 0) --}}
      <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="{{$result->id}}" >
   <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="{{$result->ca}}" />
@@ -94,7 +112,7 @@
   <td>
   <input type="" class="form-control fc " name="total[{{$c}}]"  value="{{$result->total}}" id='d{{$c}}' readonly='true' onChange="if (this.value!='') document.getElementById('check[{{$c}}]').checked=true"  />
    </td>
-   @else
+  {{-- @else
    <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="" >
   <td>
 
@@ -106,8 +124,9 @@
   <td>
   <input type="" class="form-control fc " name="total[{{$c}}]"  value="{{$result->total}}" id='d{{$c}}' readonly='true' onChange="if (this.value!='') document.getElementById('check[{{$c}}]').checked=true"  />
   </td>
-   @endif
+   @endif--}}
  @else
+ 
  <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="" >
    <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="" />
@@ -118,9 +137,12 @@
  <td>
 <input type="" class="form-control fc " name="total[{{$c}}]"  value="" id='d{{$c}}' readonly='true' onChange="if (this.value!='') document.getElementById('check[{{$c}}]').checked=true"  />
 </td>
+
 @endif
 </tr>
+
 @endforeach
+
 <tr>
 <td colspan="4"></td>
 <td colspan="3" style="padding-top: 18px;padding-bottom:10px;">

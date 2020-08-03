@@ -1,7 +1,9 @@
 @extends('layouts.admin')
 @section('title','View Registered student')
 @section('content')
+@inject('r','App\R')
         <!-- Page Heading -->
+<?php $result= $r->getrolename(Auth::user()->id) ?>
 <div class="row">
     <div class="col-lg-12">
         
@@ -18,7 +20,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">View Registered Student</div>
             <div class="panel-body">
-                <form class="form-horizontal" role="form" method="POST" action="{{ url('/register_student') }}" data-parsley-validate >
+                <form class="form-horizontal" role="form" method="GET" action="{{ url('post_register_student') }}" data-parsley-validate >
                     {{ csrf_field() }}
                     <div class="form-group">
 
@@ -50,6 +52,33 @@
                             </select>
 
                         </div>
+                        @if($result =="examsofficer")
+                        <div class="col-sm-3 col-md-2">
+                                <label for="semester" class=" control-label">Semester</label>
+                                <select class="form-control" name="semester_id">
+                                    <option value=""> - - Select - -</option>
+                                    <option value="1">First Semester</option>
+                                    <option value="2">Second Semester</option> 
+                                </select>
+    
+                            </div>
+                            <div class="col-sm-3 col-md-2">
+                                <label for="level" class=" control-label">Level</label>
+                                <select class="form-control" name="level">
+                                    <option value=""> - - Select - -</option>
+                            <option value="1">100</option>
+                            <option value="2">200</option>
+                            <option value="3">300</option>
+                            <option value="4">400</option>
+                            <option value="5">500</option>
+                            <option value="6">600</option>
+                            <option value="7">700</option>
+                           
+                                       
+                                </select>
+    
+                            </div>
+                            @else
 
                         <div class="col-sm-3 col-md-2">
                             <label for="semester" class=" control-label">Semester</label>
@@ -75,6 +104,7 @@
                             </select>
 
                         </div>
+                        @endif
                         <div class="col-sm-3 col-md-2">
                             <label for="level" class=" control-label">Season</label>
                             <select class="form-control" name="season">
@@ -145,7 +175,10 @@
                             <td>{{$v->surname." ".$v->firstname." ".$v->othername}}</td>
                             
                          <td>
-                                <button type="button" class="btn btn-danger " data-toggle="modal" data-target="#myModal{{$v->id}}">Enter Result</button></td>
+                                <button type="button" class="btn btn-success " data-toggle="modal" data-target="#myModal{{$v->id}}">Enter Result</button>
+                              &nbsp; &nbsp;
+                             <!--  <a href="{{url('deleteRegistration',$v->id)}}" class="btn btn-danger ">Delete</a>-->
+                            </td>
                         </tr>
 <!-- ======== =============== for student course reg ========================================-->
                         
@@ -171,11 +204,14 @@
                                     </div>
                                     <div class="modal-body">
                                         <div class="col-sm-offset-1 col-sm-10" style="margin-bottom: 5px;">
+                                        <div class="col-sm-1 text-center" >
+                                         
+                                        </div>
                                         <div class="col-sm-3 text-center" >Code</div>
                                         <div class="col-sm-2 text-center" >Unit</div>
                                         <div class="col-sm-2 text-center" >CA</div>
                                         <div class="col-sm-2 text-center" >Exams</div>
-                                        <div class="col-sm-3 text-center" >Total</div>
+                                        <div class="col-sm-2 text-center" >Total</div>
                                          <input type="hidden" name="fos_id" value="{{$v->fos_id}}"/>
                                             <input type="hidden" name="user_id" value="{{$v->user_id}}"/>
                                             <input type="hidden" name="matric_number" value="{{$v->matric_number}}"/>
@@ -192,6 +228,7 @@
                          ->get()
                          }}        
                                             <div class="col-sm-offset-1 col-sm-10" style="margin-bottom: 9px;">
+                                            <div class="col-sm-1" > <input type="checkbox" name="chk[]" value="{{$vv->id}}"/></div>
                                             <div class="col-sm-3 text-center text-success" > {{$vv->course_code}}</div>
                                             <div class="col-sm-2 text-center text-info" >{{$vv->course_unit}}</div>
                                           
@@ -231,7 +268,9 @@
 
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="submit" class="btn btn-danger">Submit</button>
+                                            <button type="submit" class="btn btn-danger" name="delete" value="delete">Delete</button>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   
+                                        <button type="submit" class="btn btn-success">Submit</button>
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                     </div>
@@ -247,7 +286,7 @@
                 </table>
                  <!--<button type="submit" class="btn btn-danger">Submit</button>-->
                 </form>
-
+                {{$u->setPath($url)->render()}}
                 @else
                     <div class=" col-sm-10 col-sm-offset-1 alert alert-warning" role="alert" >
                         No Student is avalable!!!

@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
              
             $table->string('plain_password');
+            $table->string('status')->nullable();
             $table->integer('faculty_id');
             $table->integer('department_id');
             $table->integer('programme_id');

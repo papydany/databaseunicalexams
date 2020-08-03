@@ -20,6 +20,7 @@ class CreateCoursesTable extends Migration
             $table->string('course_code');
             $table->integer('course_unit');
             $table->integer('level');
+            $table->string('status');
             $table->integer('semester');
             $table->timestamps();
         });

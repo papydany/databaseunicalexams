@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 @section('title','View Used Pin')
 @section('content')
+@inject('r','App\R')
+<?php $role =$r->getrolename(Auth::user()->id);?>
 
  <!-- Page Heading -->
                 <div class="row">
@@ -19,6 +21,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Used Pin</div>
                 <div class="panel-body">
+                    @if($role =='support' || $role =='admin' )
                     <div class="col-sm-6">
                     <form class="form-horizontal" role="form" method="GET" action="{{ url('/get_used_pin') }}" data-parsley-validate>
                       
@@ -51,6 +54,7 @@
 
                         </form>
                     </div>
+                    @endif
                     <div class="col-sm-6">
 
                                  <form class="form-horizontal" role="form" method="GET" action="{{ url('/get_serial_number') }}" data-parsley-validate>
@@ -88,20 +92,32 @@
                 <th>Matric Number</th>
                  <th>Seria Number</th>
                  <th>Pin</th>
+                 <th>session</th>
                  <th>Last date updated</th>
                 </tr>
-                <tr>
+                
                     
 
-                  @if(count($pin) > 0)   
+                  @if($pin  != null)  
+                  <tr> 
                   <th>1</th>
                 <th>{{$pin->student_id}}</th>
                 <th>{{$pin->matric_number}}</th>
                  <th>{{$pin->id}}</th>
                  <th>{{$pin->pin}}</th>
+                 <th>{{$pin->session}}</th>
                  <th>{{date('F j , Y - h:i:sa',strtotime($pin->updated_at))}}</th>  
                 </tr>
-               
+                @if($user !=null)
+                <tr>
+                   <?php  $department =$r->get_departmetname($user->department_id); 
+                   $fos =$r->get_fos($user->fos_id);?>
+                    <td colspan="3">{{$user->surname.' &nbsp;&nbsp;&nbsp;'.$user->firstname.'&nbsp;&nbsp;&nbsp; '.$user->othername}}</td>
+                    <td colspan="2">{{$department}}</td>
+                <td colspan="2">{{$fos}}</td>
+                    
+                </tr>
+                @endif
                 @endif
                 @endif
                  

@@ -27,7 +27,7 @@
                           <th>Title</th>
                         <th>Name</th>
                          <th>Username</th>
-                        <th>Password</th>
+                       
                         <th>Department</th>
                   
                         <th>Edit Status</th>
@@ -42,7 +42,7 @@
                          <td>{{$v->title}}</td>
                        <td>{{$v->name}}</td>
                        <td>{{$v->username}}</td>
-                       <td>{{$v->plain_password}}</td>
+                      <!-- <td>{{$v->plain_password}}</td>-->
                        <td>{{$department}}</td>
                        
 <td>{{$v->edit_right}}</td>

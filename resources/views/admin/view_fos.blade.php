@@ -75,6 +75,7 @@
   </button>
   <ul class="dropdown-menu">
     <li><a href="{{url('edit_fos',$v->id)}}">Edit</a></li>
+     <li><a href="{{url('delete_fos',$v->id)}}">Delete</a></li>
     
   </ul>
 </div></td>

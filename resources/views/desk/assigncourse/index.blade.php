@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 @section('title','Assign Course')
 @section('content')
+@inject('r','App\R')
+<?php $result= $r->getrolename(Auth::user()->id); ?>
  <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -18,8 +20,92 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Assign Courses</div>
                 <div class="panel-body">
-                    <form class="form-horizontal" role="form" method="POST" action="{{ url('/get_assign_course') }}" data-parsley-validate>
+                    <form class="form-horizontal" role="form" method="POST" action="{{ url('get_assign_course') }}" data-parsley-validate>
                         {{ csrf_field() }}
+@if($result =="admin" || $result =="support")
+
+<div class="form-group">
+  <input type="hidden" name="admin" value="1">
+                          <div class="col-sm-3">
+                                 <label for="programme">Programm</label>
+                                <select class="form-control" name="programme_id" id='programme_id'>
+                                    <option value="">Select</option>
+                                    @if(isset($p))
+                                    @foreach($p as $v)
+                                    <option value="{{$v->id}}">{{$v->programme_name}}</option>
+
+                                    @endforeach
+
+                                    @endif
+                                </select>
+                                </div>
+
+                       <div class="col-sm-3">
+                                 <label for="faculty">Faculty</label>
+                                <select class="form-control" name="faculty_id" id="faculty_id">
+                                    <option value="">Select</option>
+                                    @if(isset($fc))
+                                    @foreach($fc as $v)
+                                    <option value="{{$v->id}}">{{$v->faculty_name}}</option>
+
+                                    @endforeach
+
+                                    @endif
+                                </select>
+                                </div>
+
+                                <div class="col-sm-3">
+                              <label for="password-confirm" >Department</label>
+                              <select class="form-control" name="department_id" id="department_id" required>
+                             </select>
+
+                               
+                            </div>
+                            <div class="col-sm-3">
+                                 <label for="faculty">Field Of Study</label>
+                                  <select class="form-control" name="fos" id="fos_id" required>
+                             </select>
+                                </div>
+
+                        </div>
+                          <div class="form-group">
+                              <div class="col-sm-3">
+                              <label for="level" class=" control-label">Level</label>
+                              <select class="form-control" name="level" id="level_id">
+                                  <option value=""> - - Select - -</option>
+                                 
+                              </select>
+                             
+                            </div>
+                          
+                                 <div class="col-sm-3">
+                              <label for="session" class=" control-label">Session</label>
+                              <select class="form-control" name="session_id" required>
+                              <option value=""> - - Select - -</option>
+                               
+                                  @for ($year = (date('Y')); $year >= 2016; $year--)
+                                  {{!$yearnext =$year+1}}
+                                  <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                  @endfor
+                                
+                              </select>
+                             
+                            </div>
+
+                             <div class="col-sm-3">
+                              <label for="semester" class=" control-label">Semester</label>
+                              <select class="form-control" name="semester" id="semester_id">
+                                  <option value=""> - - Select - -</option>
+                                 
+                              </select>
+                             
+                            </div>
+                          </div>
+
+
+
+@else
+
                         <div class="form-group">
                      <div class="col-sm-3">
                               <label for="level" class=" control-label">Level</label>
@@ -74,6 +160,7 @@
                              
                             </div>
                             </div>
+                            @endif
                             <div class="form-group">
    
                              <div class="col-sm-3">
@@ -98,8 +185,10 @@
                   {{!$next = $g_s + 1}}
                         <p><span><strong>Level : </strong>{{$g_l}}00</span>&nbsp;
                         <span><strong>Session : </strong>{{$g_s.' / '.$next}}</span></p>
-                          <form class="form-horizontal" role="form" method="POST" action="{{url('/assign_course')}}" data-parsley-validate>
+                          <form class="form-horizontal" role="form" method="POST" action="{{url('assign_course')}}" data-parsley-validate>
                         {{ csrf_field() }}
+                        <input type="hidden" name="f_id" value="{{$f_id}}">
+                        <input type="hidden" name="d_id" value="{{$d_id}}">
                         <div class="col-sm-7">
                         <table class="table table-bordered table-striped">
                         <tr>
@@ -169,6 +258,23 @@
                         </div>
                         </div>
                         </div>
+   <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+       
+        <div class="modal-body text-danger text-center">
+          <p>... processing ...</p>
+        </div>
+       
+      </div>
+      
+    </div>
+  </div> 
 
+  @endsection     
+  @section('script')
+<script src="{{URL::to('js/main.js')}}"></script>
 
-  @endsection                      
+@endsection                 

@@ -12,6 +12,12 @@
       {{Session::get('warning')}}
     </div>
                  @endif
+
+                   @if(Session::has('success'))
+<div class=" col-sm-12 alert alert-success" role="alert" >
+      {{Session::get('success')}}
+    </div>
+                 @endif
                     <form class="form-horizontal" role="form" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
 
@@ -19,7 +25,7 @@
                             <label for="username" class="col-sm-4 control-label">Username</label>
 
                             <div class="col-sm-6">
-                                <input id="username" type="username" class="form-control" name="username" value="{{ old('username') }}" required autofocus>
+                                <input id="username" type="username" class="form-control" name="username" value="{{ old('username') }}" required autofocus >
 
                                 @if ($errors->has('username'))
                                     <span class="help-block">
@@ -43,11 +49,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="col-sm-6 col-sm-offset-4">
-                               
-                            </div>
-                        </div>
+                     
 
                         <div class="form-group">
                             <div class="col-sm-6 col-sm-offset-4">
@@ -56,6 +58,11 @@
                                 </button>
 
                                 
+                            </div>
+                        </div>
+                           <div class="form-group">
+                            <div class="col-sm-6 col-sm-offset-4">
+                                <a href="{{ url('password_reset') }}">I forgot my password</a>
                             </div>
                         </div>
                     </form>

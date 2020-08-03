@@ -58,9 +58,9 @@ top:15px;
   <div class="row" style="min-height: 520px;padding-left: 0px; padding-right: 0px;">
      <div class="col-sm-12">
           
-                   <?php   $d = $R->get_departmetname(Auth::user()->department_id);
+                   <?php   $d = $R->get_departmetname($d);
 
-                      $f = $R->get_facultymetname(Auth::user()->faculty_id);
+                      $f = $R->get_facultymetname($f);
 
                       $fos_name =$R->get_fos($fos);
 
@@ -132,7 +132,7 @@ top:15px;
               <span>______________________________</span>
               <span style="color:#000; padding-left:3px"></span>
               <span style="color:#000; padding-left:3px"></span>
-              <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(DEAN OF '.strtoupper($f).')</span>
+              <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(DIRECTOR OF '.strtoupper($f).')</span>
               <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">DATE: .............................................................</span>
             </p>
             <p> 
@@ -151,11 +151,10 @@ top:15px;
 
               
  // }
-  
-
-                   ?>
+  ?>
                    <table  class="table table-bordered">
-                      <tr>
+                    
+                      <tr class="thead">
                           <td>
                              <p class="text-center" style="font-size:18px; font-weight:700;">
                                 UNIVERSITY OF CALABAR </br>
@@ -175,7 +174,7 @@ top:15px;
                               </div>
                           </td>
                        </tr>
-                       <tr>
+                       <tr class="thead">
                           <td bgcolor="#cec">
                               <div class="col-sm-12 text-center"> 
                               <p><strong>EXAMINATION REPORT SHEET<br/>
@@ -183,7 +182,10 @@ top:15px;
                               </div>
                           </td>
                       </tr>
+                     
                   </table>
+                 
+
                   <table class="table table-bordered">
                     <thead>
                     <tr class="thead">
@@ -311,16 +313,16 @@ else
 
   ?> 
  @if(count($u) > 0)
-  
+  <tbody>
     
   @foreach($u as $v)
   
 
  {{! $fullname = $v->surname.' '.$v->firstname.' '.$v->othername}}
  <?php  
-$first_grade = $R->getStudentResult($v->id, $course_id1, $s, $flag,$season);
+$first_grade = $R->getStudentResult($v->id, $course_id1, $s,$season);
 
-$second_grade = $R->getStudentResult($v->id,$course_id2,$s,$flag,$season);
+$second_grade = $R->getStudentResult($v->id,$course_id2,$s,$season);
 
 $first_semester = empty($first_grade) ? array('') : $first_grade;
 
@@ -332,15 +334,20 @@ $gpa = $R->get_gpa($s,$v->id,$l,$season);
 
 $cgpa =$R->get_cgpa($s,$v->id,$season);
 
-$remark = $R->result_check_pass_sessional_diploma($l,$v->id,$s, $cgpa,$take_ignore=false,$season);
+$remark = $R->result_check_pass_sessional_diploma($l,$v->id,$s, $cgpa,$take_ignore=false,$season,$fos);
 
  ?>
- <tbody>
+ 
 <tr>
     <td>{{++$c}}</td>
     <td>{{strtoupper($fullname)}}</td>
     <td>{{$v->matric_number}}</td>
 <?php
+ if( $l > 1 ) {
+echo '<td class="s9"></td>';
+echo '<td class="s9"></td>';
+echo '<td class="tB s9"></td>';              
+              }
 for($i=0; $i<$k; $i++) {
             
             if( $i == $sizea ) {
@@ -359,7 +366,7 @@ for($i=0; $i<$k; $i++) {
             
             if( $i == ($n1c + 1) ) {
               if( $l > 1 ) {
-
+                echo '<td class="tB s9"> </td>';
               
               }
             }

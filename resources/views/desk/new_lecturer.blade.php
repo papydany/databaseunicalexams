@@ -48,7 +48,7 @@
                                     </span>
                                 @endif
                             </div>
-                         <div class="col-sm-4">
+                         <div class="col-sm-3">
                               <label for="faculty_name" class=" control-label">Name</label>
                                 <input id="faculty_name" type="text" class="form-control" name="name[{{$i}}]" value="{{ old('faculty_name') }}">
 
@@ -58,7 +58,7 @@
                                     </span>
                                 @endif
                             </div>
-                             <div class="col-sm-3">
+                             <div class="col-sm-2">
                               <label for="faculty_name" class=" control-label">Username</label>
                                 <input id="faculty_name" type="text" class="form-control" name="username[{{$i}}]" value="{{ old('faculty_name') }}">
 
@@ -69,13 +69,23 @@
                                 @endif
                             </div>
 
-                             <div class="col-sm-3">
+                             <div class="col-sm-2">
                               <label for="faculty_name" class=" control-label">Password</label>
                                 <input id="faculty_name" type="text" class="form-control" name="password[{{$i}}]" value="{{ old('faculty_name') }}">
 
                                 @if ($errors->has('faculty_name'))
                                     <span class="help-block">
                                         <strong>{{ $errors->first('faculty_name') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                              <div class="col-sm-3">
+                              <label for="faculty_name" class=" control-label">Email</label>
+                                <input id="faculty_name" type="email" class="form-control" name="email[{{$i}}]" value="{{ old('email') }}">
+
+                                @if ($errors->has('email'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('email') }}</strong>
                                     </span>
                                 @endif
                             </div>

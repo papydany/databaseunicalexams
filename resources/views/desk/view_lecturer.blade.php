@@ -27,7 +27,7 @@
                           <th>Title</th>
                         <th>Name</th>
                          <th>Username</th>
-                        <th>Password</th>
+                        <th>Email</th>
                         <th>Action</th>
                         <th>Edit Right Status</th>
                        <th>Edit Right</th>
@@ -39,7 +39,7 @@
                          <td>{{$v->title}}</td>
                        <td>{{$v->name}}</td>
                        <td>{{$v->username}}</td>
-                       <td>{{$v->plain_password}}</td>
+                       <td>{{$v->email}}</td>
                        <td><div class="btn-group">
   <button type="button" class="btn btn-danger dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Action <span class="caret"></span>

@@ -27,20 +27,20 @@
                    
                           @if(isset($rc))
                         @if(count($rc) > 0)
-                      <form class="form-horizontal" role="form" method="GET" action="{{ url('/e_result_c') }}" data-parsley-validate>
+                      <form class="form-horizontal" role="form" method="GET" action="{{ url('e_result_c') }}" data-parsley-validate>
                      
                   <div class="form-group">
                   <label for="level" class=" control-label">Course</label>
                      <select class="form-control" name="id" required>
                      <option value="">-- select --</option>
                       @foreach($rc as $v)
-                      <option value="{{$v->id}}">{{$v->reg_course_code}}</option>
+                      <option value="{{$v->id}}">{{$v->reg_course_code}}&nbsp;&nbsp;=&nbsp;&nbsp;{{$v->reg_course_status}}</option>
                       @endforeach
                      </select>
                       </div>
                       <div class="form-group">
-                  <label for="level" class=" control-label" required>Session</label>
-                     <select class="form-control" name="period">
+                  <label for="level" class="control-label">Season</label>
+                     <select class="form-control" name="period" required>
                      <option value="">-- select --</option>
                      
                       <option value="NORMAL">NORMAL</option>
@@ -53,6 +53,17 @@
                  
                      </select>
                       </div>
+                      
+                <div class="form-group">
+                  <label for="level" class=" control-label">Result Type</label>
+                <select class="form-control" name="result_type" required>
+                     <option value="">-- select --</option>
+                     <option value="Sessional">Sessional</option>
+                     <option value="Omitted">Omitted</option>
+                    <option value="Correctional">Correctional</option>
+               </select>
+                      </div>
+                      
                          <div class="form-group ">
  
                         <button type="submit" class="btn btn-danger btn-lg ">

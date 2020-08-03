@@ -103,7 +103,11 @@
                       <?php $fos = $r->get_fos($k); ?>
                       <optgroup label="{{$fos}}">
                       @foreach($value as $v)
-                      <option value="{{$v->registercourse_id.'~'.$v->fos_id.'~'.$v->reg_course_code}}">{{$v->reg_course_code}}</option>
+                      {{isset($v->registercourse_id) ? $v->registercourse_id : $v->id}}
+                      <option value="{{isset($v->registercourse_id) ?
+                      $v->registercourse_id.'~'.$v->fos_id.'~'.$v->reg_course_code
+                      :$v->id.'~'.$v->fos_id.'~'.$v->reg_course_code
+                      }}">{{$v->reg_course_code}}</option>
                       @endforeach
                          </optgroup>
                       @endforeach

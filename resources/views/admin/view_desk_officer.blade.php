@@ -41,7 +41,7 @@
                         <th>Programme</th>
                          <th>Department</th>
                          <th>Username</th>
-                        <th>Password</th>
+                        
                   
                          <th>Assignd Fos</th>
                          <td>Edit Status</td>
@@ -55,13 +55,20 @@
                          $prog= $r->get_programmename($v->programme_id);
 
                         ?>
-                       <tr>
+                        @if($v->status)
+                        <tr style="background-color: red;color: white;">
+
+                        @else
+                        <tr>
+
+                        @endif
+                       
                        <td>{{++$c}}</td>
                        <td>{{$v->name}}</td>
                         <td>{{$prog}}</td>
                        <td>{{$dept}}</td>
                        <td>{{$v->username}}</td>
-                       <td>{{$v->plain_password}}</td>
+                      
                        <td>
                        
                        {{! $fos_d = DB::table('fos')
@@ -72,12 +79,14 @@
             ->get()}}
              @if(isset($fos_d))
              @if(count($fos_d) > 0)
+             <table class="table table-striped">
           @foreach($fos_d as $value)
-          <div class="col-sm-4">
+         <tr><td>
          {{ $value->fos_name}}
-         </div>
+       </td>
+         </tr>
            @endforeach
-
+</table>
            @else
  <span class="text-danger"> No field of study assign</span>
               @endif
@@ -89,13 +98,24 @@
     Action <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
-    <li><a href="{{url('/edit_right',[$v->id,0])}}">0</a></li>
-    <li><a href="{{url('/edit_right',[$v->id,6])}}">6</a></li>
-    <li><a href="{{url('/edit_right',[$v->id,8])}}">8</a></li>
+    @if($v->status ==1)
+ <li><a href="{{url('activate',[$v->id,0])}}">Activate</a></li>
+    @else
+<li><a href="{{url('/edit_right',[$v->id,0])}}">0</a></li>
+    
     <li><a href="{{url('/edit_right',[$v->id,10])}}">10</a></li>
-    <li><a href="{{url('/edit_right',[$v->id,12])}}">12</a></li>
+    
  <li><a href="{{url('/edit_right',[$v->id,15])}}">15</a></li>
   <li><a href="{{url('/edit_right',[$v->id,20])}}">20</a></li>
+     <li class="divider"></li>
+     <li><a href="{{url('activate',[$v->id,1])}}">Deactivate</a></li>
+     @if($v->department_id != 0)
+       <li class="divider"></li>
+     <li><a href="{{url('suspend',[$v->id])}}">Suspend Account</a></li>
+     @endif
+    @endif
+
+    
   </ul>
 </div></td>
 

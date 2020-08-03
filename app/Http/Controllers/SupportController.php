@@ -8,14 +8,17 @@ use Illuminate\Support\Collection;
 use App\Http\Requests;
 use Auth;
 use App\Pin;
+use App\User;
 use App\Department;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
 use DB;
 use Excel;
+use App\Http\Traits\MyTrait;
 
 class SupportController extends Controller
 {
+   use MyTrait;
      /**
      * Create a new controller instance.
      *
@@ -62,7 +65,7 @@ for ($i = 0; $i <=$request->number; $i++) {
   $rand = $this->generateRandomString($request->pin_lenght);
   $pin->pin = $rand;
  $check =Pin::where([['pin',$rand],['session',$request->session]])->first();
-  if(count($check) == 0)
+  if($check == null)
   {
  	DB::table('pins')->insert(['pin' => $rand, 'status' => 0,'session'=>$request->session]);
 
@@ -134,12 +137,14 @@ return view('support.entry_year')->withU($user);
       $id =$request->input('serial_number');
 
     $pin = Pin::find($id);
-   if(count($pin) == 0)
+   if($pin == null)
    {
     $request->session()->flash('warning', ' No Records is not available');
  return redirect()->action('SupportController@view_used_pin'); 
    }
-    return view('support.view_used_pin')->withPin($pin);
+   $user = DB::connection('mysql2')->table('users')->where('matric_number',$pin->matric_number)->first();
+
+    return view('support.view_used_pin')->withPin($pin)->withUser($user);
  }
  // =================== convert pin =================================
 
@@ -158,7 +163,7 @@ return view('support.pin.convert');
 
      
         $pin =Pin::find($i);
-        if(count($pin) > 0)
+        if($pin != null)
         {
         if($pin->status == 0)
         {
@@ -217,7 +222,10 @@ $sheet->prependRow(1, $headings);
 // =================== get student pin ===========================
      public function student_pin()
      { $d = Department::orderBy('department_name','ASC')->get(); 
-          return view('support.student_pin')->withD($d);
+     $fos = $this->get_fos();
+     $u =User::find(Auth::user()->id);
+    
+          return view('support.student_pin')->withD($d)->withF($fos)->withUd($u);
      }
 
       public function get_student_pin(Request $request)
@@ -225,8 +233,65 @@ $sheet->prependRow(1, $headings);
      $session =$request->session;
      $department =$request->department;
      $fos =$request->fos;
-  $d = Department::orderBy('department_name','ASC')->get(); 
-   $user = DB::connection('mysql2')->table('users')->where([['entry_year',$session],['fos_id',$fos]])->orderBy('matric_number','ASC')->get();
-          return view('support.student_pin')->withD($d)->withU($user)->withDi($department)->withFos($fos)->withG_s($session);
+     $l =$request->level;
+     $matric_number =array();
+    
+ // $f =$request->fos;
+  $d = Department::orderBy('department_name','ASC')->get();
+  $foss = $this->get_fos();
+  $ud =User::find(Auth::user()->id); 
+  if($l == 1)
+  {
+    $user = DB::connection('mysql2')->table('users')
+    ->where([['entry_year',$session],['fos_id',$fos]])->orderBy('matric_number','ASC')->get();
+  }else
+  {
+    $user = DB::connection('mysql2')->table('users')
+    ->join('student_regs', 'users.id', '=', 'student_regs.user_id')
+   ->where('users.fos_id',$fos)
+   ->where([['student_regs.session',$session],['student_regs.level_id',$l],['student_regs.semester',1]])
+   ->orderBy('matric_number','ASC')
+    ->select('users.*')
+    ->get();
+  }
+
+
+   return view('support.student_pin')->withD($d)->withU($user)->withDi($department)->withFos($fos)
+  ->withG_s($session)->withF($foss)->withUd($ud)->withLevel($l);
      } 
+
+     /*--------------------------- reset --------------------------------- */
+     public function reset_pin(Request $request)
+     {
+      if($request->isMethod('post'))
+      {
+        $pin =Pin::find($request->id);
+        if($pin == null){
+      $request->session()->flash('warning', 'serial number does not exist');
+
+        }else{
+          $role =$this->g_rolename(Auth::user()->id);
+          if($role == 'Deskofficer')
+          {
+            $student = DB::connection('mysql2')->table('users')->find($pin->student_id);
+
+            if(Auth::user()->department_id != $student->department_id)
+            {
+              $request->session()->flash('warning', 'you can only reset pin of students in these department');
+              return back();
+             }
+          }
+        
+        $pin->status = 0;
+        $pin->student_type = null;
+        $pin->student_id = null;
+        $pin->matric_number = null;
+        $pin->session= $request->session;
+        $pin->save();
+    $request->session()->flash('success', ' SUCCESSFULL');
+        }
+ return back();
+      }
+      return view('support.pin.reset_pin');
+     }
 }

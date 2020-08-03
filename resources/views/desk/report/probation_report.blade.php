@@ -1,3 +1,4 @@
+<?php ini_set('max_execution_time', 3000); ?>
 @extends('layouts.display')
 @section('title','REPORT')
 @section('content')
@@ -19,7 +20,7 @@
 .tB{ border-top:1px solid #000 !important;}
 .bbt{ vertical-align:bottom; width:65px;}
 .B{ font-weight:700;}
-body{font-size: 14px;}
+body{font-size: 12px;}
 .ups{
 -webkit-transform: rotate(-90deg);
 -moz-transform: rotate(-90deg);
@@ -55,12 +56,11 @@ top:15px;
 
 
 </style>
-  <div class="row" style="min-height: 520px;padding-left: 0px; padding-right: 0px;">
-     <div class="col-sm-12">
+ 
           
-                   <?php   $d = $R->get_departmetname(Auth::user()->department_id);
+                   <?php   $d = $R->get_departmetname($d);
 
-                      $f = $R->get_facultymetname(Auth::user()->faculty_id);
+                      $f = $R->get_facultymetname($f);
 
                       $fos_name =$R->get_fos($fos);
 
@@ -79,75 +79,24 @@ top:15px;
                       	 $n2c = 1;
                          $regc2 = array('');
                       }
-                      
-
-                      if($l > 1)
-                      {
                       	// greater than 1 condition
-                     $no1 =$n1c + 2; 	
-                     $no2 =$n2c + 2;
-                      }else{
-                      	// equal to 1 condition
                      $no1 =$n1c + 1; 	
                      $no2 =$n2c + 1;
-                      }
+                     
 
-                    if( $l > 1 )
-  {
+
 
     
-    $set['rpt'] = array(0=>'<th>REPEAT COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
-    $set['carry'] = array(0=>'<th>CARRY OVER COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB">CH</th>');
+    $set['rpt'] = array(0=>'<th class="s9 text-center">REPEAT COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
+    $set['carry'] = array(0=>'<th class="s9 text-center">CARRY OVER COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB">CH</th>');
     $set['cpga'] = array(0=>'<th>CGPA</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
-    $set['chr'] = array(1=>'<th class="tB s9 bbt">Repeat/Carryover Result</th>', 2=>'<th class="tB"></th>');
+   
     $set['plus'] = 1;
     $set['wrong_fix'] = '';
     
-  } else {
-    
-    $set['rpt'] = array(0=>'', 1=>'', 2=>'');
-    $set['carry'] = array(0=>'', 1=>'', 2=>'');
-    $set['cpga'] = array(0=>'', 1=>'', 2=>'');
-    $set['chr'] = array(1=>'', 2=>'');
-    $set['plus'] = 0;
-    $set['wrong_fix'] = '<p style=" text-align:right;">CH</p>';
-
-  }
-
-  /*if( $special ){
-    
-    $set['class'] = array(0=>'<th>CLASS OF DEGREE</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
-    
  
-    
-    $set['bottom'] = '<p style="margin-left:50px">
-              <span>_________________________________</span>
-              <span style="color:#000; padding-left:3px"></span>
-              <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(HEAD OF DEPT)</span>
-              <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">DATE: .............................................................</span>
-            </p>
-            <p> 
-              <span>_________________________________</span>
-              <span style="color:#000; padding-left:3px"></span>
-              <span style="color:#000; padding-left:3px"></span>
-              <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(DEAN OF '.strtoupper($f).')</span>
-              <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">DATE: .............................................................</span>
-            </p>
-            <p> 
-              <span>_________________________________</span>
-              <span style="color:#000; padding-left:3px"></span>
-              <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(EXTERNAL EXAMINER)</span>
-              <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">DATE: .............................................................</span>
-            </p>
-            
-            <p style="margin-right:0;"> 
-              <span>_________________________________</span>
-              <span style="color:#000; padding-left:3px"></span>
-              <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(CHAIRMAN SERVC)</span>
-              <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">DATE: .............................................................</span>
-            </p>';
-  
-  } else {*/
+
+
     
     $set['class'] = array(0=>'', 1=>'', 2=>'');
     
@@ -184,12 +133,16 @@ top:15px;
 
               
  // }
-  
-
-                   ?>
+            
+  ?>
+   <div class="row" style="min-height: 520px;padding-left: 0px; padding-right: 0px;">
+     <div class="col-sm-12">
+      @if($pn == null || $pn == 1)
                    <table  class="table table-bordered">
-                      <tr>
-                      	  <td>
+                    
+                 
+                      <tr class="thead">
+                      	<td>
                              <p class="text-center" style="font-size:18px; font-weight:700;">
                                 UNIVERSITY OF CALABAR </br>
                             CALABAR</p>
@@ -206,17 +159,19 @@ top:15px;
                                  <strong>SESSION : </strong>{{$s.' / '.$next}}</br>
                                   <strong>SEMESTER : </strong>FIRST & SECOND </p>
                               </div>
-                          </td>
+                         </td>
                        </tr>
-                       <tr>
+                       <tr class="thead">
                           <td bgcolor="#cec">
                           	  <div class="col-sm-12 text-center"> 
                           	  <p><strong>EXAMINATION REPORT SHEET<br/>
                           	  {{$t}} RESULTS</strong></p> 
                           	  </div>
-                          </td>
+                         </td>
                       </tr>
-                  </table>
+                 
+                </table>
+                @endif
                   <table class="table table-bordered">
                     <thead>
                   	<tr class="thead">
@@ -245,19 +200,19 @@ top:15px;
                   <?php
      echo $set['rpt'][1],
           $set['carry'][1];
-  
+  //dd($n1c);
 
   if( $n1c != 0 || $n2c != 0 ) {
-    
-    echo $set['chr'][1];
+     
+    //echo $set['chr'][1];
     
     $sizea = $n1c; //+ 1;
-    $sizeb =  $n1c + 1 + $n2c + 1;
+    $sizeb =  $n1c + 1 + $n2c;
   
-    $k = (int)($n1c + $n2c) + 1 + 2; // additional 2 is for the two elective spaces
+    $k = (int)($n1c + $n2c)  + 2; // additional 2 is for the two elective spaces
    // dd($regc1);
 
-    $list = array_merge( $regc1, array(1=>'elective'), array(1=>''), $regc2, array(1=>'elective') );
+    $list = array_merge( $regc1, array(1=>'elective'), $regc2, array(1=>'elective') );
     
 
     for($i=0; $i<$k; $i++) {
@@ -273,12 +228,9 @@ top:15px;
         continue;
       }
       
-      if( $i == ($n1c + 1) )
-        echo $set['chr'][1];
-    
-      else {
+      
         echo '<th class="tB"><p class="ups">',isset($list[$i]['reg_course_code']) ? strtoupper($list[$i]['reg_course_code']) : '','</p></th>';
-      }
+     
     }
   
   } else {
@@ -301,7 +253,7 @@ top:15px;
 
   if($n1c != 0 || $n2c != 0 ) {
     //echo $k, $sizea, $sizeb;
-    echo $set['chr'][2];
+   // echo $set['chr'][2];
     
     for($i=0; $i<$k; $i++) {
 
@@ -316,9 +268,7 @@ top:15px;
         continue;
       }
       
-      if( $i == ($n1c + 1) )
-        echo $set['chr'][2];
-      else
+     
         echo '<th class="tB">',isset($list[$i]['reg_course_unit']) ? $list[$i]['reg_course_unit'] : '','</th>';
     }
   
@@ -351,9 +301,10 @@ else
 
  {{! $fullname = $v->surname.' '.$v->firstname.' '.$v->othername}}
  <?php  
-$first_grade = $R->getStudentResult($v->id, $course_id1, $s, $flag, $season);
+ //dd($season);
+$first_grade = $R->getStudentResult($v->id, $course_id1, $s,$season);
 
-$second_grade = $R->getStudentResult($v->id,$course_id2,$s,$flag,$season);
+$second_grade = $R->getStudentResult($v->id,$course_id2,$s,$season);
 
 $first_semester = empty($first_grade) ? array('') : $first_grade;
 
@@ -363,14 +314,15 @@ $elective_grade1 = $R->fetch_electives($v->id,$s,$l,1,$season,$reg_course_electi
 
 $elective_grade2 = $R->fetch_electives($v->id,$s,$l,2,$season,$reg_course_elective_id2);
 
- $ll = array_merge($first_semester, array(1=>array()), array(1=>array()), $second_semester, array(1=>array()) );
+ $ll = array_merge($first_semester, array(1=>array()), $second_semester, array(1=>array()) );
 
 $gpa = $R->get_gpa($s,$v->id,$l,$season);
-
+ // i increase the level so i can use the same function for probation
+$prob_level =$l + 1;
+ $repeat_course =$R->repeat_course($v->id,$s,$prob_level,$season);
 $cgpa =$R->auto_cgpa($s,$v->id,$l,$season);
-
-
-$remark = $R->result_check_pass_sessional($l,$v->id,$s, $cgpa,$take_ignore=false, $season);
+//dd($season);
+$remark = $R->result_check_pass_probational($l,$v->id,$s, $cgpa,$take_ignore=false,'PROBATION',$fos);
 
  ?>
  <tbody>
@@ -379,6 +331,11 @@ $remark = $R->result_check_pass_sessional($l,$v->id,$s, $cgpa,$take_ignore=false
     <td>{{strtoupper($fullname)}}</td>
     <td>{{$v->matric_number}}</td>
 <?php
+   
+echo '<td class="s9">',$repeat_course,'</td>';
+echo '<td class="s9">',$R->get_drop_course($v->id,$prob_level,$s,$fos),'</td>';
+             
+              
 for($i=0; $i<$k; $i++) {
             
             if( $i == $sizea ) {
@@ -395,13 +352,7 @@ for($i=0; $i<$k; $i++) {
 
             }
             
-            if( $i == ($n1c + 1) ) {
-              if( $l > 1 ) {
-
-              
-              }
-            }
-            else {
+          
               
               if( isset($ll[$i]['grade']) ) { 
 
@@ -417,9 +368,12 @@ for($i=0; $i<$k; $i++) {
                 echo '<td class="tB"></td>';
               }
              
-            }
+            
           } 
            echo'<td>',$gpa,'</td>';
+         
+           echo'<td>',$cgpa,'</td>';
+         
         echo '<td class="s9"><div class="dw">',$remark,'</div></td>';
 
 
@@ -435,8 +389,8 @@ for($i=0; $i<$k; $i++) {
   @endif
 </tbody>
 
-</table>    
-<div class="sph block bl" style="margin-top:30px; ">
+</table> 
+<div class="sph block bl" style="margin-top:30px;">
   <div style="border-bottom:2px solid #000; padding:4px 10px;" class="block B">STATISTICS</div>
   <div class="st block">
   <div><p class="a">No Of Students Registered</p> <p class="b">
@@ -451,7 +405,12 @@ for($i=0; $i<$k; $i++) {
 
 <div class="sph center" style="text-align:center; font-size:15px; font-weight:700;">Date of Senate Approval :  .......................................................................</div>     
 {{$u->setPath($url)->render()}}
-     </div>
+
+   
+
+
+ 
+  </div>
 
   </div>
 @endsection

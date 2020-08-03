@@ -7,4 +7,6 @@
 <script src="{{URL::to('parsley.min.js')}}"></script>
 
 
-
+<script type="text/javascript">
+   $('#exampleModal').modal('show')
+</script>

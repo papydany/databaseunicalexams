@@ -16,4 +16,9 @@ class Fos extends Model
     {
         return $this->belongsTo('App\Programme');
     }
+
+    public function publish_results()
+    {
+        return $this->hasMany('App\PublishResult');
+    }
 }

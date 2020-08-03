@@ -57,10 +57,14 @@
         <p>Reply</p>
         <input type="hidden"  name="id" value="{{$v->id}}">
         <input type="text" class="form-control" name="email" value="{{$v->email}}" required>
+        <input type="text" class="form-control" name="phone" value="{{$v->phone}}" required>
         <br/>
         <textarea class="form-control" rows="10" name="reply" required=""></textarea>
       </div>
       <div class="modal-footer">
+      <span class="text-danger">Uncheck Not To Send SMS</span>
+      <input type="checkbox"  name="sendsms" checked>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
          <button type="submit" class="btn btn-success">submit</button>
       </div>

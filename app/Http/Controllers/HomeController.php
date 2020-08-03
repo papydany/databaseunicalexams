@@ -22,6 +22,8 @@ use App\StudentResult;
 use App\StudentReg;
 use App\Contact;
 use App\Course;
+use App\DeskofficeFos;
+use App\PublishResult;
 use Auth;
 use bcrypt;
 use Mail;
@@ -31,10 +33,11 @@ use Illuminate\Support\Facades\Storage;
 class HomeController extends Controller
 {
     Const DESKOFFICER =3;
-    Const PDS =6;
+    Const PDS =1;
     Const ModernLanguage =7;
     Const LECTURER = 5;
     Const HOD = 7;
+    Const EXAMSOFFICER = 4;
     /**
      * Create a new controller instance.
      *
@@ -52,6 +55,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+     
     return view('admin.index');
     }
     //==============================contact mail ===================================================
@@ -66,9 +70,35 @@ class HomeController extends Controller
    $email =strtolower($request->email);
    $email = preg_replace('/\s+/', '', $email);
    $body =$request->reply;
+   $emailbody =$request->reply;
    $id =$request->id;
+   $ph =$request->phone;
+   $phone =$request->phone;
   
-   $data = array('email' => $email,'body' => $body);
+   if($ph[0] != 0)
+   {
+     $phone ='0'.$phone;
+   }
+ 
+   $sendsms =$request->sendsms;
+
+if($sendsms != null)
+{
+  $send="Unicaldb";
+  $sender =urlencode($send);
+  $body =urlencode($body);
+ // var_dump($sender);
+  // old api
+ /* $response = file_get_contents('https://bulksmspro.ng/index.php?option=com_spc&comm=spc_api&username=papydany&password=papydany7@&sender='.$sender.'&recipient='.$phone.'&message='.$body);*/
+
+  $response = file_get_contents('https://bulksmsa.com/index.php?option=com_spc&comm=spc_api&username=papydany&password=papydany7@&message='.$body.'&sender='.$sender.'&mobiles='.$phone);
+
+// var_dump($response);
+}
+ // dd(); 
+
+  
+   $data = array('email' => $email,'body' => $emailbody);
 
   Mail::send(array('html'=>'emails.reply'), $data, function($message) use ($data)  {
                 
@@ -91,7 +121,7 @@ class HomeController extends Controller
       $users = DB::connection('mysql2')->table('users')
       ->where('matric_number',$matric_number)
       ->first();
-      if(count($users) > 0)
+      if($users !=  null )
       {
         $stdReg = DB::connection('mysql2')->table('student_regs')->where('user_id',$users->id)->get();
 $f =Faculty::get();
@@ -104,6 +134,7 @@ return view('admin.admin_studentdetails')->withU($users)->withSr($stdReg)->withF
 //============================================================================================
     public function updatedepartment(Request $request)
     {
+      
       $u =DB::connection('mysql2')->table('users')
             ->where('id', $request->user_id)
             ->update(['faculty_id' =>$request->faculty_id,'department_id' => $request->department_id,'fos_id' => $request->fos_id]);
@@ -224,7 +255,7 @@ $course_reg = CourseReg::whereIn('studentreg_id',$variable)->get();
     $coureg_id [] =$value->id;
   $result = StudentResult::where('coursereg_id',$value->id)->first();
 
-  if(count($result) > 0)
+  if($result != null)
   {
     // delete result one after the other
     $result_delete =StudentResult::destroy($result->id);
@@ -244,7 +275,7 @@ return back();
 public function admin_viewStudents()
 {
       $d = Department::orderBy('department_name','ASC')->get();  
-   return view('admin.admin_viewStudents')->withD($d);
+   return view('admin.viewstudents.admin_viewStudents')->withD($d);
  }  
       public function post_viewStudents(Request $request)
     {
@@ -256,7 +287,7 @@ public function admin_viewStudents()
       $st = DB::connection('mysql2')->table('users')
       ->where([['entry_year',$s],['fos_id',$fos],['department_id',$d]])->orderBy('matric_number','ASC')->get();
    
-    return view('admin.admin_viewStudents')->withU($st)->withD($dd)->withDid($d)->withFosid($fos)->withS($s);
+    return view('admin.viewstudents.admin_viewStudents')->withU($st)->withD($dd)->withDid($d)->withFosid($fos)->withS($s);
     }
     //======================================== faculty =====================================
     public function new_faculty()
@@ -270,7 +301,7 @@ public function admin_viewStudents()
     $this->validate($request,array('faculty_name'=>'required',));
    
     $check = Faculty::where('faculty_name',strtoupper($request->faculty_name))->first();
-    if(count($check) == 1)
+    if($check != null)
     {
     Session::flash('warning',"faculty exist already.");
     return view('admin.new_faculty'); 
@@ -326,7 +357,7 @@ public function post_edit_faculty(Request $request)
     $department = strtoupper($request->department_name);
    
     $check = Department::where([['faculty_id',$faculty_id],['department_name',$department]])->first();
-    if(count($check) == 1)
+    if($check != null)
     {
     Session::flash('warning',"Department exist already.please");
     return $this->new_department();
@@ -390,7 +421,7 @@ public function post_edit_department(Request $request)
     $p = strtoupper($request->programme_name);
    
     $check = Programme::where('programme_name',$p)->first();
-    if(count($check) == 1)
+    if($check != null)
     {
     Session::flash('warning',"Programme exist already.please");
     return $this->new_programme();
@@ -431,7 +462,7 @@ public function view_programme()
     $fos = strtoupper($request->fos_name);
    
     $check = Fos::where('fos_name',$fos)->first();
-    if(count($check) == 1)
+    if($check != null)
     {
     Session::flash('warning',"fos exist already.please");
     return $this->new_fos();
@@ -485,12 +516,40 @@ public function post_edit_fos(Request $request)
     return redirect()->action('HomeController@view_fos');
 }
 
+
+//==============================delete fos=================================
+public function delete_fos($id,$yes =null)
+{
+
+  $user = DB::connection('mysql2')->table('users')->where('fos_id',$id)->count();
+  if($user > 0 )
+  {
+    Session::flash('warning',"these field of study have students.");
+   //  return redirect(session()->get('url'));
+    return back();
+  }
+     if($yes != 1)
+{
+session()->put('url',url()->previous());
+  return view('admin.regcourse.confirmation');
+}
+ 
+  $assign_fos =DeskofficeFos::where('fos_id',$id)->delete();
+  $course_unit =CourseUnit::where('fos',$id)->delete();
+  $assign_course =AssignCourse::where('fos_id',$id)->delete();
+  $rg =RegisterCourse::where('fos_id',$id)->delete();
+  $fos=Fos::destroy($id);
+  Session::flash('success',"SUCCESSFULL.");
+ return redirect(session()->get('url'));
+
+}
+
+
 //================================ assign fos ========================================================
 public function assign_fos()
 {
-
-    $d = Department::orderBy('department_name','ASC')->get();
-    return view('admin.assign_fos')->withD($d);
+$d = Department::orderBy('department_name','ASC')->get();
+return view('admin.assign_fos')->withD($d);
 }
 //====================================post assign fos =====================================================
 public function post_assign_fos(Request $request)
@@ -549,6 +608,7 @@ public function post_desk_officer(Request $request)
             'username' => 'required|unique:users',
            'password' => 'required|string|min:6',
            'faculty_id'=>'required',
+           'email'=>'required',
            'department_id'=>'required',
            'programme_id'=>'required',));
 
@@ -556,6 +616,7 @@ $user = new User;
 $user->name =$request->name;
 $user->username =$request->username;
 $user->password =bcrypt($request->password);
+$user->email =$request->email;
 $user->plain_password =$request->password;
 $user->faculty_id =$request->faculty_id;
 $user->department_id = $request->department_id;
@@ -576,10 +637,102 @@ public function view_desk_officer()
     $users = DB::table('users')
             ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
             ->where('user_roles.role_id',self::DESKOFFICER)
+            ->where('users.department_id','!=',0)
             ->orderBy('username','ASC')
             ->select('users.*')
             ->paginate(20);
         return view('admin.view_desk_officer')->withU($users);        
+}
+// ================ view suspend deskofficer =============================================
+public function suspend_desk_officer()
+{
+    $users = DB::table('users')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->where('user_roles.role_id',self::DESKOFFICER)
+            ->where('users.department_id',0)
+            ->orderBy('username','ASC')
+            ->select('users.*')
+            ->paginate(20);
+        return view('admin.deskofficer.suspend_desk_officer')->withU($users);        
+}
+
+//====================== assign suspended desk officer ==============================
+public function assign_deskofficer($id)
+{
+   $f = Faculty::orderBy('faculty_name','ASC')->get();
+    $p = Programme::all(); 
+    $u =User::find($id);
+    return view('admin.deskofficer.assign_deskofficer')->withF($f)->withP($p)->withU($u);
+}
+
+
+public function post_assign_deskofficer(Request $request)
+{
+     $this->validate($request,array( 
+           'faculty_id'=>'required',
+         'department_id'=>'required',
+           'programme_id'=>'required',));
+
+$user = User::find($request->id);
+
+$user->faculty_id =$request->faculty_id;
+$user->department_id = $request->department_id;
+$user->programme_id =$request->programme_id;
+$user->fos_id =0;
+$user->edit_right =0;
+$user->save();
+
+Session::flash('success',"SUCCESSFULL.");
+return redirect()->action('HomeController@suspend_desk_officer');
+
+}
+
+//========================== activate desk officer =================================================
+
+public function activate($id,$e)
+{
+  if(isset($e))
+  {
+    $user = User::find($id);
+$user->status =$e;
+$user->save();
+// $e == 1 is for deactivation. so check and delete any assign course to the lectures
+if($e == 1)
+{
+  AssignCourse::where('user_id',$id)->delete();
+}
+   Session::flash('success',"SUCCESSFULL.");
+return back();
+  }
+}
+//================= suspend desk officer account ============================================
+
+public function suspend($id,$e=null)
+{
+
+  if($e != 1)
+{
+session()->put('url',url()->previous());
+  return view('admin.deskofficer.suspend_confirmation');
+}
+$user = User::find($id);
+
+$user->faculty_id =0;
+$user->department_id=0;
+$user->programme_id=0;
+$user->save();
+
+// delete field of study
+  $df =DeskofficeFos::where('user_id',$id)->get();
+
+  foreach ($df as $key => $value) {
+    $fos_update =Fos::find($value->fos_id);
+    $fos_update->status =0;
+    $fos_update->save();
+  }
+ DeskofficeFos::where('user_id',$id)->delete();
+  Session::flash('success',"successfull.");
+  return redirect()->action('HomeController@view_desk_officer');
 }
 //========================================== Pds new desk officer=======================================
 public function pds_new_desk_officer()
@@ -705,7 +858,7 @@ return back();
 //========================== assign hod role =========================================
 public function assign_hod_role()
 {
-  $f =Faculty::get();
+  $f =Faculty::orderBy('faculty_name','ASC')->get();
   return view('admin.hod_role.index')->withF($f);
 }
 //------------------------------ get lecturer 4 hod --------------------------------------
@@ -726,26 +879,43 @@ $d =$request->department_id;
 //----------------------------------- assign hod----------------------------------------------------
 public function assign_hod(Request $request)
 {
+if($request->hod){
+  $role =self::HOD;
+}
+elseif($request->eo)
+{
+  $role =self::EXAMSOFFICER;
+  $user = 0;
+}
 
 $id =$request->optradio;
 $id = explode('~',$id);
+if($role == self::HOD){
  $user = DB::table('users')
             ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->where('user_roles.role_id',self::HOD)
+            ->where('user_roles.role_id',$role)
             ->where('users.department_id',$id[1])
             ->get()
             ->count();
-          
+}
             if($user == 0)
             {
 
- $user_role =DB::table('user_roles')->where('user_id',$id[0])->update(['role_id' => self::HOD]);
- 
+$user_role =DB::table('user_roles')->where('user_id',$id[0])->update(['role_id' => $role]);
+Session::flash('success',"successful.");     
 
-            }else
-            {
-           Session::flash('warning',"HOD exist in these department.You have to remove existing person before you can assign another person.");     
-            }
+}else
+{
+  if($role == self::HOD){
+    Session::flash('warning',"HOD exist in these department.You have to remove existing person before you can assign another person.");     
+
+  }else{
+    Session::flash('warning',"Exams Officer exist already.");     
+
+  }
+}
+
+
 return back();
  
 }
@@ -767,11 +937,104 @@ public function remove_hod($id)
 {
   if(isset($id))
   {
-
-
 $user_role =DB::table('user_roles')->where('user_id',$id)->update(['role_id' => self::LECTURER]);
 }
    Session::flash('success',"SUCCESSFULL.");
+return back();
+}
+
+//===========================exams officer =========================================
+public function assign_exams_officer(Request $request)
+{
+  $f =Faculty::get();
+  if ($request->isMethod('post')) {
+    $variable = $request->input('fos');
+    if($variable == null)
+    {
+    
+    return back();
+    }
+    $id =$request->optradio;
+    $id = explode('~',$id);
+    $user_role =DB::table('user_roles')->where('user_id',$id[0])->update(['role_id' => self::EXAMSOFFICER]);
+    foreach ($variable as $key => $value)
+    {
+     $check =DeskofficeFos::where([['fos_id',$value],['user_id',$id[0]]])->first();
+     if($check ==  null){
+      $v[] = ['fos_id'=>$value,'user_id'=>$id[0],'status'=>0];
+     }
+    
+    }
+    if(count($v) != 0){
+      DB::table('deskoffice_fos')->insert($v);
+      Session::flash('success',"Successfull.");
+    }else{
+      Session::flash('warning',"No records added, because FOS exist for these exams officer already.");
+    }
+    }
+  return view('admin.assign_exams_officer.index')->withF($f);
+}
+//------------------------------ get lecturer 4 exams officer --------------------------------------
+public function get_lecturer_4_exams_officer(Request $request)
+{
+$f =Faculty::get(); 
+$f_id =$request->faculty_id;
+$d =$request->department_id;
+$depart_name =Department::find($d);
+$fos = Fos::where('department_id',$d)->get();
+    $user = DB::table('users')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->where('user_roles.role_id',self::LECTURER)
+            ->where([['users.faculty_id',$f_id],['users.department_id',$d]])
+            ->orderBy('users.name','ASC')
+            ->select('users.*')
+            ->get();
+  return view('admin.assign_exams_officer.index')->withU($user)->withF($f)->withFos($fos)->withDname($depart_name);           
+}
+//------------------------- view exams officer ---------------------------------------------
+public function  view_exams_officer ()
+{
+  $users = DB::table('users')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->join('departments', 'users.department_id', '=', 'departments.id')
+            ->where('user_roles.role_id',self::EXAMSOFFICER)
+            ->where('users.department_id','!=',0)
+            ->orderBy('departments.department_name','ASC')
+            ->select('users.*')
+            ->paginate(20);
+        return view('admin.assign_exams_officer.view')->withU($users);   
+}
+//------------------------- remove exams officer ------------------------
+public function remove_exams_officer($id)
+{
+  if(isset($id))
+  {
+$user_role =DB::table('user_roles')->where('user_id',$id)->update(['role_id' => self::LECTURER]);
+$desk =DeskofficeFos::where('user_id',$id)->delete();
+Session::flash('success',"SUCCESSFULL.");
+}
+   
+return back();
+}
+
+//------------------------- detail exams officer ---------------------------------------
+public function detail_exams_officer($id)
+{
+  if(isset($id))
+  {
+    $user =User::find($id);
+    return view('admin.assign_exams_officer.detail')->withU($user);
+  }
+
+}
+//------------------------------------ remove fos --------------------------------------
+public function remove_fos($id)
+{
+  if(isset($id))
+  {
+    $desk =DeskofficeFos::where('id',$id)->delete();
+Session::flash('success',"SUCCESSFULL.");
+  }
 return back();
 }
 //-----------------------------------create course unit -----------------------------------------------
@@ -797,7 +1060,7 @@ return back();
 //-----------------------------------create course unit -----------------------------------------------
 public function create_course_unit_special()
 {
-  $d = Department::get();
+  $d = Department::orderBy('department_name','ASC')->get();
     return view('admin.create_course_unit_special')->withD($d);
 }
 //-----------------------------------post create course unit -----------------------------------------------
@@ -822,12 +1085,32 @@ return back();
  
   
 }
+
+//================  edit_course_unit ===================================
+public function edit_course_unit($id)
+{
+ $course_unit = CourseUnit::find($id);
+ return view('admin.course_unit.edit')->withC($course_unit);
+}
+
+//================  updated_course_unit ===================================
+public function update_course_unit(Request $request)
+{
+ $c = CourseUnit::find($request->id);
+  $c->min =$request->min;
+  $c->max =$request->max;
+  $c->save();
+   Session::flash('success',"SUCCESSFULL.");
+   return redirect()->action('HomeController@view_course_unit');
+ //return view('admin.course_unit.edit')->withC($course_unit);
+}
 //=====================view registered courses ===========================
 public function adminreg_course()
 {
  $d = Department::orderBy('department_name','ASC')->get();    
  return view('admin.reg_course')->withD($d);
 }
+
 
 function post_adminreg_course(request $request)
 {
@@ -858,11 +1141,13 @@ public function update_adminreg_course(Request $request)
   $title =$request->title;
   $status =$request->status;
   $unit =$request->unit;
+  $semester =$request->semester;
+  //dd($semester);
 $getreg =RegisterCourse::where([['id',$id],['session',$s]])->first();
 
 // normal courses first
 $course = Course::find($getreg->course_id);
-if(count($course) > 0)
+if($course != null)
 {
 /*$course->course_title =$title;
 $course->course_code =$code;
@@ -875,6 +1160,7 @@ $getreg->reg_course_title =$title;
 $getreg->reg_course_code =$code;
 $getreg->reg_course_status =$status;
 $getreg->reg_course_unit =$unit;
+$getreg->semester_id =$semester;
 $getreg->save();
 
 $getcourse = CourseReg::where([['registercourse_id',$getreg->id],['course_id',$getreg->course_id]])->get();
@@ -882,7 +1168,7 @@ $getcourse = CourseReg::where([['registercourse_id',$getreg->id],['course_id',$g
 if(count($getcourse) > 0)
 {
 // update register courses students
-$data  =['course_title'=>$title,'course_code'=>$code,'course_unit'=>$unit,'course_status'=>$status];
+$data  =['course_title'=>$title,'course_code'=>$code,'course_unit'=>$unit,'course_status'=>$status,'semester_id'=>$semester];
 
 $c = CourseReg::where('registercourse_id',$getreg->id)->where('course_id',$getreg->course_id)->update($data);
 
@@ -890,9 +1176,10 @@ $c = CourseReg::where('registercourse_id',$getreg->id)->where('course_id',$getre
 $cu [] =['cu'=>$unit];
 foreach ($getcourse as $key => $value) {
  $result =StudentResult::where('coursereg_id',$value->id)->first();
- if(count($result) > 0)
+ if($result != null)
  {
   $result->cu = $unit;
+  $result->semester = $semester;
  $result->save();
  }
  }
@@ -908,9 +1195,6 @@ return redirect($request->pre_url);
 
 function delete_adminreg_course($id,$s,$yes=null)
 {
-
-  
-
 if($yes != 1)
 {
 session()->put('url',url()->previous());
@@ -939,7 +1223,7 @@ $del_result =StudentResult::destroy($dat_r);
 
 $reg =RegisterCourse::destroy($id);
 $assign_course =AssignCourse::where('registercourse_id',$id)->first();
-if(count($assign_course) > 0 )
+if($assign_course != null )
 {
   $assign_course->delete();
 }
@@ -1000,6 +1284,7 @@ session()->put('url',url()->previous());
 }
 $data =array();
 $reg =RegisterCourse::find($id);
+
 /// get resiter students
 $user = DB::connection('mysql2')->table('users')
         ->join('student_regs', 'student_regs.user_id', '=', 'users.id')
@@ -1008,13 +1293,28 @@ $user = DB::connection('mysql2')->table('users')
         ->get();
         //dd($reg->reg_course_unit);
 
-        // check for students that have not register for the courses
+    // get course unit set for the programme    
+        $course_unit =CourseUnit::where([['fos',$reg->fos_id],['session',$s],['level',$reg->level_id]])->first();
+      
+        if($course_unit == null)
+        {
+          $course_unit =CourseUnit::where([['fos',0],['session',$s],['level',0]])->first();
+       
+        }
+        
+ // check for students that have not register for the courses       
 foreach ($user as $key => $v) {
 $course =CourseReg::where([['registercourse_id',$id],['session',$s],['studentreg_id',$v->id],['user_id',$v->user_id],['semester_id',$v->semester],['course_id',$reg->course_id],['level_id',$v->level_id]])->first();
 if($course == null)
 {
+ // check for the total unit  
+ $coursereg =CourseReg::where([['session',$s],['studentreg_id',$v->id],['user_id',$v->user_id],['semester_id',$v->semester],['level_id',$v->level_id]])->sum('course_unit');
+$newcourseregtotal = $coursereg + $reg->reg_course_unit;
 
+ if($newcourseregtotal <= $course_unit->max)
+ {
 $data[] =['studentreg_id'=>$v->id,'registercourse_id'=>$id,'user_id'=>$v->user_id,'level_id'=>$v->level_id,'semester_id'=>$v->semester,'course_id'=>$reg->course_id,'course_title'=>$reg->reg_course_title,'course_code'=>$reg->reg_course_code,'course_unit'=>$reg->reg_course_unit,'course_status'=>$reg->reg_course_status,'session'=>$reg->session,'period'=>'NORMAL'];
+}
 }
 
 }
@@ -1048,6 +1348,25 @@ public function post_changepassword(Request $request)
 return back();
 }
 
+// ================ change email ===========================
+public function changeemail()
+{
+ 
+ return view('admin.changeemail.index');
+}
+// ================ post change email ===========================
+public function post_changeemail(Request $request)
+{
+ $this->validate($request,array('email' => 'required','unique',));
+ $email =$request->email;
+ $user = User::find(Auth::user()->id);
+ $user->email =$email; 
+ $user->save();
+   Session::flash('success',"successfull.");
+
+return back();
+}
+
 
 // ============================== delete students registration =============
 public function deleteRegistration($id)
@@ -1058,7 +1377,7 @@ public function deleteRegistration($id)
   foreach ($courseReg as $key => $value) {
     // check students result is present
   $student_results = DB::connection('mysql2')->table('student_results')->where('coursereg_id',$value->id)->first();
-  if(count($student_results) > 0)
+  if($student_results != null)
   {// delete students result 
     DB::connection('mysql2')->table('student_results')->where('id',$student_results->id)->delete();
 
@@ -1071,6 +1390,181 @@ DB::connection('mysql2')->table('student_regs')->where('id',$id)->delete();
 Session::flash('success',"successfull.");
 return back();
 }
+
+//=============================== transfer officer =====================================
+public function transfer_officer()
+{
+  $f =Faculty::orderBy('faculty_name','ASC')->get();
+  $p =Programme::get();
+    return view('admin.transfer_officer.index')->withF($f)->withP($p);
+}
+
+public function post_transfer_officer(Request $request)
+{
+  $f =Faculty::get();
+  $p =Programme::get();
+  $id =$request->officer_id;
+  $m_fac =$request->m_fac_id;
+  $m_dept =$request->m_dept_id;
+  $programme  =$request->programme_id;
+
+  $user =user::find($id);
+  $user->department_id =$m_dept;
+  $user->faculty_id =$m_fac;
+  $user->programme_id =$programme;
+  $user->save();
+  // delete field of study
+  $df =DeskofficeFos::where('user_id',$id)->get();
+  foreach ($df as $key => $value) {
+    $fos_update =Fos::find($value->fos_id);
+    $fos_update->status =0;
+    $fos_update->save();
+  }
+ DeskofficeFos::where('user_id',$id)->delete();;
+  Session::flash('success',"successfull.");
+  return back();
+
+    //return view('admin.transfer_officer.index')->withF($f)->withP($p);
+}
+//=================== courses with no results =====================
+public function course_with_no_result()
+{
+  return view('admin.course_with_no_result.index');
+}
+
+public function post_course_with_no_result(Request $request)
+{
+  $this->validate($request,array('session' => 'required','semester' => 'required','level' => 'required',));
+ $s =$request->session;
+ $l =$request->level;
+ $semester =$request->semester;
+  $results = DB::connection('mysql2')->table('student_results')
+  ->select('course_id')
+->where([['level_id',$l],['semester',$semester],['session',$s]])
+->distinct()->get();
+  foreach($results as $v)
+  {
+    $course_id_with_result [] =$v->course_id;
+  }
+  /*$department =Department::orderBy('department_name','ASC')->get();
+  foreach($department as $v)
+  {
+    $depart [] = $v->id;
+  }*/
+  /*$reg =RegisterCourse::select()
+  ->where([['level_id',$l],['semester_id',$semester],['session',$s]])
+  
+  ->whereNotIn('course_id',$course_id_with_result)
+  ->orderBy('fos_id','ASC')
+  ->distinct()->get()->groupBy('department_id');*/
+  $reg = DB::table('register_courses')
+  ->join('departments', 'register_courses.department_id', '=', 'departments.id')
+  ->where([['level_id',$l],['semester_id',$semester],['session',$s],['reg_course_status','!=','E']])
+  ->whereNotIn('course_id',$course_id_with_result)
+  ->select('course_id','fos_id','department_id','reg_course_title','reg_course_code','department_name')
+  ->orderBy('department_name','ASC')
+  ->distinct()->get()->groupBy('department_id');
+  
+ return view('admin.course_with_no_result.report')->withReg($reg)->withL($l)->withS($s)->withSm($semester);
+}
+
+// ============================= publish result ================================
+public function publish_result()
+{
+  $f =Faculty::orderBy('faculty_name','ASC')->get();
+  $p =Programme::get();
+  return view('admin.publish_result.index')->withF($f)->withP($p);
+}
+
+public function post_publish_result(Request $request)
+{
+  $department_id =$request->department_id;
+  $programme =$request->programme_id;
+  $level =$request->level;
+  $session =$request->session;
+  $nsession =$session + 1;
+  $fv =array();
+
+  $fos =Fos::where([['department_id' ,$department_id],['programme_id',$programme]])->get();
+
+  foreach($fos as $v)
+  {
+ $fv [] =$v->id;
+  }
+  
+  $pr =PublishResult::whereIn('fos_id',$fv)->where([['level_id',$level],['session',$session]])->get();
+  $f =Faculty::orderBy('faculty_name','ASC')->get();
+  $p =Programme::get();
+  
+  return view('admin.publish_result.index')->withF($f)->withP($p)->withFos($fos)->withPr($pr)->withL($level)->withS($session)
+  ->withNs($nsession);
+}
+
+public function publish(Request $request)
+{
+$variable =$request->fos_id;
+if(!isset($variable))
+{
+  Session::flash('warning',"Please select field of study to publish");
+ // return redirect(session()->get('url'));
+  return back();
+}
+$l =$request->level_id;
+$s=$request->session;
+$data =array(); $data2 =array(); $data3 =array(); $data4 =array(); $data5 =array(); $exist_data=array();
+$date =date('Y-m-d');
+
+foreach($variable as $v)
+{
+  $data2[] =['fos_id'=>$v,'level_id'=>$l,'session'=>$s];
+  $data5[] =$v;
+}
+
+$register_course =RegisterCourse::where([['level_id',$l],['session',$s]])->whereIn('fos_id',$data5)->get();
+
+if(count($register_course) == 0){
+  Session::flash('warning',"No registerd Courses for the level and session on the selected Field Of Study");
+  // return redirect(session()->get('url'));
+   return back();
+}
+$data4 =['approved'=>1,'approved_date'=>$date];
+foreach($register_course as $value)
+{
+ $ddd[] =$value->course_id;
+$data3[] =$value->fos_id;
+}
+$data3 =array_unique($data3);
+DB::connection('mysql2')->table('student_results')
+->whereIn('course_id',$ddd)
+ ->where([['level_id',$l],['session',$s],['approved','!=',1]])
+ ->update($data4);
+
+$pr =PublishResult::where([['level_id',$l],['session',$s]])->whereIn('fos_id',$data3)->get();
+
+if(count($pr))
+{
+  foreach($pr as $v)
+  {
+  $update =PublishResult::where([['fos_id',$v->fos_id],['level_id',$l],['session',$s]])
+  ->update(['publish_date'=>$date]);
+  $exist_data[] =$v->fos_id;
+}
+}
+
+$remain_fos_id = array_diff($data3,$exist_data);
+if(count($remain_fos_id) > 0)
+{
+  foreach($remain_fos_id as $v){
+  $data[] =['fos_id'=>$v,'level_id'=>$l,'session'=>$s,'publish_date'=>$date];
+  }
+  $p =PublishResult::insert($data);
+}
+
+Session::flash('success',"Successful");
+
+ return back();
+}
+
 //-------------------------------------------success---------------------------------------------
 public function success()
 {
@@ -1092,16 +1586,39 @@ public function post_view_course_unit(Request $request)
  public function getDepartment($id)
     {
   
-    $d =Department::where('faculty_id', $id)->get();
+    $d =Department::where('faculty_id', $id)->orderBy('department_name','ASC')->get();
     return response()->json($d);
     }
 // function to get fos
  public function getFos($id)
     {
-     $d =Fos::where('department_id', $id)->get();
+     $d =Fos::where('department_id', $id)->orderBy('fos_name','ASC')->get();
     return response()->json($d);
     }
 // function to get fos
+ public function username($id)
+    {
+     $d =User::where([['department_id', $id],['programme_id','!=',0]])->get();
+    return response()->json($d);
+    }
+//========================== update email ==========================
+public function update_email($id)
+    {
+     $d =User::find($id);
+    return view('admin.update_email.index')->withD($d);
+    }
 
+    // ================ post change email ===========================
+public function post_update_email(Request $request)
+{
+ $this->validate($request,array('email' =>'required|unique:users',));
+ $email =$request->email;
+ $id =$request->id;
+ $user = User::find($id);
+ $user->email =$email; 
+ $user->save();
+   Session::flash('success',"successfull.");
 
+return back();
+}
 }

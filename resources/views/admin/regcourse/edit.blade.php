@@ -7,7 +7,7 @@
                   <div class="row" style="min-height: 520px;">
         <div class="col-sm-12">
 @if(isset($r))
-                        @if(count($r) > 0)
+                        @if($r != null)
        <?php  $department = $R->get_departmetname($r->department_id);
  
         $fos =$R->get_fos($r->fos_id);    
@@ -67,7 +67,14 @@
                        <td><input type="text" name="unit" value="{{$r->reg_course_unit}}" class="form-control"></td>
                      </tr>
                      <th>Semester</th>
-                       <td>@if($r->semester_id == 1)
+                       <td>
+                       <!--<select name="semester" class="form-control" required>
+                          <option value="">select</option>
+                          <option value="1">First Semeter</option>
+                          <option value="2">Second Semester</option>
+                        </select>-->
+                        <input type="hidden" name="semester" value="{{$r->semester_id}}" class="form-control">
+                     @if($r->semester_id == 1)
                        First Semeter
                        @else
                        Second Semester

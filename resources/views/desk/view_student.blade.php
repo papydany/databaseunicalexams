@@ -99,6 +99,7 @@
                                 <th>Name</th>
                                 <th>Phone Number</th>
                                 <th>Gender</th>
+                                <th>Action</th>
 
                             </tr>
                             {{!!$c = 0}}
@@ -109,6 +110,9 @@
                                     <td>{{$v->surname." ".$v->firstname." ".$v->othername}}</td>
                                     <td>{{$v->phone}}</td>
                                     <td>{{$v->gender}}</td>
+                                    <td><a href="{{url('view_student_detail',$v->id)}}" class="btn btn-success">
+                                        Detail</a>
+                                    </td>
                                 </tr>
                             @endforeach
                         </table>
