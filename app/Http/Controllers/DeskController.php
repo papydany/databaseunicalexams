@@ -1,22 +1,23 @@
 <?php
-
 namespace App\Http\Controllers;
 use Illuminate\Pagination\LengthAwarePaginator;
+
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Input;
+//use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
-use Auth;
+use Illuminate\Support\Facades\Auth;
+
 use App\Role;
 use App\Faculty;
 use App\Department;
-use App\Programme;
+//use App\Programme;
 use App\Fos;
 use App\Level;
 use App\Semester;
 use App\StudentResult;
 use App\StudentResultBackup;
-use App\StudentReg;
-use DB;
+//use App\StudentReg;
+use Illuminate\Support\Facades\DB;
 use App\User;
 use App\Pin;
 use App\Course;
@@ -489,33 +490,7 @@ if(count($assign_course) > 0 )
 Session::flash('success',"successfull.");
 return back();
 }
-//===================================== =========================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-//========================================
-
-
-
-
-
-
-
-
-
-
-
-
+//=========================================================================================================
 //--------------------------------------------------------------------------------------------------------
 function get_assign_course(request $request)
 {
@@ -1987,14 +1962,8 @@ if($omitted != null)
             ->distinct()            
             ->select('users.*')
             ->get();
-
-   
-   return $users;
+            return $users;
  }
-
- //----------------------------------------------------------------------------------------------------
-
-
  //============================================END OF REPORT=============================================
 
 //================================== custom function =========================================================

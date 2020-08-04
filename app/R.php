@@ -1,7 +1,7 @@
 <?php
 
 namespace App;
-use DB;
+use Illuminate\Support\Facades\DB;
 use App\PdsResult;
 use App\Department;
 use App\Programme;
@@ -15,6 +15,7 @@ use App\Http\Traits\MyTrait;
 class R
 {
 use MyTrait;
+//----------------------get result-----------------------------------
  public function getresult($id){
         $result =DB::connection('mysql2')->table('student_results')
                          ->where('coursereg_id',$id)
@@ -22,7 +23,7 @@ use MyTrait;
                        return $result;
        
    }
-
+//--------------------------get role name--------------------------------------
    public function getrolename($id){
         $user = DB::table('roles')
             ->join('user_roles', 'roles.id', '=', 'user_roles.role_id')
@@ -30,7 +31,8 @@ use MyTrait;
             ->first();
             return $user->name;
     }
-
+//===================================PDS=================================================================
+//---------------------get pds result------------------------------------
    public function pds_getresult($id,$mat_no,$course,$semester,$session){
         $result =DB::connection('mysql2')->table('pds_results')
                          ->where([['pdg_user',$id],['matric_number',$mat_no],['course',$course],['semester',$semester],['session',$session]])
@@ -38,7 +40,7 @@ use MyTrait;
                        return $result;
        
    }
-
+//---------------------------------------------------------------------------------------------
  public   function select_result_display($s_id,$course_id,$semester,$session){
 
 if( empty($course_id) ){
@@ -82,6 +84,7 @@ foreach ($query as $key => $value) {
       return $result;
       
 }
+//-----------------------------------------------get course-------------------------------------------------
 public function getcourse()
 {
   $c =PdsCourse::get();
@@ -90,19 +93,19 @@ public function getcourse()
   }
 return $id;
 }
-//======================================================================================================
+//------------------------------------------------------------------------------
  public   function get_result_point($s_id,$course_id,$semester,$session){
 $query =PdsResult::wherein('course',$course_id)->where([['pdg_user',$s_id],['semester',$semester],['session',$session]])->get();
 return $query->sum('point');
  }
-
+//--------------------------------------------------------------------------------------------------------
  public function get_course_grade($id,$c,$s,$sm)
  {
      $result =PdsResult::where([['pdg_user',$id],['course',$c],['session',$s],['semester',$sm]])->get();
      return $result;
  }
 
- //======================================================================================================
+ //-----------------------------------------------------------------------------------------------------
  public   function get_course_avg($s_id,$course_id,$session){
 $query =PdsResult::where([['pdg_user',$s_id],['session',$session],['course',$course_id]])->get();
 $sum = $query->sum('total');
@@ -118,7 +121,8 @@ $avg = $sum/$no;
 return $avg;
 
  }
-
+//==================================================end of pds code======================================
+//---------------------------------------------------------------------------------------------------------
  public function get_course_grade_point($total)
  {
 
@@ -162,6 +166,7 @@ return $avg;
         }
     
  }
+ //---------------------------------------get department by name----------------------------------------------
 public function get_departmetname($id)
 {
 
@@ -172,6 +177,7 @@ if($d == null)
 }
 return $d->department_name;
 }
+//----------------------------------------get faculty by name--------------------------------------------
 public function get_facultymetname($id)
 {
 $d =Faculty::find($id);
@@ -181,6 +187,7 @@ if($d == null)
 }
 return $d->faculty_name;
 }
+//---------------------------------------get programme by name---------------------------------------------
 public function get_programmename($id)
 {
 $d =Programme::find($id);
@@ -190,7 +197,7 @@ if($d == null)
 }
 return $d->programme_name;
 }
-
+//-------------------------------------get field of studies--------------------------------------
 public function get_fos($id)
 {
 $d =Fos::find($id);
@@ -252,7 +259,7 @@ function getStudentResult($id,$course_id,$s,$season) {
   return $result;
   
 }
-
+//------------------------------------get register elective course-----------------------------------------
 public function getRegisteredCourseElective($s,$l,$sem,$fos)
 {
     $reg_id =array();
@@ -267,7 +274,7 @@ public function getRegisteredCourseElective($s,$l,$sem,$fos)
    return $reg_id;
 }
 // get elective result
-
+//-----------------------------------get elective course----------------------------------------
 function fetch_electives($id, $s,$l,$sem,$season,$reg_id) {
  $elec = '';
 $coursereg =CourseReg::whereIn('registercourse_id',$reg_id)->where([['user_id',$id],['level_id',$l],['semester_id',$sem],['session',$s],['course_status','E'],['period',$season]])->get();
@@ -325,6 +332,7 @@ return 0;
 
 }
 // get course unit
+//------------------------------------get course unit-----------------------------------
 private function get_crunit ($courseid, $s, $id,$season ) {
   if($season == "VACATION")
   {
@@ -339,6 +347,7 @@ private function get_crunit ($courseid, $s, $id,$season ) {
   return $cu;
 }
 // get grade point
+//-------------------------------------get grade point-------------------------------------------
 private function get_gradepoint ($grade, $cu,$entry_year){
   
   if ($grade == 'A' )
@@ -356,6 +365,7 @@ private function get_gradepoint ($grade, $cu,$entry_year){
 
 }
 // get result
+//---------------------------------------------------------------------------------------------------------
 private function getResult_grade($id,$s,$l,$season,$course_id_array)
 {
     $s_result =StudentResult::where([['user_id',$id],['session',$s],['season',$season],['level_id',$l]])
@@ -364,6 +374,7 @@ private function getResult_grade($id,$s,$l,$season,$course_id_array)
 }
 
 // get result single
+//---------------------------------------------------------------------------------------------------------
 private function getSingleResult($id,$s,$l,$sem,$season,$course_id)
 {
     $s_result =StudentResult::where([['user_id',$id],['session',$s],['season',$season],['level_id',$l],['course_id',$course_id],['semester',$sem]])->first();
@@ -376,6 +387,7 @@ return $s_result;
 
   function result_check_pass_sessional($l, $id, $s, $cgpa,$take_ignore=false, $taketype='',$fos)
 { $fail=''; $pass='';$c=0;$carryf ='';$rept=''; $course_id_array =array();$pass_course_id=array();
+  $course_id_v =''; $result_array=array();
   $new_prob=$this->new_Probtion($l,$id,$s,$cgpa);
   if($new_prob==true){
     return $new_prob;
@@ -402,24 +414,39 @@ if (count($sql)!=0){ // found failed courses in the level
 $pass_course_id[]= $v->course_id;
 }
    }
+  
    
 // the remain course_id that is not yet passed
 $unpass_course_id=array_diff($course_id_array,$pass_course_id);
 
+$exitingResult =StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])->select('course_id')->get();
+
+$coursereg_join = CourseReg::where([['user_id',$id],['level_id',$l],['session',$s]])
+->whereIn('course_status',['R','D'])
+->whereNotIn('course_id',$exitingResult)->select('course_id', 'course_code');
+
 $coursereg = CourseReg::where('user_id',$id)->whereIn('course_id',$unpass_course_id)
-->select('course_id', 'course_code')->distinct()->get();
+->select('course_id', 'course_code')->union($coursereg_join)->distinct()->get();
+
 if(count($coursereg) != 0){
 foreach($coursereg as $k =>$v)
 {
   $code = substr($v->course_code,0,3).' '.substr($v->course_code,3,4);
             
   $type = substr($v->course_code,0,3); // GSSS
+if(in_array($v->course_id,$course_id_array))
+{
   $n = $course_array[$v->course_id]['number'];
+}else{
+  $n = 1;
+}
+  
   if ($n >= 3)
   {
-      if ($type != 'GSS' || $type != 'GST')
+    
+      if (!in_array($type,['GSS','GST']))
       { 
-      if($this->ignore_carryF ($id, $course_id_v, $s ) == '')
+      if($this->ignore_carryF ($id, $v->course_id, $s ) == '')
           {
           $carryf .= ', '.$code;
           }
@@ -430,7 +457,8 @@ foreach($coursereg as $k =>$v)
   {
       $rept .= ', '.$code;
   }
-}
+
+}//dd($carryf);
 }
 
 }
@@ -439,14 +467,15 @@ foreach($coursereg as $k =>$v)
 
 }else{
   // check for repeat or carryover courses that dont have result and the student did fail anycaurse in the session
-  $result =StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])->get();
-  foreach($result as $key => $value)
+  $result =StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])->select('course_id')->get();
+  /*foreach($result as $key => $value)
   {
     $result_array[]=$value->course_id;
-  }
+  }*/
   $coursereg = CourseReg::where([['user_id',$id],['level_id',$l],['session',$s]])
   ->whereIn('course_status',['R','D'])
-  ->whereNotIn('course_id',$result_array)->get();
+  ->whereNotIn('course_id',$result)->get();
+  //dd($coursereg);
   
 
   foreach($coursereg as $k =>$v)
@@ -457,12 +486,11 @@ foreach($coursereg as $k =>$v)
 }
 
   $take = $take_ignore == true ? '' : $this->take_courses_sessional($id, $l, $s, $taketype,$fos);
-
  // $take = take_courses_sessional($id, $l, $s, $taketype='');
   //$rept = $carryf == $rept? '': $rept;
-  $carryf = $carryf != '' ? '<b>CARRY F</b> '.substr($carryf,2)."<br>" : '';
-  $rept = $rept != '' ? '<b>RPT</b> '. substr($rept,2) : '';
-  $rept = $take != '' ? '<b>TAKE</b> '. $take ."<br>".$rept : $rept;
+  $carryf = $carryf != '' ? '<b>CARRY F :</b>'.substr($carryf,2)."<br>" : '';
+  $rept = $rept != '' ? '<b>RPT : </b>'. substr($rept,2) : '';
+  $rept = $take != '' ? '<b>TAKE : </b>'. $take ."<br>".$rept : $rept;
   $dur = $this->G_duration($id);
   
   if (($l >= $dur) && ($rept == '')) {
@@ -533,14 +561,14 @@ if($taketype == "RESIT")
 }
 
 
-
+//------------------------ entry session----------------------------------------------------
 function get_entry_sesssion($id)
 {//dd($id);
   $users = DB::connection('mysql2')->table('users')
   ->find($id);
   return  $users->entry_year;
 }
-
+//---------------------------------- new probation-------------------------------------------
 function new_Probtion($l,$id,$s,$cgpa){
   $fail_cu=$this->get_fail_crunit($l,$id,$s);
 
@@ -677,7 +705,7 @@ $tcu=$sql->sum('cu');
 return $tcu;
 }
 
-function ignore_carryF ( $id, $course_id, $s ){
+public function ignore_carryF ( $id, $course_id, $s ){
   $sql =CourseReg::where([['user_id',$id],['session',$s],['course_id',$course_id]])->get();
   if(count($sql) == 0)
   {
@@ -690,42 +718,39 @@ function ignore_carryF ( $id, $course_id, $s ){
   
 }
 
-function take_courses_sessional($id,$l,$s,$taketype='',$fos) 
+public function take_courses_sessional($id,$l,$s,$taketype='',$fos) 
 {
-  //$c_duration = get_course_duration( $fos );
-  //$users = DB::connection('mysql2')->table('users')->find($id);
-  //$fos =$users->fos_id;
   $take = '';
-  $result_array =array();
   $regcos_array = array();
+  $result =array();
   if ($taketype == 'VACATION')
   { 
     
       $result = StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])
-      ->whereIn('season',['NORMAL','VACATION'])->get();
+      ->whereIn('season',['NORMAL','VACATION'])->select('course_id')->get();
       
   }  elseif ($taketype == 'RESIT')
   { 
     
       $result = StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])
-      ->whereIn('season',['RESIT'])->get();
+      ->whereIn('season',['RESIT'])->select('course_id')->get();
   }
   
   else { //ignore vac result for take remark
      $result = StudentResult::where([['user_id',$id],['level_id',$l],['session',$s]])
-      ->whereIn('season',['NORMAL'])->get();
+      ->whereIn('season',['NORMAL'])->select('course_id')->get();
   }
-if(count($result) > 0)
+/*if(count($result) > 0)
       {
       foreach ($result as $key => $value) {
         $result_array [] = $value->course_id;
-      }
+      }*/
       if ($taketype == 'RESIT')
       {
         
         //var_dump($result_array);
     $cos =CourseReg::where([['user_id',$id],['level_id',$l],['session',$s],['course_status','R']])
-      ->whereNotIn('course_id',$result_array)->get();
+      ->whereNotIn('course_id',$result)->get();
 
       foreach ($cos as $key => $v) {
       $regcos_array [] =$v->registercourse_id;
@@ -739,7 +764,7 @@ $sql =RegisterCourse::whereIn('id',$regcos_array)->get();
       {
 
     $cos =CourseReg::where([['user_id',$id],['level_id',$l],['session',$s]])
-      ->whereNotIn('course_id',$result_array)->get();
+      ->whereNotIn('course_id',$result)->get();
 
       foreach ($cos as $key => $v) {
       $regcos_array [] =$v->registercourse_id;
@@ -752,9 +777,9 @@ $sql =RegisterCourse::whereIn('id',$regcos_array)->get();
       }else
       {
         $sql =RegisterCourse::where([['fos_id',$fos],['level_id',$l],['session',$s],['reg_course_status','C']])
-      ->whereNotIn('course_id',$result_array)->get();
+      ->whereNotIn('course_id',$result)->get();
       }
-      
+     // dd($sql);
       if(count($sql) > 0)
       {
         foreach ($sql as $key => $value) {
@@ -763,21 +788,21 @@ $sql =RegisterCourse::whereIn('id',$regcos_array)->get();
     
       }
      
-    }
+   // }
 
  
   return $take != '' ? substr($take,2) : '';
   }
 
   
-
-  function G_duration($id){
+//---------------------- get duration --------------------------------------------
+ public  function G_duration($id){
   $users = DB::connection('mysql2')->table('users')->find($id);
   $fos =Fos::find($users->fos_id);
   return $fos->duration;  
 }
 
-
+//----------------------------------------- auto cgpa ----------------------------------
 function auto_cgpa( $s, $id, $l,$season ) {
  $duration = $this->G_duration($id);
   $year_of_study = $l.'/'.$duration;
@@ -801,7 +826,7 @@ function auto_cgpa( $s, $id, $l,$season ) {
   }
   
 }
-
+//------------------------ cgpa--------------------------------
 function get_cgpa($s,$id,$season){
 
 $tcu = 0; $tgp = 0;$coursereg_id =array();
@@ -849,7 +874,7 @@ return $gpa;
 }
 return 0;
 }
-
+//------------------- get session used------------------------------------
 function get_count_session_used( $id, $l = 6 ) {
   $stdReg =StudentReg::where([['user_id',$id],['level_id','<=',$l]])
   ->whereIn('semester',['1,2'])->distinct()->select('session')->get()->count();
@@ -863,13 +888,13 @@ function get_count_session_used( $id, $l = 6 ) {
   }
 
 }
-
+//-------------------get pin year------------------------------------------------------
 public function get_pin_year($user_id,$mat,$year)
 {
   $p =Pin::where([['student_id',$user_id],['matric_number',$mat],['session',$year]])->get();
 return $p;
 }
-
+//---------------------------get repeat course-------------------------------------------
 public function repeat_course($id,$session,$level,$season)
 {
   $return = '';
@@ -965,7 +990,7 @@ $return = '';
 
     return strtoupper($return);
 }
-
+//----------------------- failed drop courses--------------------------------
 public function get_failed_drop_courses($id,$l,$s,$season,$course_status,$semester)
 {
   $return =array();
@@ -991,7 +1016,7 @@ public function get_failed_drop_courses($id,$l,$s,$season,$course_status,$semest
 return $return;
 }
 
-
+//------------------failed drop course result---------------------------------------------
 function get_failed_drop_course_result($id,$l,$s, $semester, $rpt_list, $carryov_list) {
   //var_dump($rpt_list);
   $to_go = array();
@@ -1133,7 +1158,7 @@ $cor =StudentResultBackup::where([['user_id',$id],['session',$s],['season',$seas
   
 }
 
-
+//---------------------- gpa correctional ----------------------------------------------------------------
 function get_gpa_correctional($s,$id,$l,$season){
   
   $tcu = 0; $tgp = 0;  $course_id = array();
@@ -1164,7 +1189,7 @@ return 0;
 
 }
 
-// get result
+// ------------------get result grade correction-------------------------------
 private function getResult_grade_correction($id,$s,$l,$season,$course_id_array)
 {$result =array();
     $s_result =StudentResult::where([['user_id',$id],['session',$s],['season',$season],['level_id',$l]])
@@ -1184,13 +1209,12 @@ private function getResult_grade_correction($id,$s,$l,$season,$course_id_array)
   return $result;
 }
 
-//------------------------ remarks -----------------------------------------
+//------------------------ remarks  correction-----------------------------------------
 
 
-public function remarks_correctional($p, $f, $d, $l,$id,$s,$season, $cgpa, $fos, $finalyear = false, $new=false){
+public function remarks_correctional($l,$id,$s,$season, $cgpa, $fos, $taketype = false){
 
-
-$prob=new_Probtion_correctional($l,$id,$s,$season,$cgpa);
+$prob = $this->new_Probtion_correctional($l,$id,$s,$season,$cgpa);
 
 if($prob==true){
   
@@ -1198,10 +1222,10 @@ return $prob;
 }
 $return = '';
 $carryf = '';
-$take = get_course_to_take_verREMARK($p, $f, $d, $l, $s, $s_id, $fos,true);
-$repeat = get_repeat_courses_reloaded_corr($l, $s, $s_id, $d, $fos);
-$repeat1 = get_repeat_courses_reloaded1_corr($l, $s, $s_id, $d, $fos);
-
+$take ='';
+$take = $this->take_courses_sessional($id, $l, $s, $taketype,$fos);
+//$repeat = get_repeat_courses_reloaded_corr($l, $s, $s_id, $d, $fos);
+$repeat1 = $this->repeatCourseCorrection($id,$s,$l,$season);
 
 if( !empty( $repeat1 ) ) 
 {
@@ -1209,65 +1233,27 @@ if( !empty( $repeat1 ) )
   foreach($repeat1 as $rep1)
   {
     
-    if( $rep1['num_'] == 3 )
+    if( $rep1['number'] == 3 )
     {
       
-      $carryf .= substr_replace($rep1['code'],' ',3, 0).',';
+      $carryf .= substr_replace($rep1['code1'],' ',3, 0).',';
     }
-    elseif($rep['num_'] < 3)
+    elseif($rep1['number'] < 3)
     {
-      $return .= substr_replace($rep1['code'],' ',3 ,0).',';
+      $return .= substr_replace($rep1['code1'],' ',3 ,0).',';
     }
   }
   
-  $carryf = empty($carryf) ? '' : 'CARRY F '.$carryf." <br/>";
-  $return = empty($return) ? '' : 'RPT '.$return;
+  $carryf = empty($carryf) ? '' : '<b> CARRY F : </b>'.$carryf." <br/>";
+  $return = empty($return) ? '' : '<b> RPT : </b>'.$return;
   //var_dump($return);
   
 }
 
-
-if( !empty( $repeat ) ) 
-{
-  if(!empty($return))
-  {
-    $return=str_replace("RPT","",$return);
-  }
-  
-  foreach($repeat as $rep)
-  {
-    
-    if( $rep['num_'] == 3 )
-    {
-      
-      //$carryf .= substr_replace($rep['code'],' ',3, 0).',';
-
-    }
-    elseif($rep['num_'] < 3)
-    {
-      //$return .= substr_replace($rep['code'],' ',3, 0).',';
-    }
-  
-  }
-  $return=substr($return, 0,-1);
-  
-  $carryf = empty($carryf) ? '' : 'CARRY F '.$carryf." <br/>";
-  $return = empty($return) ? '' : 'RPT '.$return;
-  //var_dump($return);
-        
-}
-//echo $carryf.":";		
-  if(( $cgpa > 9.99 ) && $finalyear == true ) 
-  {
-    $return = "PASS <br/>".$carryf;
-    $return = $carryf;
-  } 
-  
   if(!empty($return) || !empty($carryf))
   {
     $return = $carryf.$return;
-    //echo "here".$return;
-    //var_dump($return);
+  
   }
 
   if(empty($take) && !empty($carryf) &&  empty($return)) 
@@ -1288,10 +1274,48 @@ return strtoupper($return);
 
 }
 
+public function repeatCourseCorrection($id,$s,$l,$season)
+{
+$courseRegCourseId =array();
+$courseRegCourseIdAndCode =array();
+$course_array =array();
+$courseReg =CourseReg::where([['user_id',$id],['session',$s],['level_id',$l]])
+->whereIn('period',[$season])->select('course_id','course_code')->get();
+foreach($courseReg as $v)
+{
+  $courseRegCourseIdAndCode[$v->course_id] =['course_id'=>$v->course_id,'code'=>$v->course_code];
+  $courseRegCourseId []=$v->course_id;
+}
 
+
+$check =StudentResult::where([['user_id',$id],['session',$s],['level_id',$l],['grade','!=',"F"]])
+->whereIn('season',[$season])->select('course_id')->get();
+ 
+$sql =StudentResult::where([['user_id',$id],['session','<=',$s],['grade',"F"],['level_id','<=',$l]])
+->whereNotIn('course_id',$check)->whereIn('course_id',$courseRegCourseId)->whereIn('season',[$season])
+->select('course_id','cu');
+
+$sql2 =StudentResultBackup::where([['user_id',$id],['session',$s],['grade',"F"],['level_id',$l]])
+->whereIn('season',[$season])->union($sql)->select('course_id','cu')->get()->groupBy('course_id','id');
+
+
+if (count($sql2)!=0){ // found failed courses in the level
+  foreach($sql2 as $key => $value)
+  {
+    $course_array []=['course_id'=>$key,'number'=>$value->count(),'code1'=>$courseRegCourseIdAndCode[$key]['code']];
+   
+   //var_dump($course_array);
+  }
+
+}
+
+return $course_array;
+}
+//-------------------------------- probation for correctional result -------------
 function new_Probtion_correctional($l,$id,$s,$season,$cgpa){
 
   $fail_cu=$this->fail_course_unit_correction($l,$id,$s,$season);
+  $return ='';
  
 		if($fail_cu > 15 && $cgpa < 1.5 || $cgpa >=0.00 && $cgpa <=0.99 ){
       $return = 'WITHDRAW';

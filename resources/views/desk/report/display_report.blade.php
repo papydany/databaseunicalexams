@@ -427,9 +427,10 @@ $second_semester_cor = empty($second_grade_cor) ? array('') : $second_grade_cor;
 
 $ll_cor = array_merge($first_semester_cor, array(1=>array()), array(1=>array()), $second_semester_cor, array(1=>array()) );
 $gpa_cor = $R->get_gpa_correctional($s,$v->id,$l,$season);
-//$remark_cor = $R->remarks_correctional($p, $f, $d, $l,$v->id,$s,$season, $cgpa, $fos, $finalyear = false, $new=false);
-$remark_cor ='';
-   if( $l > 1 ) {
+$remark_cor = $R->remarks_correctional($l,$v->id,$s,$season, $gpa_cor, $fos,$take_ignore=false);
+//$remark_cor =remarks_correctional($p, $f, $d, $l,$id,$s,$season, $cgpa, $fos, $finalyear = false, $new=false);
+
+if( $l > 1 ) {
 echo '<td class="s9">',$repeat_course,'</td>';
 echo '<td class="s9">',$R->get_drop_course($v->id,$l,$s,$fos),'</td>';
 echo '<td class="tB s9">',$R->get_failed_drop_course_result($v->id,$l,$s,1, $repeat_1, $drop_1),'</td>';              

@@ -1,15 +1,15 @@
 <?php
 namespace App\Http\Traits;
-use DB;
+use Illuminate\Support\Facades\DB;
 use App\Programme;
 use App\Faculty;
 use App\StudentReg;
 use App\CourseReg;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 trait MyTrait {
 
 
-   public function mm( $G, $U , $entry_year) {
+   public function mm( $G, $U ) {
 
         $return = array();
        
@@ -35,7 +35,7 @@ trait MyTrait {
         }
         return $return;
     }
- public function get_grade($total,$entry_year)
+ public function get_grade($total)
  { 
     if($total == 0)
     {

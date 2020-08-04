@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use App\Http\Requests;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use App\Pin;
 use App\User;
 use App\Department;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Input;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Excel;
 use App\Http\Traits\MyTrait;
 
