@@ -58,8 +58,26 @@
                               </select>
                              
                             </div>
+                            @if(Auth::user()->faculty_id == $med)
+                        <div class="col-sm-3">
+                              <label for="level" class=" control-label">Level</label>
+                              <select class="form-control" name="level">
+                               <option value=""> - - Select - -</option>
+                               <option value="1">100</option>
+                            <option value="2">200</option>
+                            <option value="3">Part I</option>
+                            <option value="4">Part II</option>
+                            <option value="5">Part III</option>
+                            <option value="6">Part IV</option>
+                          
+                                
+                              </select>
+                             
+                            </div>
+                            
 
-                     <div class="col-sm-4">
+                        @else
+                     <div class="col-sm-3">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level" id="level_id" required>
                                   <option value=""> - - Select - -</option>
@@ -67,16 +85,32 @@
                               </select>
                              
                             </div>
+                            @endif
 
                          
                             
 
                               
-                          <div class="col-sm-4">
+                          <div class="col-sm-3">
                               <label for="semester" class=" control-label">Result Type</label>
                               <select class="form-control" name="result_type" id="result_type"  required>
                                   <option value=""> - - Select - -</option>
                                  
+                              </select>
+                             
+                            </div>
+                                 <div class="col-sm-3">
+                              <label for="session" class=" control-label">Pagination</label>
+                              <select class="form-control" name="page_number" required>
+                              <option value=""> - - Select - -</option>
+                              <option value="5">5 per page </option>
+                              <option value="6">6 per page</option>
+                              <option value="8">8 per page</option>
+                              <option value="10">10 per page</option>
+                              <option value="12"> 12 per page</option>
+                              <option value="14"> 14 per page</option>
+                              <option value="15"> 15 per page</option>
+                              
                               </select>
                              
                             </div>

@@ -61,6 +61,7 @@
                           <th>Sn</th>
                            <th>Level</th>
                            <th>Field of Study</th>
+                           <th>Session</th>
                           <th>Min</th>
                             <th>Max</th>
                              <th>Action</th>
@@ -85,6 +86,7 @@
 
                              @endif</td>
                            <td>{{$fos}}</td>
+                           <td>{{$v->session}}</td>
                           <td>{{$v->min}}</td>
                             <td>{{$v->max}}</td>
                              <td><div class="btn-group">

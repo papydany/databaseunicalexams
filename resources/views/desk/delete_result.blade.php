@@ -112,13 +112,22 @@
                       <input type="hidden" name="session" value="{{$si}}">
                       </div>
   <div class="form-group">
-                  <label for="level" class=" control-label">Session</label>
+                  <label for="level" class=" control-label">Season</label>
                      <select class="form-control" name="period" required>
                      <option value="">-- select --</option>
                      <option value="NORMAL">NORMAL</option>
                       <option value="VACATION">VACATION</option>
                 
                      </select>
+                      </div>
+                      <div class="form-group">
+                  <label for="level" class=" control-label">Result Type</label>
+                <select class="form-control" name="result_type" required>
+                     <option value="">-- select --</option>
+                     <option value="Sessional">Sessional</option>
+                     <option value="Omitted">Omitted</option>
+                    <option value="Correctional">Correctional</option>
+               </select>
                       </div>
 
                          <div class="form-group ">

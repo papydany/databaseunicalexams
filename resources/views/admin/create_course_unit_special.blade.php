@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 @section('title','Create Course Unit')
 @section('content')
+@inject('R','App\R')
+<?php $result= $R->getrolename(Auth::user()->id) ?>
  <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -18,9 +20,13 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Create Course Unit <a href="create_course_unit" class="btn btn-info pull-right">
+                <div class="panel-heading">Create Course Unit 
+                @if($result =="support" || $result =="admin")
+                <a href="create_course_unit" class="btn btn-info pull-right">
                                     <i class="fa fa-btn fa-user"></i> Back 
-                                </a></div>
+                                </a>
+                   @endif             
+                                </div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/create_course_unit_special') }}" data-parsley-validate>
                         {{ csrf_field() }}
@@ -40,6 +46,21 @@
                               </select>
                              
                             </div>
+                            @if($result =="Deskofficer")
+                            <div class="col-sm-3">
+                                <input type="hidden" name="department" value="{{$ud->department_id}}">
+                            <label for="fos" class=" control-label">Field Of Study</label>
+                            <select class="form-control" name="fos" required>
+                                <option value=""> - - Select - -</option>
+
+                                @foreach($f as $v)
+                                    <option value="{{$v->id}}">{{$v->fos_name}}</option>
+                                @endforeach
+
+                            </select>
+
+                        </div>
+                            @else
                               <div class="col-sm-2">
                               <label for="session" class="control-label">Department</label>
                               <select class="form-control" name="department" id="department_id" required>
@@ -61,7 +82,7 @@
                               </select>
                              
                             </div>
-
+                            @endif
                               <div class="col-sm-2">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level" required>

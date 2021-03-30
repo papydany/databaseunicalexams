@@ -175,11 +175,16 @@ top:15px;
               <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">DATE: .............................................................</span>
             </p>
             
-            <p style="margin-right:0;"> 
+            <p> 
               <span>___________________________</span>
               <span style="color:#000; padding-left:3px"></span>
               <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(CHAIRMAN SERVC)</span>
               <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">DATE: .............................................................</span>
+            </p>
+            <p style="margin-right:0;"> 
+            <br/><br/>
+              <span style="color:#000; padding-left:3px; font-size:10px;" class="B"></span>
+              <span style="color:#000; padding:20px 0 0 3px; font-size:10px;">Date of Senate Approval: .....................................................</span>
             </p>';
 
               
@@ -277,7 +282,7 @@ top:15px;
         echo $set['chr'][1];
     
       else {
-        echo '<th class="tB"><p class="ups">',isset($list[$i]['reg_course_code']) ? strtoupper($list[$i]['reg_course_code']) : '','</p></th>';
+        echo '<th class="tB"><p class="ups">',isset($list[$i]->reg_course_code) ? strtoupper($list[$i]->reg_course_code) : '','</p></th>';
       }
     }
   
@@ -319,7 +324,7 @@ top:15px;
       if( $i == ($n1c + 1) )
         echo $set['chr'][2];
       else
-        echo '<th class="tB">',isset($list[$i]['reg_course_unit']) ? $list[$i]['reg_course_unit'] : '','</th>';
+        echo '<th class="tB">',isset($list[$i]->reg_course_unit) ? $list[$i]->reg_course_unit : '','</th>';
     }
   
   } else
@@ -429,20 +434,23 @@ for($i=0; $i<$k; $i++) {
 </tbody>
 
 </table>    
-<div class="sph block bl" style="margin-top:30px; ">
-  <div style="border-bottom:2px solid #000; padding:4px 10px;" class="block B">STATISTICS</div>
-  <div class="st block">
-  <div><p class="a">No Of Students Registered</p> <p class="b">
-{{count($users)}}
- </p></div>
-  <div><p class="a">No of Results Published</p> <p class="b">{{count($users)}}</p></div>
+<div class="sph block bl">
+<div style="border-bottom:2px solid #000; padding:4px 10px;" class="block B">
+  <div class="col-sm-4"><p class="a">STATISTICS  </p></div> 
+  <div class="col-sm-4"> <p class="a">Number Of Students Registered</p> <p class="b">
+{{count($users)}}</p></div>
+<div class="col-sm-4"><p class="a">Number of Results Published</p> 
+<p class="b">{{count($users)}}</p></div>
+  
   </div>
   </div>
 
 
-<div class="sph block" style="margin-top:40px;"><?php echo $set['bottom'] ?></div>
+<div class="sph block" style="margin-top:40px;"><?php echo $set['bottom'] ?>
+<div class='col-sm-12' style="text-align:center;">page {{$cpage}}</div></div>
 
-<div class="sph center" style="text-align:center; font-size:15px; font-weight:700;">Date of Senate Approval :  .......................................................................</div>     
+<!--<div class="sph center" style="text-align:center; font-size:15px; font-weight:700;">Date of Senate Approval :  .......................................................................</div>     
+-->
 {{$u->setPath($url)->render()}}
      </div>
 

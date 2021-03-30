@@ -34,8 +34,14 @@
                      <select class="form-control" name="id" required>
                      <option value="">-- select --</option>
                       @foreach($rc as $v)
+                      @if(Auth::user()->faculty_id == $med)
+                      <option value="{{$v->id}}">{{$v->reg_course_title}}</option>
+                    
+                      @else
                       <option value="{{$v->id}}">{{$v->reg_course_code}}&nbsp;&nbsp;=&nbsp;&nbsp;{{$v->reg_course_status}}</option>
-                      @endforeach
+                    
+                      @endif
+                       @endforeach
                      </select>
                       </div>
                       <div class="form-group">

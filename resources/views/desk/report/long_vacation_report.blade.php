@@ -1,8 +1,9 @@
 <?php ini_set('max_execution_time', 3000); ?>
 @extends('layouts.display')
-@section('title','REPORT')
+@section('title','LONG VACATION REPORT')
 @section('content')
 @inject('R','App\R')
+
 <style type="text/css">
 @media print,Screen{
  html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{border:0 none;font-size:100%;vertical-align:baseline;margin:0;padding:0;}
@@ -53,58 +54,57 @@ top:15px;
 @media print{
 .pagination{display: none}
 }
-
-
 </style>
+ <?php 
+ $ff =$f;  
+ $d = $R->get_departmetname($d);
+ $f = $R->get_facultymetname($f);
  
-          
-                   <?php   $d = $R->get_departmetname($d);
-
-                      $f = $R->get_facultymetname($f);
-
-                      $fos_name =$R->get_fos($fos);
-
-
-                      $reg_course_elective_id1 =$R->getRegisteredCourseElective($s,$l,1,$fos);
-                      $reg_course_elective_id2 =$R->getRegisteredCourseElective($s,$l,2,$fos);
-
-                     if(empty($n1c))
-                      {
-                      	 $n1c = 1;
-                         $regc1 = array('');
-                      }
-                     
-                       if(empty($n2c))
-                      {
-                      	 $n2c = 1;
-                         $regc2 = array('');
-                      }
-                      	// greater than 1 condition
-                     $no1 =$n1c + 1; 	
-                     $no2 =$n2c + 1;
-                     
-
-
-
-    
-    $set['rpt'] = array(0=>'<th class="s9 text-center">REPEAT COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
-    $set['carry'] = array(0=>'<th class="s9 text-center">CARRY OVER COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB">CH</th>');
-    $set['cpga'] = array(0=>'<th>CGPA</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
-   
-    $set['plus'] = 1;
-    $set['wrong_fix'] = '';
-    
- 
-
-
-    
-    $set['class'] = array(0=>'', 1=>'', 2=>'');
-    
-   
-    
-    
-    
-    $set['bottom'] = '<p style="margin-left:0px">
+ $fos_name =$R->get_fos($fos);
+ $reg_course_elective_id1 =$R->getRegisteredCourseElective($s,$l,1,$fos);
+ $reg_course_elective_id2 =$R->getRegisteredCourseElective($s,$l,2,$fos);
+if(empty($n1c))
+{
+$n1c = 1;
+$regc1 = array('');
+}
+if(empty($n2c))
+{
+  $n2c = 1;
+  $regc2 = array('');
+}
+if($l > 1)
+{
+// greater than 1 condition
+$no1 =$n1c + 2; 	
+$no2 =$n2c + 2;
+}else{
+// equal to 1 condition
+$no1 =$n1c + 1; 	
+$no2 =$n2c + 1;
+ }
+if( $l > 1 )
+  {
+$set['rpt'] = array(0=>'<th class="s9 text-center">REPEAT COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
+$set['carry'] = array(0=>'<th class="s9 text-center">CARRY OVER COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB">CH</th>');
+$set['cpga'] = array(0=>'<th>CGPA</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
+$set['chr'] = array(1=>'<th class="tB s9 bbt">Repeat/Carryover Result</th>', 2=>'<th class="tB"></th>');
+$set['plus'] = 1;
+$set['wrong_fix'] = '';
+} else {
+$set['rpt'] = array(0=>'', 1=>'', 2=>'');
+$set['carry'] = array(0=>'', 1=>'', 2=>'');
+$set['cpga'] = array(0=>'', 1=>'', 2=>'');
+$set['chr'] = array(1=>'', 2=>'');
+$set['plus'] = 0;
+$set['wrong_fix'] = '<p style=" text-align:right;">CH</p>';
+}
+if( $final != '' ){
+ $set['class'] = array(0=>'<th>CLASS OF DEGREE</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
+} else {
+$set['class'] = array(0=>'', 1=>'', 2=>'');
+}
+$set['bottom'] = '<p style="margin-left:0px">
               <span>_______________________</span>
               <span style="color:#000; padding-left:3px"></span>
               <span style="color:#000; padding-left:3px; font-size:10px;" class="B">(HEAD OF DEPT)</span>
@@ -142,7 +142,7 @@ top:15px;
   ?>
    <div class="row" style="min-height: 520px;padding-left: 0px; padding-right: 0px;">
      <div class="col-sm-12">
-      @if($pn == null || $pn == 1)
+      
                    <table  class="table table-bordered">
                     
                  
@@ -176,7 +176,7 @@ top:15px;
                       </tr>
                  
                 </table>
-                @endif
+               
                   <table class="table table-bordered">
                     <thead>
                   	<tr class="thead">
@@ -205,21 +205,21 @@ top:15px;
                   <?php
      echo $set['rpt'][1],
           $set['carry'][1];
-  //dd($n1c);
+  
 
   if( $n1c != 0 || $n2c != 0 ) {
-     
-    //echo $set['chr'][1];
+    
+    echo $set['chr'][1];
     
     $sizea = $n1c; //+ 1;
-    $sizeb =  $n1c + 1 + $n2c;
+    $sizeb =  $n1c + 1 + $n2c + 1;
   
-    $k = (int)($n1c + $n2c)  + 2; // additional 2 is for the two elective spaces
+    $k = (int)($n1c + $n2c) + 1 + 2; // additional 2 is for the two elective spaces
    // dd($regc1);
 
-    $list = array_merge( $regc1, array(1=>'elective'), $regc2, array(1=>'elective') );
-    
-
+    $list = array_merge( $regc1, array(1=>'elective'), array(1=>''), $regc2, array(1=>'elective') );
+//  var_dump($list); 
+//dd();
     for($i=0; $i<$k; $i++) {
 
       if( $i == $sizea ) {
@@ -233,9 +233,12 @@ top:15px;
         continue;
       }
       
-      
-        echo '<th class="tB"><p class="ups">',isset($list[$i]->reg_course_code) ? strtoupper($list[$i]->reg_course_code) : '','</p></th>';
-     
+      if( $i == ($n1c + 1) )
+        echo $set['chr'][1];
+    
+      else {
+       echo '<th class="tB"><p class="ups">',isset($list[$i]->reg_course_code) ? strtoupper($list[$i]->reg_course_code) : '','</p></th>';
+      }
     }
   
   } else {
@@ -258,7 +261,7 @@ top:15px;
 
   if($n1c != 0 || $n2c != 0 ) {
     //echo $k, $sizea, $sizeb;
-   // echo $set['chr'][2];
+    echo $set['chr'][2];
     
     for($i=0; $i<$k; $i++) {
 
@@ -273,7 +276,9 @@ top:15px;
         continue;
       }
       
-     
+      if( $i == ($n1c + 1) )
+        echo $set['chr'][2];
+      else
         echo '<th class="tB">',isset($list[$i]->reg_course_unit) ? $list[$i]->reg_course_unit : '','</th>';
     }
   
@@ -285,17 +290,17 @@ top:15px;
      $set['cpga'][2],
      $set['class'][2],
      '<th class="tB"></th>',
-     '</tr></thead>';    
+     '</tr></thead>';  
+     
   
  
- 
-if($pn >= 1)
-{
-  $pn1 =$pn -1;
-  $c = $page * $pn1;
-}
-else
-{ $c = 0;}
+     if($cpage >= 1)
+     {
+       $pn1 =$cpage -1;
+       $c = $page * $pn1;
+     }
+     else
+     { $c = 0;}
 
   ?> 
  @if(count($u) > 0)
@@ -307,7 +312,7 @@ else
  {{! $fullname = $v->surname.' '.$v->firstname.' '.$v->othername}}
  <?php  
  //dd($season);
-$first_grade = $R->getStudentResult($v->id, $course_id1, $s,$season);
+$first_grade = $R->getStudentResult($v->id,$course_id1,$s,$season);
 
 $second_grade = $R->getStudentResult($v->id,$course_id2,$s,$season);
 
@@ -319,15 +324,26 @@ $elective_grade1 = $R->fetch_electives($v->id,$s,$l,1,$season,$reg_course_electi
 
 $elective_grade2 = $R->fetch_electives($v->id,$s,$l,2,$season,$reg_course_elective_id2);
 
- $ll = array_merge($first_semester, array(1=>array()), $second_semester, array(1=>array()) );
+ $ll = array_merge($first_semester, array(1=>array()), array(1=>array()), $second_semester, array(1=>array()) );
 
 $gpa = $R->get_gpa($s,$v->id,$l,$season);
- // i increase the level so i can use the same function for probation
-$prob_level =$l + 1;
- $repeat_course =$R->repeat_course($v->id,$s,$prob_level,$season);
+ if( $l > 1 ) {
+ $repeat_course =$R->repeat_course($v->id,$s,$l,$season);
+ // first sementer drop and repeat courses
+$repeat_1 =$R->get_failed_drop_courses($v->id,$l,$s,$season,'R',1);
+$drop_1 = $R->get_failed_drop_courses($v->id,$l,$s,$season,'D',1);
+
+
+  // Second sementer drop and repeat courses
+$repeat_2 =$R->get_failed_drop_courses($v->id,$l,$s,$season,'R',2);
+$drop_2 = $R->get_failed_drop_courses($v->id,$l,$s,$season,'D',2);
+ 
 $cgpa =$R->auto_cgpa($s,$v->id,$l,$season);
-//dd($season);
-$remark = $R->result_check_pass_probational($l,$v->id,$s, $cgpa,$take_ignore=false,'PROBATION',$fos);
+}else{
+ $cgpa = $gpa;
+}
+//dd();
+$remark = $R->result_check_pass_sessional($l,$v->id,$s, $cgpa,$take_ignore=false,$season,$fos,$ff);
 
  ?>
  <tbody>
@@ -336,11 +352,11 @@ $remark = $R->result_check_pass_probational($l,$v->id,$s, $cgpa,$take_ignore=fal
     <td>{{strtoupper($fullname)}}</td>
     <td>{{$v->matric_number}}</td>
 <?php
-   
+   if( $l > 1 ) {
 echo '<td class="s9">',$repeat_course,'</td>';
-echo '<td class="s9">',$R->get_drop_course($v->id,$prob_level,$s,$fos),'</td>';
-             
-              
+echo '<td class="s9">',$R->get_drop_course($v->id,$l,$s,$fos,$season),'</td>';
+echo '<td class="tB s9">',$R->get_failed_drop_course_result($v->id,$l,$s,1, $repeat_1, $drop_1,$season),'</td>';              
+              }
 for($i=0; $i<$k; $i++) {
             
             if( $i == $sizea ) {
@@ -357,7 +373,13 @@ for($i=0; $i<$k; $i++) {
 
             }
             
-          
+            if( $i == ($n1c + 1) ) {
+              if( $l > 1 ) {
+
+              echo '<td class="tB s9">',$R->get_failed_drop_course_result($v->id,$l,$s,2, $repeat_2, $drop_2,$season);' </td>';
+              }
+            }
+            else {
               
               if( isset($ll[$i]['grade']) ) { 
 
@@ -373,18 +395,101 @@ for($i=0; $i<$k; $i++) {
                 echo '<td class="tB"></td>';
               }
              
-            
+            }
           } 
            echo'<td>',$gpa,'</td>';
-         
+           if( $l > 1 ) {
            echo'<td>',$cgpa,'</td>';
-         
+         }
+         if( $final !='' ) {
+          $ignore = substr($remark,0,4) == 'PASS' ? false : true;
+          
+							echo '<td class="B tc">',$R->G_degree($cgpa, $ignore),'</td>';
+						}
         echo '<td class="s9"><div class="dw">',$remark,'</div></td>';
 
 
 ?>
 
   </tr>
+  @if($t =="CORRECTIONAL")
+
+  <tr>
+    <td>Prev</td>
+    <td>{{strtoupper($fullname)}}</td>
+    <td>{{$v->matric_number}}</td>
+<?php
+
+$first_grade_cor = $R->getStudentResultCorrection($v->id,$course_id1,$s,$season);
+
+$second_grade_cor = $R->getStudentResultCorrection($v->id,$course_id2,$s,$season);
+
+$first_semester_cor = empty($first_grade_cor) ? array('') : $first_grade_cor;
+
+$second_semester_cor = empty($second_grade_cor) ? array('') : $second_grade_cor;
+
+$ll_cor = array_merge($first_semester_cor, array(1=>array()), array(1=>array()), $second_semester_cor, array(1=>array()) );
+$gpa_cor = $R->get_gpa_correctional($s,$v->id,$l,$season);
+$remark_cor = $R->remarks_correctional($l,$v->id,$s,$season, $gpa_cor, $fos,$take_ignore=false);
+//$remark_cor =remarks_correctional($p, $f, $d, $l,$id,$s,$season, $cgpa, $fos, $finalyear = false, $new=false);
+
+if( $l > 1 ) {
+echo '<td class="s9">',$repeat_course,'</td>';
+echo '<td class="s9">',$R->get_drop_course($v->id,$l,$s,$fos),'</td>';
+echo '<td class="tB s9">',$R->get_failed_drop_course_result($v->id,$l,$s,1, $repeat_1, $drop_1),'</td>';              
+              }
+for($i=0; $i<$k; $i++) {
+            
+            if( $i == $sizea ) {
+ 
+              echo '<td class="tB s9">',$elective_grade1,'</td>';
+              continue;
+            }
+            if( $i == $sizeb ) {
+
+
+              echo '<td class="tB s9">',$elective_grade2,'</td>';
+              continue;
+
+
+            }
+            
+            if( $i == ($n1c + 1) ) {
+              if( $l > 1 ) {
+
+              echo '<td class="tB s9">',$R->get_failed_drop_course_result($v->id,$l,$s,2, $repeat_2, $drop_2);' </td>';
+              }
+            }
+            else {
+              
+              if( isset($ll_cor[$i]['grade']) ) { 
+
+                if( $ll_cor[$i]['grade'] == '&nbsp;&nbsp;' ) {
+                  echo '<td class="tB" style="background:yellow"></td>';
+                } else {
+                  echo '<td class="tB">',$ll_cor[$i]['grade'],
+                  '</td>';
+                }
+   
+              
+              } else { //  Jst for GUI purpose
+                echo '<td class="tB"></td>';
+              }
+             
+            }
+          } 
+           echo'<td>',$gpa_cor,'</td>';
+           if( $l > 1 ) {
+           echo'<td>',$cgpa,'</td>';
+         }
+         
+        echo '<td class="s9"><div class="dw">',$remark_cor,'</div></td>';
+
+
+?>
+
+  </tr>
+  @endif
   @endforeach
 
   @else

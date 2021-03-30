@@ -21,6 +21,34 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/new_course') }}" data-parsley-validate>
                         {{ csrf_field() }}
                         <div class="form-group">
+
+                        @if(Auth::user()->faculty_id == $med)
+                        <div class="col-sm-3">
+                              <label for="level" class=" control-label">Level</label>
+                              <select class="form-control" name="level">
+                               <option value=""> - - Select - -</option>
+                        {{$i = 1}}
+                                @foreach($l as $k => $v)
+                               
+                                @if($v->level_id < 3)
+
+                                <option value="{{$v->level_id}}">{{$v->level_name}}</option>
+                              
+                                @else
+                                <option value="{{$v->level_id}}">PART {{$i++}}</option>
+                              
+                                @endif
+                                 @if($v->level_id == 6)
+                                   @break;
+                                   @endif
+                              
+                                @endforeach
+                                
+                              </select>
+                             
+                            </div>
+                            <input type="hidden" name="semester" value="1"/>
+                        @else
                      <div class="col-sm-4">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level">
@@ -44,6 +72,7 @@
                               </select>
                              
                             </div>
+                            @endif
                       @if(Auth::user()->programme_id == 4)
                              <div class="col-sm-4">
                               <label for="semester" class=" control-label">Entry Month</label>
@@ -70,6 +99,10 @@
                                 <input id="course_code" type="text" class="form-control" name="course_code[{{$i}}]" value="{{ old('course_code') }}">
 
                             </div>
+                            @if(Auth::user()->faculty_id == $med)
+                            <input type="hidden" name="course_unit[{{$i}}]" value="3"/>
+                            <input type="hidden" name="status[{{$i}}]" value="C"/>
+                            @else
 
                              <div class="col-sm-2">
                               <label for="course_unit" class=" control-label">Course Unit</label>
@@ -85,6 +118,7 @@
                                   </select>
                               
                                 </div>
+                                @endif
                             </div>
                             @endfor
                            <div class="col-md-3">

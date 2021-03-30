@@ -167,8 +167,11 @@ return back();
           if($total ==''){$total=0;}
      
 
-      $check_result = StudentResult::where([['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id],['flag',$flag]])->first();
-                    if ($check_result != null) {
+      //$check_result = StudentResult::where([['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id],['flag',$flag]])->first();
+      
+      $check_result = StudentResult::where([['user_id',$user_id],['matric_number',$mat_no],['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->first();
+     
+      if ($check_result != null) {
         $result_id =$request->input('result_id')[$value];
 
 

@@ -10,7 +10,6 @@ use App\Programme;
 use App\Fos;
 use Illuminate\Support\Facades\DB;
 use App\User;
-use App\Semester;
 use App\PdsCourse;
 use App\CourseUnit;
 use App\RegisterCourse;
@@ -25,13 +24,14 @@ use App\Course;
 use App\DeskofficeFos;
 use App\PublishResult;
 use Illuminate\Support\Facades\Auth;
-use bcrypt;
 use Mail;
 use Illuminate\Support\Facades\Session;
 use Intervention\Image\Facades\Image;
-use Illuminate\Support\Facades\Storage;
+
+use App\Http\Traits\MyTrait;
 class HomeController extends Controller
 {
+  use MyTrait;
     Const DESKOFFICER =3;
     Const PDS =1;
     Const ModernLanguage =7;
@@ -84,18 +84,18 @@ class HomeController extends Controller
 
 if($sendsms != null)
 {
-  $send="Unicaldb";
+  $send="UnicalDb";
   $sender =urlencode($send);
   $body =urlencode($body);
  // var_dump($sender);
   // old api
  /* $response = file_get_contents('https://bulksmspro.ng/index.php?option=com_spc&comm=spc_api&username=papydany&password=papydany7@&sender='.$sender.'&recipient='.$phone.'&message='.$body);*/
 
-  $response = file_get_contents('https://bulksmsa.com/index.php?option=com_spc&comm=spc_api&username=papydany&password=papydany7@&message='.$body.'&sender='.$sender.'&mobiles='.$phone);
-
-// var_dump($response);
+  //$response = file_get_contents('https://bulksmsa.com/index.php?option=com_spc&comm=spc_api&username=papydany&password=papydany7@&message='.$body.'&sender='.$sender.'&mobiles='.$phone);
+  $response = file_get_contents('https://bulksmsa.com/index.php?option=com_spc&comm=spc_api&username=papydany&password=papydany7@&sender='.$sender.'&recipient='.$phone.'&message='.$body.'&');
+ 
 }
- // dd(); 
+  
 
   
    $data = array('email' => $email,'body' => $emailbody);
@@ -1061,7 +1061,9 @@ return back();
 public function create_course_unit_special()
 {
   $d = Department::orderBy('department_name','ASC')->get();
-    return view('admin.create_course_unit_special')->withD($d);
+  $fos = $this->get_fos();
+  $u =User::find(Auth::user()->id);
+  return view('admin.create_course_unit_special')->withD($d)->withF($fos)->withUd($u);
 }
 //-----------------------------------post create course unit -----------------------------------------------
 public function post_create_course_unit_special(Request $request)
@@ -1429,43 +1431,48 @@ public function post_transfer_officer(Request $request)
 //=================== courses with no results =====================
 public function course_with_no_result()
 {
-  return view('admin.course_with_no_result.index');
+  $f =Faculty::orderBy('faculty_name','ASC')->get();
+  return view('admin.course_with_no_result.index')->withF($f);
 }
 
 public function post_course_with_no_result(Request $request)
 {
-  $this->validate($request,array('session' => 'required','semester' => 'required','level' => 'required',));
+  $ff =Faculty::orderBy('faculty_name','ASC')->get();
+  $this->validate($request,array('session' => 'required','level' => 'required','faculty_id' => 'required',));
  $s =$request->session;
  $l =$request->level;
- $semester =$request->semester;
-  $results = DB::connection('mysql2')->table('student_results')
-  ->select('course_id')
-->where([['level_id',$l],['semester',$semester],['session',$s]])
+ $f =$request->faculty_id;
+ 
+$results = DB::connection('mysql2')->table('student_results')
+->select('course_id')
+->where([['level_id',$l],['session',$s]])
 ->distinct()->get();
   foreach($results as $v)
   {
     $course_id_with_result [] =$v->course_id;
   }
-  /*$department =Department::orderBy('department_name','ASC')->get();
-  foreach($department as $v)
+
+  $user = DB::connection('mysql2')->table('users')
+  ->join('student_regs', 'student_regs.user_id', '=', 'users.id')
+  ->select('fos_id')
+->where([['student_regs.level_id',$l],['student_regs.session',$s],['users.faculty_id',$f]])
+->distinct()->get();
+  foreach($user as $v)
   {
-    $depart [] = $v->id;
-  }*/
-  /*$reg =RegisterCourse::select()
-  ->where([['level_id',$l],['semester_id',$semester],['session',$s]])
-  
-  ->whereNotIn('course_id',$course_id_with_result)
-  ->orderBy('fos_id','ASC')
-  ->distinct()->get()->groupBy('department_id');*/
+    $fos_id [] =$v->fos_id;
+  }
+ 
   $reg = DB::table('register_courses')
-  ->join('departments', 'register_courses.department_id', '=', 'departments.id')
-  ->where([['level_id',$l],['semester_id',$semester],['session',$s],['reg_course_status','!=','E']])
+  ->join('faculties', 'register_courses.faculty_id', '=', 'faculties.id')
+  ->where([['level_id',$l],['session',$s],['reg_course_status','!=','E']])
   ->whereNotIn('course_id',$course_id_with_result)
-  ->select('course_id','fos_id','department_id','reg_course_title','reg_course_code','department_name')
-  ->orderBy('department_name','ASC')
-  ->distinct()->get()->groupBy('department_id');
+  ->whereIn('fos_id',$fos_id)
+  ->select('course_id','fos_id','department_id','semester_id','faculty_id','reg_course_title','reg_course_code','faculty_name')
+  ->orderBy('faculty_name','ASC','semester_id','ASC')
+  ->distinct()->get()->groupBy('faculty_id');
+  //dd($reg);
   
- return view('admin.course_with_no_result.report')->withReg($reg)->withL($l)->withS($s)->withSm($semester);
+ return view('admin.course_with_no_result.report')->withReg($reg)->withL($l)->withS($s);
 }
 
 // ============================= publish result ================================
@@ -1578,7 +1585,24 @@ public function view_course_unit()
 //-----------------------------------view  course unit -----------------------------------------------
 public function post_view_course_unit(Request $request)
 {
+  $r =$this->g_rolename(Auth::user()->id);
+  if($r == 'Deskofficer')
+  {
+    $fos = $this->get_fos();
+    if($fos){
+    foreach($fos as $v)
+    {
+      $fosId [] = $v->id;
+    }
+  }
+    $c =CourseUnit::whereIn('fos',$fosId)
+    ->where('session',$request->session)
+    ->get();
+  }else{
     $c =CourseUnit::where('session',$request->session)->get();
+  }
+  
+
  return view('admin.view_course_unit')->withC($c);
 }
 //========================================================================================

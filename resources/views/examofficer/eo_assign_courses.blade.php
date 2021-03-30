@@ -74,7 +74,7 @@
                 <select class="form-control" name="result_type" required>
                      <option value="">-- select --</option>
                      <option value="Sessional">Sessional</option>
-                     <option value="Omitted">Omitted</option>
+                    <!-- <option value="Omitted">Omitted</option>-->
                      <!--<option value="Correctional">Correctional</option>-->
                </select>
                       </div>

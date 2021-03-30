@@ -14,10 +14,14 @@
                        
                         <ol class="breadcrumb">
                             <li class="active" style="font-weight: bolder;">
+                            @if(Auth::user()->faculty_id == $med)
+                            Course  : {{$c->reg_course_title}}
+                            @else
                                Course Code : {{$c->reg_course_code}}
                                &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
                                Course Unit : {{$c->reg_course_unit}}
                                &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+                               @endif
                                <?php $next = $c->session + 1;?>
                              Session: {{$c->session.' / '.$next}}
                               &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;

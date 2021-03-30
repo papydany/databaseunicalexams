@@ -21,6 +21,33 @@
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/e_result') }}" data-parsley-validate>
                         {{ csrf_field() }}
                         <div class="form-group">
+                        @if(Auth::user()->faculty_id == $med)
+                        <div class="col-sm-3">
+                              <label for="level" class=" control-label">Level</label>
+                              <select class="form-control" name="level" id="level_id" required>
+                               <option value=""> - - Select - -</option>
+                        {{$i = 1}}
+                                @foreach($l as $k => $v)
+                               
+                                @if($v->level_id < 3)
+
+                                <option value="{{$v->level_id}}">{{$v->level_name}}</option>
+                              
+                                @else
+                                <option value="{{$v->level_id}}">PART {{$i++}}</option>
+                              
+                                @endif
+                                 @if($v->level_id == 6)
+                                   @break;
+                                   @endif
+                              
+                                @endforeach
+                                
+                              </select>
+                             
+                            </div>
+                            <input type="hidden" name="semester" value="1"/>
+                        @else
                      <div class="col-sm-2">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level" id="level_id" required>
@@ -33,6 +60,7 @@
                               </select>
                              
                             </div>
+                            @endif
 
                          
                              <div class="col-sm-3">
@@ -61,6 +89,7 @@
                               </select>
                              
                             </div>
+                            @if(Auth::user()->faculty_id != $med)
                           <div class="col-sm-3">
                               <label for="semester" class=" control-label">Semester</label>
                               <select class="form-control" name="semester"  required>
@@ -73,7 +102,7 @@
                               </select>
                              
                             </div>
-                            
+                            @endif
                               <div class="col-sm-2">
                                  <br/>
                                 <button type="submit" class="btn btn-danger">

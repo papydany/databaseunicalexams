@@ -42,7 +42,8 @@
                          <th>Department</th>
                          <th>Username</th>
                         
-                  
+                         <th>Email</th>
+                        
                          <th>Assignd Fos</th>
                          <td>Edit Status</td>
                          <td>Enable Edit</td>
@@ -68,7 +69,7 @@
                         <td>{{$prog}}</td>
                        <td>{{$dept}}</td>
                        <td>{{$v->username}}</td>
-                      
+                      <td>{{$v->email}}</td>
                        <td>
                        
                        {{! $fos_d = DB::table('fos')

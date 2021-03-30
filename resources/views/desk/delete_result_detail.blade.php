@@ -29,7 +29,7 @@
      
        <p><strong>Semester : </strong>{{$semester->semester_name}} </p>
         <p><strong>Course  : </strong>{{$course_code}}</p>
-
+        <p><strong>Result Type  : </strong>{{$result_type}}</p>
     </div>
 
     </td></tr>
@@ -54,14 +54,15 @@
                           </tr>
                             {{!!$c = 0}}
                       @foreach($u as $v)
-                    <?php $result= $r->getresult($v->id) ?>
+                    <?php 
+                   // $result= $r->getresultWithResultType($v->id,$result_type) ?>
                       {{!$c = ++$c}}
                       
                       <tr>
                         
                        <td>
-                        @if(isset($result->id))
-                        <input type="checkbox" class="ids" name="id[]" value="{{$result->id}}">
+                        @if(isset($v->id))
+                        <input type="checkbox" class="ids" name="id[]" value="{{$v->id}}">
                        @endif
                         </td>
                       
@@ -71,17 +72,17 @@
                        <td>{{$v->matric_number}}</td>
 
                         <td>{{strtoupper($v->surname." ".$v->firstname." ".$v->othername)}}</td>
-                         <td>{{isset($result->ca) ?$result->ca : ''}}</td>
-                       <td>{{isset($result->exam) ? $result->exam: ''}}</td>
-                     <td>{{isset($result->total) ? $result->total: ''}}</td>
+                         <td>{{isset($v->ca) ?$v->ca : ''}}</td>
+                       <td>{{isset($v->exam) ? $v->exam: ''}}</td>
+                     <td>{{isset($v->total) ? $v->total: ''}}</td>
                         <td class="text-center">
-      @if(isset($result->id))                                         
+      @if(isset($v->id))                                         
 <div class="btn-group">
   <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Action <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
-  <li><a href="{{url('delete_desk_result',$result->id)}}">Delete</a></li>
+  <li><a href="{{url('delete_desk_result',$v->id)}}">Delete</a></li>
   </ul>
 </div>
 @endif
@@ -95,7 +96,7 @@
 
 
                        @else
-                        <p class="alert alert-warning">No Register students  is avalable</p>
+                        <p class="alert alert-warning">No  students records is avalable for {{$result_type}} Result type</p>
                         @endif
                         
   @endif

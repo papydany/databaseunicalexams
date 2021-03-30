@@ -294,7 +294,9 @@
                         <a href="{{url('register_student')}}">Registered Student</a>
                     </li>
 
-                   
+                    <li>
+                        <a href="{{url('register_student_ii')}}">Registered Student II</a>
+                    </li>
                 </ul>
             </li>
              

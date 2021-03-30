@@ -194,7 +194,8 @@ var id =$(this).val();
   var $rt = $("#result_type"); 
   $l.empty();
   $rt.empty();
-
+// fos id for medicine
+var fosIDMEDICINE =786;
   var dr =Number(data.duration) + 2;
   var dd =Number(data.duration);
   var pg =Number(data.programme_id);
@@ -203,24 +204,49 @@ $('#duration').val(dd);
   for (var i = 1; i <= dr; i++) {
     if(i < dd)
     {
+      if(id == fosIDMEDICINE && i > 2)
+      {
+        var part =i -2;
+      $l.append('<option value="' +i +'">' + 'PART'+ part +'</option>');
+      }else{
       $l.append('<option value="' +i +'">' + i+ '00' +'</option>');
+    }
     }else if(i == dd)
     {
+      if(id == fosIDMEDICINE && i > 2)
+      {
+        var part =i -2;
+      $l.append('<option value="' +i +'">' + 'PART'+ part +'</option>');
+      }else{
         $l.append('<option value="' +i +'~'+'f'+'">' + i+ '00 (Final)' +'</option>');
+      }
     }
     else if(i > dd)
     {
+      if(id != fosIDMEDICINE)
+      {
         $l.append('<option value="' +i +'~'+'s'+'">' + i+ '00 (Spill Over)' +'</option>');
+      }
     }
   }
 $rt.append('<option value="' +0 +'"> --- Select --- </option>');
-  if(pg == 3)
+if(pg == 3 && id== fosIDMEDICINE)
+{ 
+  $rt.append('<option value="' +1 +'">Sessional Result</option>');
+  $rt.append('<option value="' +5 +'">Resit Result </option>');
+  $rt.append('<option value="' +6 +'">Select Individual Result </option>');
+ 
+}
+else if(pg == 3)
   {
      
      $rt.append('<option value="' +1 +'">Sessional Result</option>');
      $rt.append('<option value="' +2 +'">Omited Result </option>');
      $rt.append('<option value="' +3 +'">Probational Result </option>');
      $rt.append('<option value="' +4 +'">Correctional Result </option>');
+     $rt.append('<option value="' +5 +'">Long Vacation Result </option>');
+     $rt.append('<option value="' +6 +'">Select Individual Result </option>');
+     $rt.append('<option value="' +7 +'">Mid-Year Summer Result </option>');
 
   }else if(pg == 2)
   {

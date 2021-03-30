@@ -1,5 +1,6 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -189,10 +190,10 @@ Route::get('modern_view_course', ['uses' =>'HomeController@modern_view_course','
 // create course unit
 Route::get('create_course_unit', ['uses' =>'HomeController@create_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
 Route::post('create_course_unit', ['uses' =>'HomeController@post_create_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
-Route::get('create_course_unit_special', ['uses' =>'HomeController@create_course_unit_special','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('create_course_unit_special', ['uses' =>'HomeController@post_create_course_unit_special','middleware' => 'roles','roles'=>['admin','support']]);
-Route::get('view_course_unit', ['uses' =>'HomeController@view_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('view_course_unit', ['uses' =>'HomeController@post_view_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('create_course_unit_special', ['uses' =>'HomeController@create_course_unit_special','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('create_course_unit_special', ['uses' =>'HomeController@post_create_course_unit_special','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::get('view_course_unit', ['uses' =>'HomeController@view_course_unit','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('view_course_unit', ['uses' =>'HomeController@post_view_course_unit','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 Route::get('adminreg_course', ['uses' =>'HomeController@adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
 Route::get('get_adminreg_course', ['uses' =>'HomeController@post_adminreg_course','middleware' => 'roles','roles'=>['admin','support']]);
 Route::get('delete_adminreg_course/{id}/{s}/{yes?}', ['uses' =>'HomeController@delete_adminreg_course','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
@@ -204,8 +205,8 @@ Route::post('edit_adminreg_course', ['uses' =>'HomeController@update_adminreg_co
 // edit of registration
 Route::get('deleteRegistration/{id}', ['uses' =>'HomeController@deleteRegistration','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 // edit_course_unit
-Route::get('edit_course_unit/{id}', ['uses' =>'HomeController@edit_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('update_course_unit', ['uses' =>'HomeController@update_course_unit','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('edit_course_unit/{id}', ['uses' =>'HomeController@edit_course_unit','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('update_course_unit', ['uses' =>'HomeController@update_course_unit','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 
 
 //-----------       add course to students ---------------------------------
@@ -267,6 +268,9 @@ Route::post('view_student', ['uses' =>'DeskController@post_view_student','middle
 Route::get('register_student', ['uses' =>'DeskController@register_student','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 Route::get('post_register_student/{fos_id?}/{level?}/{semester_id?}/{session?}/{season?}', ['uses' =>'DeskController@post_register_student','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 Route::get('view_student_detail/{id}', ['uses' =>'DeskController@view_student_detail','middleware' => 'roles','roles'=>'Deskofficer']);
+Route::get('register_student_ii', ['uses' =>'DeskController@register_student_ii','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
+Route::get('post_register_student_ii/{fos_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@post_register_student_ii','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
+Route::get('registered_student_detail/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 
 Route::post('update_entry_year', ['uses' =>'DeskController@update_entry_year','middleware' => 'roles','roles'=>['Deskofficer']]);
 // registered result mode entering
@@ -365,6 +369,11 @@ Route::post('publish', ['uses' =>'HomeController@publish','middleware' => 'roles
 
 //=============================== update officer email ====================================
 Route::get('update_officer_email', ['uses' =>'GeneralController@update_officer_email','middleware' => 'roles','roles'=>['admin','support']]);
+//======================== student management=====================================
+Route::get('studentManagement', ['uses' =>'DeskController@studentManagement','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+Route::get('studentManagementAddCourses', ['uses' =>'DeskController@studentManagementAddCourses','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+Route::get('getStudentManagementAddCourse', ['uses' =>'DeskController@getStudentManagementAddCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+Route::post('postStudentManagementAddCourse', ['uses' =>'DeskController@postStudentManagementAddCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
 
 Auth::routes();
 Route::get('logout','Auth\LoginController@logout');

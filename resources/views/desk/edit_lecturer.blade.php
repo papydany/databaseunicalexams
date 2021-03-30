@@ -28,7 +28,7 @@
                           <th>Title</th>
                         <th>Name</th>
                         
-                        <th>Password</th>
+                        <th>email</th>
                         <th>Action</th>
                   
                        </tr>
@@ -54,7 +54,7 @@
                                </select></td>
                        <td><input type="text" class="form-control" name="name" value="{{$l->name}}" required></td>
                 
-                      <!-- <td><input type="text" class="form-control" name="password" value="" required></td>-->
+                       <td><input type="text" class="form-control" name="email" value="{{$l->email}}" required></td>
                        <td><input type="submit" value="submit" class="btn btn-success"></td>
                       
        

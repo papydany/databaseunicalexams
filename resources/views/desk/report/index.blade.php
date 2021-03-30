@@ -89,6 +89,22 @@
                               </select>
                              
                             </div>
+
+                            <div class="col-sm-3">
+                              <label for="session" class=" control-label">Pagination</label>
+                              <select class="form-control" name="page_number" required>
+                              <option value=""> - - Select - -</option>
+                              <option value="5">5 per page </option>
+                              <option value="6">6 per page</option>
+                              <option value="8">8 per page</option>
+                              <option value="10">10 per page</option>
+                              <option value="12"> 12 per page</option>
+                              <option value="14"> 14 per page</option>
+                              <option value="15"> 15 per page</option>
+                              
+                              </select>
+                             
+                            </div>
                               <div class="col-sm-2">
                                  <br/>
                                 <button type="submit" class="btn btn-danger">
@@ -147,6 +163,21 @@
                               <select class="form-control" name="result_type" id="result_type"  required>
                                   <option value=""> - - Select - -</option>
                                  
+                              </select>
+                             
+                            </div>
+                               <div class="col-sm-3">
+                              <label for="session" class=" control-label">Pagination</label>
+                              <select class="form-control" name="page_number" required>
+                              <option value=""> - - Select - -</option>
+                              <option value="5">5 per page </option>
+                              <option value="6">6 per page</option>
+                              <option value="8">8 per page</option>
+                              <option value="10">10 per page</option>
+                              <option value="12"> 12 per page</option>
+                              <option value="14"> 14 per page</option>
+                              <option value="15"> 15 per page</option>
+                              
                               </select>
                              
                             </div>

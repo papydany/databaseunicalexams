@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 //use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Routing\UrlGenerator;
 use App\Role;
 use App\Faculty;
 use App\Department;
@@ -35,6 +35,7 @@ Const LECTURER = 5;
 Const HOD = 7;
 Const FIRST = 1;
 Const SECOND = 2;
+Const MEDICINE = 14;
     /**
      * Create a new controller instance.
      *
@@ -118,7 +119,7 @@ public function print_lecturer()
 {
       $user = DB::table('users')
             ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->where('user_roles.role_id',self::LECTURER)
+            ->whereIn('user_roles.role_id',[self::LECTURER,self::HOD,self::EXAMSOFFICER])
             ->where([['users.faculty_id',Auth::user()->faculty_id],['users.department_id',Auth::user()->department_id]])
             ->orderBy('users.name','ASC')
             ->select('users.*')
@@ -141,7 +142,7 @@ public function post_edit_lecturer(Request $request,$id)
 $lecturer = User::find($id);
 $lecturer->title =$request->title;
 $lecturer->name =$request->name;
-
+$lecturer->email =$request->email;
 /*$lecturer->password =bcrypt($request->password);
 $lecturer->plain_password =$request->password;*/
 $lecturer->save();
@@ -152,7 +153,7 @@ public function new_course()
 {
 	$level =Level::where('programme_id',Auth::user()->programme_id)->get();
 	$semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
-	return view('desk.new_course')->withL($level)->withS($semester);
+	return view('desk.new_course')->withL($level)->withS($semester)->withmed(self::MEDICINE);
 }
 //-------------------------------------new courses ----------------------------------------------
     function post_new_course(Request $request)
@@ -299,7 +300,7 @@ public function register_course()
 {
 	$level =Level::where('programme_id',Auth::user()->programme_id)->get();
 	$semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
-	return view('desk.register_course')->withL($level)->withS($semester);
+	return view('desk.register_course')->withL($level)->withS($semester)->withMed(self::MEDICINE);
 }
 
 //------------------------------------------------------------------------------
@@ -313,16 +314,21 @@ public function get_register_course(request $request)
         $month =$request->month;
             // get fos
         $fos=$this->get_fos();
+        if($fos == null)
+        {
+          Session::flash('waring',"Contact the system Admin. your account is not assign to field od study.");
+          return back();
+        }
         if($month != null)
         {
 $course =Course::where([['department_id',Auth::user()->department_id],['level',$level],['semester',$semester],['month',$month]])
         ->orderBy('course_code','ASC')->get();
-        return view('desk.register_course')->withCourse($course)->withL($l)->withS($s)->withF($fos)->withM($month);
+        return view('desk.register_course')->withCourse($course)->withL($l)->withS($s)->withF($fos)->withM($month)->withMed(self::MEDICINE);
         }
         else{
           $course =Course::where([['department_id',Auth::user()->department_id],['level',$level],['semester',$semester]])
         ->orderBy('course_code','ASC')->get(); 
-         return view('desk.register_course')->withCourse($course)->withL($l)->withS($s)->withF($fos);
+         return view('desk.register_course')->withCourse($course)->withL($l)->withS($s)->withF($fos)->withMed(self::MEDICINE);
         }
     
 }
@@ -373,7 +379,7 @@ function view_register_course()
    // $semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
     // get fos
 $fos =$this->get_fos();
-    return view('desk.view_register_course')->withL($level)->withF($fos);
+    return view('desk.view_register_course')->withL($level)->withF($fos)->withMed(self::MEDICINE);
 }
 //----------------------------------------------------------------------------------------------------
 function post_view_register_course(request $request)
@@ -402,7 +408,7 @@ function registeredcourse()
    // $semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
     // get fos
 $fos =$this->get_fos();
-    return view('desk.registeredcourse')->withL($level)->withF($fos);
+    return view('desk.registeredcourse')->withL($level)->withF($fos)->withMed(self::MEDICINE);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -520,7 +526,7 @@ $fc =$this->get_faculty();
    
      $lecturer = DB::table('users')
             ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->where('user_roles.role_id',self::LECTURER)
+            ->whereIn('user_roles.role_id',[self::LECTURER,self::HOD])
             ->where([['users.faculty_id',$f],['users.department_id',$d]])
             ->orderBy('users.name','ASC')
             ->select('users.*')
@@ -825,7 +831,7 @@ return view('desk.view_student_detail')->withU($users)->withSr($stdReg)->withF($
         $fos = $this->get_fos();
         $l = $this->get_level();
         $semester = $this->get_semester();
-        return view('desk.register_student')->withF($fos)->withL($l)->withS($semester);
+        return view('desk.register_student')->withF($fos)->withL($l)->withS($semester)->withMed(self::MEDICINE);
     }
     // ===========================post view student ==========================================
     public function post_register_student(Request $request,$fos_id =null,$level=null,$semester_id=null,$session=null,$season=null)
@@ -837,20 +843,16 @@ return view('desk.view_student_detail')->withU($users)->withSr($stdReg)->withF($
         if(isset($fos_id) && isset($level) && isset($semester_id) && isset($session) && isset($season))
      {
       $season =$season;
-      
       $semester_id =$semester_id;
-       
-       $fos_id =$fos_id;
+      $fos_id =$fos_id;
        $l_id =$level;
        $session =$session;
      }else{
-        $season =$request->input('season');
-      
-       $semester_id =$request->input('semester_id');
-        
-        $fos_id = $request->input('fos_id');
-        $l_id =$request->input('level');
-        $session =$request->input('session_id');
+      $season =$request->input('season');
+      $semester_id =$request->input('semester_id');
+      $fos_id = $request->input('fos_id');
+      $l_id =$request->input('level');
+      $session =$request->input('session_id');
      }
      //dd($level); 
         $p =$this->p();
@@ -877,27 +879,107 @@ return view('desk.view_student_detail')->withU($users)->withSr($stdReg)->withF($
 
           //Get current page form url e.g. &page=6
         $url =url()->full();
-        
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
         //Create a new Laravel collection from the array data
         $collection = new Collection($user);
 
         //Define how many items we want to be visible in each page
-       
-          $perPage =50;
-        
-        
-
-        //Slice the collection to get the items to display in current page
+       $perPage =20;
+       //Slice the collection to get the items to display in current page
         $currentPageSearchResults = $collection->slice(($currentPage- 1) * $perPage, $perPage)->all();
-
-        //Create our paginator and pass it to the view
+      //Create our paginator and pass it to the view
         $paginatedSearchResults= new LengthAwarePaginator($currentPageSearchResults, count($collection), $perPage);
-
-        return view('desk.register_student')->withU($paginatedSearchResults)->withSs($session)->withF($fos)->withL($l)->withS($semester)
-            ->withL_id($l_id)->withS_id($semester_id)->withUrl($url) ;
+       return view('desk.register_student')->withU($paginatedSearchResults)->withSs($session)->withF($fos)->withL($l)->withS($semester)
+            ->withL_id($l_id)->withS_id($semester_id)->withUrl($url)->withMed(self::MEDICINE);
     }
+
+
+    //================================= registered students II============================
+    public function register_student_ii()
+    {
+        $fos = $this->get_fos();
+        $l = $this->get_level();
+        return view('desk.register_student.ii')->withF($fos)->withL($l);
+    }
+    // ===========================post view student ==========================================
+    public function post_register_student_ii(Request $request,$fos_id =null,$level=null,$session=null,$season=null)
+    {
+      $fos = $this->get_fos();
+      $l = $this->get_level();
+      
+        if(isset($fos_id) && isset($level) && isset($session) && isset($season))
+     {
+      $season =$season;
+      $fos_id =$fos_id;
+       $l_id =$level;
+       $session =$session;
+     }else{
+      $season =$request->input('season');
+      $fos_id = $request->input('fos_id');
+      $l_id =$request->input('level');
+      $session =$request->input('session_id');
+     }
+     //dd($level); 
+        $p =$this->p();
+        if($p == 0)
+        {
+          $foses =Fos::find($fos_id);
+          $p =$foses->programme_id;
+        }
+        $f =$this->f();
+        $d =$this->d();
+        $prob_user_id = $this->getprobationStudents($p,$d,$f,$l_id,$session);
+        $all_user= array();
+        $studentreg_id =array();
+//dd($semester_id);
+        $user = DB::connection('mysql2')->table('student_regs')
+        ->distinct('student_regs.matric_number')
+            ->join('users', 'student_regs.user_id', '=', 'users.id')
+            ->where('users.fos_id',$fos_id)
+            ->where([['student_regs.programme_id',$p],['student_regs.department_id',$d],['student_regs.faculty_id',$f],['student_regs.season',$season],
+                ['student_regs.session',$session],['student_regs.level_id',$l_id]])
+            ->whereNotIn('users.id',$prob_user_id)
+            ->orderBy('users.matric_number','ASC')
+            ->select('users.id','users.firstname', 'users.surname','users.othername','users.matric_number','users.fos_id','users.entry_year')
+            
+            ->get();
+          
+ return view('desk.register_student.ii')->withSs($session)->withF($fos)->withL($l)->withL_id($l_id)->withU($user)->withSeason($season)->withMed(self::MEDICINE);
+    }
+
+  //============================= registered_student_detail========================
+  public function registered_student_detail(Request $request,$user_id =null,$level=null,$session=null,$season=null){
+   
+    if(isset($user_id) && isset($level) && isset($session) && isset($season))
+    {
+     $season =$season;
+     $user_id =$user_id;
+     $level =$level;
+    $session =$session;
+    $studentDetails =array();
+    $u =User::find($user_id);
+    $user = DB::connection('mysql2')->table('student_regs')
+    ->join('course_regs', 'course_regs.studentreg_id', '=', 'student_regs.id')
+    ->where([['student_regs.level_id',$level],['student_regs.session',$session],['student_regs.season',$season],
+    ['student_regs.user_id',$user_id]])
+    ->where([['course_regs.user_id',$user_id],['course_regs.level_id',$level],['course_regs.session',$session],['course_regs.period',$season]])
+    ->orderBy('course_regs.semester_id','ASC')
+    ->select('course_regs.*')
+    ->get();
+//dd($user);
+    foreach($user as $v){
+      $r =$this->getResult($v->id);
+      $studentDetails []=['id'=>$v->id,'course_id'=>$v->course_id,'code'=>$v->course_code,'unit'=>$v->course_unit,'r'=>$r->id ? $r->id :'','ca'=>$r->ca ? $r->ca : '',
+      'exam'=>$r->exam ?$r->exam : '','total'=>$r->total ? $r->total : ''];
+    }
+    //dd($studentDetails);
+    return view('desk.register_student.student_details')->withS($studentDetails)->withSession($session)
+    ->withLevel($level)->withU($u)->withSeason($season);;
+    }else{
+      dd('something went wrong. contact system admin.');
+    }
+  }
     //================================= Entering Result =====================================================
     public function enter_result(Request $request)
     {
@@ -943,7 +1025,11 @@ return view('desk.view_student_detail')->withU($users)->withSr($stdReg)->withF($
             $xc = explode('~', $k);
             $v = strtoupper($v);
             if (!empty($v)) {
-              $grade_value =$this->get_grade($v,$entry_year);
+              if(Auth::user()->id == Self::MEDICINE){
+              $grade_value =$this->get_grade_medicine($v,$season,$l);
+              }else{
+              $grade_value =$this->get_grade($v);
+              }
               $grade = $grade_value['grade'];
 
 
@@ -954,7 +1040,7 @@ return view('desk.view_student_detail')->withU($users)->withSr($stdReg)->withF($
                     $coursereg_id = $xc[1];
                     $course_id = $xc[2];
                     $cu = $xc[3];
-                    $x = $this->mm($grade, $cu,$entry_year);
+                    $x = $this->mm($grade,$cu,$entry_year);
 
                     $ca=$request->input('ca')[$result_id];
 
@@ -985,7 +1071,7 @@ return view('desk.view_student_detail')->withU($users)->withSr($stdReg)->withF($
                     $exam =$request->input('exam')[$coursereg_id];
                     $cp = $x['cp'];
 
-                    $check_result = StudentResult::where([['user_id', $user_id], ['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->first();
+                    $check_result = StudentResult::where([['user_id',$user_id], ['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->first();
                     if ($check_result == null) {
                         $insert_data[] = ['user_id'=>$user_id,'matric_number'=>$mat_no,'course_id'=>$course_id,'coursereg_id'=>$coursereg_id,'ca'=>$ca,'exam'=>$exam,'total'=>$v,'grade'=>$grade,'cu'=>$cu,'cp'=>$x['cp'],'level_id'=>$l_id,'session'=>$session,'semester'=>$semester_id,'status'=>0,'season'=>$season,'flag'=>$flag,'examofficer'=>Auth::user()->id,'post_date'=>$date,'approved'=>0];
                     }
@@ -1139,7 +1225,7 @@ return view('desk.view_student_detail')->withU($users)->withSr($stdReg)->withF($
     {  $fos = $this->get_fos();
         $l = $this->get_level();
         $semester = $this->get_semester();
-return view('desk.e_result')->withF($fos)->withL($l)->withS($semester);
+return view('desk.e_result')->withF($fos)->withL($l)->withS($semester)->withMed(self::MEDICINE);
     }
 
  //================================== post result by course =============================================
@@ -1152,7 +1238,7 @@ return view('desk.e_result')->withF($fos)->withL($l)->withS($semester);
         $s_id =$request->input('session');
         $semester_id =$request->input('semester');
         $rc =RegisterCourse::where([['semester_id',$semester_id],['level_id',$l_id],['fos_id',$fos_id],['session',$s_id]])->get();
-     return view('desk.e_result_next')->withF($fos)->withL($l)->withS($semester)->withRc($rc)->withL_id($l_id)->withS_id($s_id)->withSm_id($semester_id);
+     return view('desk.e_result_next')->withF($fos)->withL($l)->withS($semester)->withRc($rc)->withL_id($l_id)->withS_id($s_id)->withSm_id($semester_id)->withMed(self::MEDICINE);
     }  
 
  //================================== get student  by course =============================================
@@ -1232,7 +1318,7 @@ return view('desk.e_result')->withF($fos)->withL($l)->withS($semester);
        // return view('search', ['results' => $paginatedSearchResults]);
        
     
-      return view('desk.e_result_c')->withU($paginatedSearchResults)->withUrl($url)->withC($registercourse)->withRt($result_type);
+      return view('desk.e_result_c')->withU($paginatedSearchResults)->withUrl($url)->withC($registercourse)->withRt($result_type)->withMed(self::MEDICINE);
     
     }  
 
@@ -1263,14 +1349,17 @@ $result_id="";
         //$total=$request->input('total')[$value];
         $total=$ca + $exam;
         $entry_year=$request->input('entry_year')[$value];
-
+        if(Auth::user()->id == Self::MEDICINE){
+          $grade_value =$this->get_grade_medicine($total,$season,$l_id);
+          }else{
         $grade_value =$this->get_grade($total,$entry_year);
+          }
        
         $grade = $grade_value['grade'];
         $cp = $this->mm($grade,$cu,$entry_year);
       //  $result_id =$request->input('result_id')[$value];
         //if($request->has('result_id'.[$value])) {
-       
+      
 $result_id =$request->input('result_id')[$value];
 
      //  }
@@ -1332,8 +1421,8 @@ if($flag =='Correctional')
          }else{
 
 
-               $check_result = StudentResult::where([['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->get();
-                    if (count($check_result) == 0) {
+               $check_result = StudentResult::where([['user_id',$user_id],['matric_number',$mat_no],['level_id', $l_id], ['session', $session], ['course_id', $course_id], ['coursereg_id', $coursereg_id]])->first();
+                    if ($check_result == null) {
                         $insert_data[] = ['user_id'=>$user_id,'matric_number'=>$mat_no,'course_id'=>$course_id,'coursereg_id'=>$coursereg_id,'ca'=>$ca,'exam'=>$exam,'total'=>$total,'grade'=> $grade,'cu'=>$cu,'cp'=>$cp['cp'],'level_id'=>$l_id,
                             'session'=>$session,'semester'=>$semester,'status'=>0,'season'=>$season,'flag'=>$flag,'examofficer'=>Auth::user()->id,'post_date'=>$date,'approved'=>0];
                     }
@@ -1485,15 +1574,22 @@ return redirect()->action('DeskController@delete_result');
   $sm =$request->input('semester');
   $s =$request->input('session');
   $period =$request->input('period');
-
- $user = DB::connection('mysql2')->table('users')
+  $ResultType =$request->input('result_type');
+ // $result =DB::connection('mysql2')->table('student_results');
+ $user = DB::connection('mysql2')->table('users','student_results')
         ->join('course_regs', 'course_regs.user_id', '=', 'users.id')
-        ->where([['course_regs.registercourse_id',$reg_id],['level_id',$l],['semester_id',$sm],['session',$s],['course_id',$course_id],['period',$period]])
+        ->join('student_results', 'student_results.user_id', '=', 'users.id')
+        ->where([['student_results.level_id',$l],['student_results.semester',$sm],['student_results.session',$s],['student_results.course_id',$course_id],['student_results.season',$period],['student_results.flag',$ResultType]])
+        ->where([['course_regs.registercourse_id',$reg_id],['course_regs.level_id',$l],['course_regs.semester_id',$sm],['course_regs.session',$s],['course_regs.course_id',$course_id],['course_regs.period',$period]])
         ->orderBy('users.matric_number','ASC')
-        ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number')
+        ->whereIn('course_regs.id', function($query) {
+          $query->select('coursereg_id')->from('student_results');
+      })
+        ->select('course_regs.id as cosId','student_results.*','users.firstname', 'users.surname','users.othername','users.matric_number')
+    
         ->get();
-       
-  return view('desk.delete_result_detail')->withU($user)->withSm($sm)->withS($s)->withL($l)->withFos_id($fos_id)->withCourse_code($course_code);
+      // dd($user);
+  return view('desk.delete_result_detail')->withU($user)->withSm($sm)->withS($s)->withL($l)->withFos_id($fos_id)->withCourse_code($course_code)->withResultType($ResultType);
  }
 
  //=============.=============== REPORT ==============================================================
@@ -1501,7 +1597,7 @@ return redirect()->action('DeskController@delete_result');
   public function departmentreport()
  {
    $p =$this->getp();
- return view('desk.hod.index')->withP($p);
+ return view('desk.hod.index')->withP($p)->withMed(self::MEDICINE);
  }
  public function report()
  {
@@ -1532,9 +1628,9 @@ if($p == 0)
 {
   $p =$request->p;
 }
-$user_id = Auth::user()->id;
+//$user_id = Auth::user()->id;
 $flag ="Sessional";
-$page_number =$request->input('page');
+$perPage =$request->input('page_number');
 //dd($page_number);
 
 $this->validate($request,array('fos'=>'required','session'=>'required','level'=>'required','result_type'=>'required',));
@@ -1556,28 +1652,81 @@ if($l != 1)
  
 $result_type =$request->input('result_type');
 $duration=$request->input('duration');
-
-
+if($request->selected == 6)
+{
+  $final=$request->input('final');
+}
+// select student type report
+if($result_type == 6)
+{
+  $users = $this->getRegisteredStudents($p,$d,$f,$fos,$l,$s);
+  return view('desk.report.selectStudent')->withFinal($final)->withDuration($duration)->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withUsers($users)->withFlag($flag)->withF($f)->withD($d)->withFinal($final);
+}
 
 $regcourse1C =$this->getRegisteredCourses($p,$d,$f,$fos,$l,$s,1,'C');
+// jumb register courses for second semester for medicine
+if($f == self::MEDICINE && $l > 2){}else{
 $regcourse2C =$this->getRegisteredCourses($p,$d,$f,$fos,$l,$s,2,'C');
+}
 // seasional result
 
 if ($result_type == 12) {
   // resit students
  $users = $this->getResitRegisteredStudents($p,$d,$f,$fos,$l,$s,'RESIT');
 }
+elseif($result_type == 7){
+
+  $title ="SUMMER VACATION";
+  $season ="VACATION";
+  $flag="Sessional";
+  if($request->selected == 6)
+  {
+$selectedID =$request->ids;
+
+$users =$this->SelectedResitRegisteredStudents($selectedID,$l,$s,$season);
+  }else{
+  
+    $users = $this->getResitRegisteredStudents($p,$d,$f,$fos,$l,$s,$season);
+  }
+  }
+elseif($result_type == 5){
+
+  $title ="LONG VACATION";
+  $season ="VACATION";
+  $flag="Sessional";
+  if($request->selected == 6)
+  {
+$selectedID =$request->ids;
+
+$users =$this->SelectedResitRegisteredStudents($selectedID,$l,$s,$season);
+  }else{
+  
+    $users = $this->getResitRegisteredStudents($p,$d,$f,$fos,$l,$s,$season);
+  }
+  }
 elseif($result_type == 4){
   $title ="CORRECTIONAL";
   $season ="NORMAL";
   $flag="Correctional";
-    $users = $this->getRegisteredStudentsWithFlag($p,$d,$f,$fos,$l,$s,$flag);
+  if($request->selected == 6)
+  {
+$selectedID =$request->ids;
+$users = $this->SelectedStudentsWithFlag($selectedID,$l,$s,$flag);
+  }else{
+  $users = $this->getRegisteredStudentsWithFlag($p,$d,$f,$fos,$l,$s,$flag);
+  }
   }
 elseif($result_type == 2){
   $flag="Omitted";
 $title ="OMITTED";
 $season ="NORMAL";
+if($request->selected == 6)
+{
+$selectedID =$request->ids;
+$users = $this->SelectedStudentsWithFlag($selectedID,$l,$s,$flag);
+}else{
   $users = $this->getRegisteredStudentsWithFlag($p,$d,$f,$fos,$l,$s,$flag);
+}
 }elseif($result_type == 1)
 {
  $title ="SESSIONAL";
@@ -1586,7 +1735,13 @@ $season ="NORMAL";
   $title ="DEGREE";
  }
 $season ="NORMAL";
+if($request->selected == 6)
+{
+$selectedID =$request->ids;
+$users = $this->SelectedStudentsWithFlag($selectedID,$l,$s,$flag);
+}else{
 $users = $this->getRegisteredStudents($p,$d,$f,$fos,$l,$s);
+}
 }
 elseif($result_type == 3)
 {
@@ -1607,11 +1762,29 @@ $course_id1 = array();
 $course_id2 = array();
 $regc1 =array();
 $reg2c =array();
+// medicine and level 3 above
+if($f == self::MEDICINE && $l > 2)
+{
+  if(empty($regcourse1C)){
+    echo'<h3>You have not registered  the courses for these session</h3>';
+    dd();
+  }
+}else{
 if(empty($regcourse1C && $regcourse2C)){
-  echo'<h3>You have not registered for the courses for these session</h3>';
+  echo'<h3>You have not registered  the courses for these session</h3>';
   dd();
 }
-
+}
+// medicine and level 3 above
+if($f == self::MEDICINE && $l > 2)
+{
+  foreach ($regcourse1C as $key => $value) {
+    $regc1 [] =$value;
+    $course_id1 [] =$value->course_id;
+    }
+$no1C = count($regcourse1C);
+$no2C = 0;
+}else{
 foreach ($regcourse1C as $key => $value) {
 $regc1 [] =$value;
 $course_id1 [] =$value->course_id;
@@ -1624,21 +1797,21 @@ $course_id2 [] =$value->course_id;
 
 $no1C = count($regcourse1C);
 $no2C = count($regcourse2C);
+}
 
 //Get current page form url e.g. &page=6
         $url =url()->full();
-
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
 
         //Create a new Laravel collection from the array data
         $collection = new Collection($users);
 
         //Define how many items we want to be visible in each page
-        if($l == 1){
-        $perPage =15;
+      /*  if($l == 1){
+        $perPage =50;
         }else{
-          $perPage =10;
-        }
+          $perPage =50;
+        }*/
         
 
         //Slice the collection to get the items to display in current page
@@ -1653,7 +1826,7 @@ $no2C = count($regcourse2C);
  $title ="SESSIONAL";
  $season ="NORMAL";
  
- return view('desk.report.sessional_diploma')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($page_number)->withF($f)->withD($d);
+ return view('desk.report.sessional_diploma')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d);
    }
    
    elseif($result_type == 12)
@@ -1666,21 +1839,36 @@ $no2C = count($regcourse2C);
   $sl = explode('~',$l);
   $l =$sl[0];
  }
- return view('desk.report.resit_diploma')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($page_number)->withF($f)->withD($d);
+ return view('desk.report.resit_diploma')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withCpage($currentPage)->withFinal($final);
    }
    elseif($result_type == 3)
    {
-    return view('desk.report.probation_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($page_number)->withF($f)->withD($d);
+    return view('desk.report.probation_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withCpage($currentPage);
+   }
+   elseif($result_type == 5)
+   {
+    if($f == Self::MEDICINE && $l > 2){
+      return view('desk.report.resit_clinical_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withFinal($final)->withCpage($currentPage);
+      }
+    return view('desk.report.long_vacation_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withCpage($currentPage)->withFinal($final);
+   }
+   elseif($result_type == 7)
+   {
+    return view('desk.report.summer_vacation_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withCpage($currentPage)->withFinal($final);
    }
    else{
-     
-    return view('desk.report.display_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($page_number)->withF($f)->withD($d)->withFinal($final);
+
+    if($f == Self::MEDICINE && $l < 3)
+    {
+      return view('desk.report.pre_medical_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withFinal($final)->withCpage($currentPage);
+   }elseif($f == Self::MEDICINE && $l > 2){
+   return view('desk.report.clinical_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withFinal($final)->withCpage($currentPage);
+   }
+   return view('desk.report.display_report')->withFos($fos)->withL($l)->withS($s)->withDuration($duration)->withT($title)->withN1c($no1C)->withN2c($no2C)->withRegc1($regc1)->withRegc2($reg2c)->withUsers($users)->withFlag($flag)->withSeason($season)->withCourse_id1($course_id1)->withCourse_id2($course_id2)->withU($paginatedSearchResults)->withUrl($url)->withPage($perPage)->withPn($perPage)->withF($f)->withD($d)->withFinal($final)->withCpage($currentPage);
+    
    }
 
- 
-
-  
- }
+}
 
  // ======================== probation result fuction ==================================
 
@@ -1826,7 +2014,11 @@ $no2C = count($regcourse2C);
 // ------------------------------      custom methods---------------------------------------------------
  public function getRegisteredCourses($p,$d,$f,$fos,$l,$s,$sm,$sts)
  {
-   $reg =RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos],['level_id',$l],['session',$s],['semester_id',$sm],['reg_course_status',$sts]])->orderBy('reg_course_code','ASC')->get();
+   $reg =DB::table('register_courses')
+   //$reg =RegisterCourse::
+   ->where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos],['level_id',$l],['session',$s],['semester_id',$sm],['reg_course_status',$sts]])
+   ->orderBy('reg_course_code','ASC')
+   ->get();
    if(count($reg) > 0)
    {
     return $reg;
@@ -1952,6 +2144,20 @@ if($omitted != null)
    return $users;
  }
 
+ public function SelectedResitRegisteredStudents($arrayId,$l,$s,$season)
+ {
+  $users = DB::connection('mysql2')->table('users')
+            ->join('student_regs', 'users.id', '=', 'student_regs.user_id')
+            ->where([['student_regs.level_id',$l],['student_regs.session',$s],['student_regs.season',$season]])
+            ->whereIn('users.id',$arrayId)
+            ->orderBy('users.matric_number','ASC')
+            ->distinct()            
+            ->select('users.*')
+            ->get();
+   
+   return $users;
+ }
+
  //------------------------------ get students who are on omitted result type ---------------------------
  public function getOmittedResultStudents($p,$d,$f,$fos,$l,$s)
  {
@@ -1997,13 +2203,14 @@ protected function f()
 
 public function getcourse($id,$l,$f,$s)
 {
-    $d =RegisterCourse::where([['semester_id',$id],['level_id',$l],['fos_id',$f],['session',$s]])->get();
+    $d =DB::table('register_courses')
+    ->where([['semester_id',$id],['level_id',$l],['fos_id',$f],['session',$s]])->get();
     return response()->json($d); 
 }
 
  public function getFosPara($id)
     {
-     $d =Fos::find($id);
+     $d =DB::table('fos')->find($id);
     return response()->json($d);
     }
 
@@ -2019,4 +2226,157 @@ public function getcourse($id,$l,$f,$s)
             
    return response()->json($l); 
     }
+//========================== get result ======================
+    private function getResult($id){
+      $result =DB::connection('mysql2')->table('student_results')
+                       ->where('coursereg_id',$id)
+                       ->first();
+                     return $result;
+     
+ }
+
+ //========================= student management====================
+
+ public function studentManagement(){
+  return view('desk.studentManagement.index');
+ }
+
+ public function studentManagementAddCourses()
+ {
+  $level =Level::where('programme_id',Auth::user()->programme_id)->get();
+  $fos =$this->get_fos();
+  return view('desk.studentManagement.addCourse')->withL($level)->withF($fos);
+ }
+
+ public function getStudentManagementAddCourse(Request $request)
+ {
+  $level =Level::where('programme_id',Auth::user()->programme_id)->get();
+  $semester =Semester::where('programme_id',Auth::user()->programme_id)->get();
+  $fos_id =$this->get_fos();
+ 
+$this->validate($request,array('fos'=>'required','session_id'=>'required','level'=>'required'));
+$session =$request->session_id;
+$fos =$request->fos;
+$l =$request->level;
+$season =$request->season;
+$p =Auth::user()->programme_id;
+$d =Auth::user()->department_id;
+$f =Auth::user()->faculty_id;
+$fos_name =Fos::find($fos);
+
+$prob_user_id = $this->getprobationStudents($p,$d,$f,$l,$session);
+$registeStudent =$this->registerdStudents($fos,$p,$d,$f,$season,$session,$l,$prob_user_id);
+$register_course =RegisterCourse::where([['programme_id',$p],['department_id',$d],['faculty_id',$f],['fos_id',$fos],['level_id',$l],['session',$session]])->orderBy('semester_id','ASC')->orderBy('reg_course_status','ASC')->get();
+return view('desk.studentManagement.addCourse')->withL($level)->withS($semester)->withF($fos_id)->withR($register_course)->withG_s($session)->withG_l($l)->withFos($fos)->withFn($fos_name)->withRs($registeStudent)->withSeason($season);
+ }
+
+public function postStudentManagementAddCourse(request $request)
+{
+$studentsId =$request->ids;
+$regCourseId =$request->idc;
+$level =$request->level_id;
+$season =$request->season;
+$session =$request->session;
+$fos =$request->fos;
+$code = $request->input('code');
+$status = $request->input('status');
+$semester = $request->input('semester');
+$title = $request->input('title');
+$courseId = $request->input('course_id');
+$unit = $request->input('unit');
+
+if($regCourseId == null)
+{
+  Session::flash('warning',"courses was not selected");
+  return back();
+}
+if($studentsId == null)
+{
+  Session::flash('warning',"students was not selected");
+  return back();
+}
+$data =array();
+foreach($studentsId as $v)
+{
+ 
+ $course_unit = $this->getTotalCourseunit($fos,$session,$level);
+ 
+ $newCourseRegTotal = 0;
+  $courseRegTotalFirstSemester =$this->getTotalCourseUnitPerSemster($v,$session,1,$level,$season);
+  $courseRegTotalSecondSemester =$this->getTotalCourseUnitPerSemster($v,$session,2,$level,$season);
+ 
+ foreach($regCourseId as $vc)
+ {
+  $checkCourse = DB::connection('mysql2')->table('course_regs')
+  ->where([['user_id',$v],['level_id',$level],['session',$session],
+  ['period',$season],['registercourse_id',$vc],['course_id',$courseId[$vc]]])
+  ->first();
+  if($checkCourse == null)
+  {
+    $status_code =$status[$vc];
+    if($status[$vc] == 'G')
+    {
+      $courseReg =DB::connection('mysql2')->table('course_regs')
+      ->where([['user_id',$v],['course_id',$courseId[$vc]],['level_id','<',$level]])
+      ->first();
+      if($courseReg == null)
+      {
+     $status_code ='D';
+      }else{
+     $status_code='R';
+      }
+    }
+     // check for the total unit  
+
+    //get student reg
+    $studentReg = DB::connection('mysql2')->table('student_regs')
+  ->where([['user_id',$v],['level_id',$level],['session',$session],
+  ['season',$season],['semester',$semester[$vc]]])
+  ->first();
+if($semester[$vc] == 1)
+{
+  // first semster
+  $courseRegTotalFirstSemester += $unit[$vc];
+  //check if its drop or repeat
+
+  
+ //echo $courseRegTotalFirstSemester.'-'.$v.'='.$vc.'='.$semester[$vc].'<br/>';
+ if($courseRegTotalSecondSemester <= $course_unit->max)
+ {
+    $data [] =['studentreg_id'=>$studentReg->id,'registercourse_id'=>$vc,'user_id'=>$v,
+    'level_id'=>$level,'semester_id'=>$semester[$vc],'session'=>$session,'period'=>$season,
+    'course_id'=>$courseId[$vc],'course_title'=>$title[$vc],'course_code'=>$code[$vc],
+    'course_unit'=>$unit[$vc],'course_status'=>$status_code];
+ }
+ 
+}elseif($semester[$vc] == 2)
+{// second semester
+   $courseRegTotalSecondSemester += $unit[$vc];
+  
+ // echo $courseRegTotalSecondSemester.'-'.$v.'='.$vc.'='.$semester[$vc].'<br/>';
+  if($courseRegTotalSecondSemester <= $course_unit->max)
+  {
+     $data [] =['studentreg_id'=>$studentReg->id,'registercourse_id'=>$vc,'user_id'=>$v,
+     'level_id'=>$level,'semester_id'=>$semester[$vc],'session'=>$session,'period'=>$season,
+     'course_id'=>$courseId[$vc],'course_title'=>$title[$vc],'course_code'=>$code[$vc],
+     'course_unit'=>$unit[$vc],'course_status'=>$status_code];
+  }
+}
+ 
+
+  }
+ }
+}
+
+if(count($data) != 0)
+{
+  DB::connection('mysql2')->table('course_regs')->insert($data);
+  Session::flash('success',"successful");
+  return back();
+
+}
+Session::flash('warning',"courses is not added.Check the students total credit, you can not register more than its required unit");
+  return back();
+
+}
 }

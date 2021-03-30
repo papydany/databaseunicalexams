@@ -23,7 +23,7 @@
                                   {{ csrf_field() }}
                    <div class="form-group{{ $errors->has('start_serial_number') ? ' has-error' : '' }}">
                     
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                 <label for="session" class="control-label">Select session</label>
                                  <select class="form-control" name="session" required>
                                <option value="">Select</option>
@@ -41,7 +41,7 @@
                                 @endif
                             </div>
                            
-                            <div class="col-sm-4">
+                            <div class="col-sm-3">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level" required>
                               <option value=""> - - Select - -</option>
@@ -59,21 +59,25 @@
                               </select>
                              
                             </div>
-                      
-                               <div class="col-sm-4">
-                              <label for="level" class=" control-label">Semester</label>
-                              <select class="form-control" name="semester" required>
-                              <option value=""> - - Select - -</option>
-                               
-                                 
-                                  <option value="1">First Semester</option>
-                                  <option value="2">Second Semester</option>
-                                 
-                                
-                              </select>
-                             
+                            <div class="col-md-3">
+                                <label for="session" class="control-label">Select Faculty</label>
+                                 <select class="form-control" name="faculty_id" required>
+                               <option value="">Select</option>
+                               @foreach($f as $v)
+                           
+
+                        <option value="{{$v->id}}">{{$v->faculty_name}}</option>
+                                @endforeach
+                             </select>
+
+                                @if ($errors->has('faculty_id'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('faculty_id') }}</strong>
+                                    </span>
+                                @endif
                             </div>
-                            <div class="col-md-4">
+                      
+                              <div class="col-md-2">
                             <br/>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa fa-btn fa-user"></i> generate report

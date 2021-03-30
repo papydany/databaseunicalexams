@@ -3,13 +3,12 @@ namespace App\Http\Traits;
 use Illuminate\Support\Facades\DB;
 use App\Programme;
 use App\Faculty;
-use App\StudentReg;
+use App\CourseUnit;
 use App\CourseReg;
 use Illuminate\Support\Facades\Auth;
+
 trait MyTrait {
-
-
-   public function mm( $G, $U ) {
+   public function mm($G,$U) {
 
         $return = array();
        
@@ -32,7 +31,14 @@ trait MyTrait {
             case 'F':
                 $return['cp'] = 0 * $U;
                 break;
-        }
+                case 'PD':
+                  $return['cp'] = 5 * $U;
+                  break;
+                  case 'P':
+                    $return['cp'] = 4* $U;
+                    break;
+            }
+        
         return $return;
     }
  public function get_grade($total)
@@ -41,6 +47,76 @@ trait MyTrait {
     {
     $total =1; 
 }
+
+  switch($total) {
+               case $total < 40:
+                 $return['grade']  ='F';
+                 return $return;
+                break; 
+                case $total >= 70:
+                $return['grade']='A';
+               return $return;
+                break;
+            case $total >= 60:
+                $return['grade'] ='B';
+                return $return;
+                break;
+            case $total >= 50:
+                 $return['grade'] ='C';
+                 return $return;
+                break;
+            case $total >= 45:
+                 $return['grade'] ='D';
+                return $return;
+                break;
+            case $total >= 40:
+                 $return['grade'] ='E';
+               return $return;
+                break; 
+              }
+            }
+
+
+ public function get_grade_medicine($total,$season,$l)
+ { 
+    if($total == 0)
+    {
+    $total =1; 
+}
+if($l > 2)
+
+{
+  if($season =='VACATION')
+  {
+    switch($total) {
+      case $total < 50:
+        $return['grade']  ='F';
+        return $return;
+       break; 
+      
+   case $total >= 50:
+        $return['grade'] ='P';
+        return $return;
+       break;
+   }
+  }else{
+  switch($total) {
+    case $total < 50:
+      $return['grade']  ='F';
+      return $return;
+     break; 
+     case $total >= 70:
+     $return['grade']='PD';
+    return $return;
+     break;
+ case $total >= 50:
+      $return['grade'] ='P';
+      return $return;
+     break;
+ }
+}
+
+}else{
   switch($total) {
                case $total < 40:
                  $return['grade']  ='F';
@@ -68,6 +144,8 @@ trait MyTrait {
                 break;
             
             }
+
+          }
 
  }
       public function g_rolename($id){
@@ -111,9 +189,11 @@ protected function get_fos()
   $s1 = $s-1;
   $prob_user_id = array();
   
-$prob_Student_reg = StudentReg::where([['semester',1],['programme_id',$p],['department_id',$d],['faculty_id',$f],['level_id',$l],['session',$s]])->get();
+$prob_Student_reg =DB::connection('mysql2')->table('student_regs')
+->where([['semester',1],['programme_id',$p],['department_id',$d],['faculty_id',$f],['level_id',$l],['session',$s]])->get();
 foreach ($prob_Student_reg as $key => $value) {
- $u = StudentReg::where([['user_id',$value->user_id],['session',$s1],['level_id',$l]])->count();
+ $u =DB::connection('mysql2')->table('student_regs')
+ ->where([['user_id',$value->user_id],['session',$s1],['level_id',$l]])->count();
  if($u > 0){
  $prob_user_id [] = $value->user_id;
 }
@@ -123,7 +203,8 @@ return $prob_user_id;
 
  public function probationStudent($id,$l,$season)
  {
-    $studentreg =StudentReg::where([['level_id',$l],['user_id',$id],['semester',1],['season',$season]])->count();
+    $studentreg =DB::connection('mysql2')->table('student_regs')
+    ->where([['level_id',$l],['user_id',$id],['semester',1],['season',$season]])->count();
     //dd($studentreg);
     if($studentreg > 1)
     {
@@ -199,4 +280,60 @@ if($correctional != null)
             ->get();
 return $users;
  }
+
+ public function SelectedStudentsWithFlag($array,$l,$s,$flag)
+ {
+    $users = DB::connection('mysql2')->table('users')
+            ->join('student_results', 'users.id', '=', 'student_results.user_id')
+            ->where([['student_results.level_id',$l],['student_results.session',$s],['student_results.flag',$flag]])
+            ->whereIn('users.id',$array)
+            ->orderBy('users.matric_number','ASC')
+            ->distinct()            
+            ->select('users.*')
+            ->get();
+return $users;
+ }
+
+ //---------------------- get registered students ------------------------
+ public function registerdStudents($fos_id,$p,$d,$f,$season,$session,$l_id,$prob_user_id)
+ {
+  $user = DB::connection('mysql2')->table('student_regs')
+  ->distinct('student_regs.matric_number')
+      ->join('users', 'student_regs.user_id', '=', 'users.id')
+      ->where('users.fos_id',$fos_id)
+      ->where([['student_regs.programme_id',$p],['student_regs.department_id',$d],['student_regs.faculty_id',$f],['student_regs.season',$season],
+          ['student_regs.session',$session],['student_regs.level_id',$l_id]])
+      ->whereNotIn('users.id',$prob_user_id)
+      ->orderBy('users.matric_number','ASC')
+      ->select('users.id','users.firstname', 'users.surname','users.othername','users.matric_number','users.fos_id','users.entry_year')
+      ->get();
+      
+  return $user;
+ }
+
+ // -------------------- get course unit -----------------
+
+ public function getTotalCourseunit($fos_id,$s,$level_id)
+ {
+      // get course unit set for the programme    
+      $course_unit =DB::table('course_units')->where([['fos',$fos_id],['session',$s],['level',$level_id]])->first();
+      
+      if($course_unit == null)
+      {
+        $course_unit =DB::table('course_units')->where([['fos',0],['session',$s],['level',0]])->first();
+     
+      }
+
+      return $course_unit;
+ }
+
+ // -------------- get total of unit of courses taken in semster -------
+public function getTotalCourseUnitPerSemster($id,$session,$semester,$level,$season)
+{
+    $courseRegTotal =DB::connection('mysql2')->table('course_regs')
+    ->where([['session',$session],['user_id',$id],
+    ['semester_id',$semester],['level_id',$level],['period',$season]])->sum('course_unit');
+  return $courseRegTotal; 
+}
+ 
 }

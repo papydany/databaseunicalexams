@@ -53,6 +53,7 @@
 
                         </div>
                         @if($result =="examsofficer")
+                       
                         <div class="col-sm-3 col-md-2">
                                 <label for="semester" class=" control-label">Semester</label>
                                 <select class="form-control" name="semester_id">
@@ -78,8 +79,27 @@
                                 </select>
     
                             </div>
+                        
                             @else
+                            @if(Auth::user()->faculty_id == $med)
+                        <div class="col-sm-3">
+                              <label for="level" class=" control-label">Level</label>
+                              <select class="form-control" name="level">
+                               <option value=""> - - Select - -</option>
+                               <option value="1">100</option>
+                            <option value="2">200</option>
+                            <option value="3">Part I</option>
+                            <option value="4">Part II</option>
+                            <option value="5">Part III</option>
+                            <option value="6">Part IV</option>
+                          
+                                
+                              </select>
+                             
+                            </div>
+                            <input type="hidden" name='semester_id' value="1"/>
 
+                        @else
                         <div class="col-sm-3 col-md-2">
                             <label for="semester" class=" control-label">Semester</label>
                             <select class="form-control" name="semester_id">
@@ -105,6 +125,7 @@
 
                         </div>
                         @endif
+                        @endif
                         <div class="col-sm-3 col-md-2">
                             <label for="level" class=" control-label">Season</label>
                             <select class="form-control" name="season">
@@ -113,7 +134,11 @@
                                  @if(Auth::user()->programme_id == 2)
                                 <option value="RESIT">RESIT</option>
                                 @else
+                                @if(Auth::user()->faculty_id == $med)
+                                <option value="VACATION">RESIT</option>
+                                @else
                                 <option value="VACATION">VACATION</option>
+                                @endif
 
                                 @endif
 
@@ -185,7 +210,7 @@
                         {{! $course =DB::connection('mysql2')->table('course_regs')
                          ->where('studentreg_id',$v->id)
                          ->orderBy('course_code','ASC')
-                         ->get()
+                        ->get()
                          }}
 @if(isset($course))
 @if(count($course) > 0)
