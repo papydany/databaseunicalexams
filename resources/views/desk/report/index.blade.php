@@ -59,7 +59,7 @@
                                  <div class="col-sm-3">
                               <label for="semester" class=" control-label">Result Type</label>
                               <select class="form-control" name="result_type" id="result_type"  required>
-                                  <option value=""> - - Select - -</option>
+                                  
                                  
                               </select>
                              
@@ -161,7 +161,7 @@
                           <div class="col-sm-3">
                               <label for="semester" class=" control-label">Result Type</label>
                               <select class="form-control" name="result_type" id="result_type"  required>
-                                  <option value=""> - - Select - -</option>
+                               
                                  
                               </select>
                              

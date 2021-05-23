@@ -2,6 +2,9 @@
 @section('title','Delete Result')
 @section('content')
 @inject('r','App\R')
+<?php $role =$r->getroleId(Auth::user()->id); 
+
+$acct =$r->getResultActivation($role); ?>
                 <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -46,10 +49,22 @@
                               <select class="form-control" name="session"  required>
                               <option value=""> - - Select - -</option>
                                
-                                  @for ($year = (date('Y')); $year >= 2016; $year--)
+                              @for ($year = (date('Y')); $year >= 2016; $year--)
                                   {{!$yearnext =$year+1}}
-                                  <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                   @if($acct != null)
+                                   @if($acct == $year )
+                                   <option value="">Session <span style="color: red;">Deactivated</span></option>
+                                   
+                                   @else
+                                   <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                   @endif
+
+                                   @else
+                                   <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                   @endif
+                                  
                                   @endfor
+                                
                                 
                               </select>
                              

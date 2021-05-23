@@ -2,6 +2,7 @@
 @section('title','Student Details')
 @section('content')
 @inject('R','App\R')
+<?php $result= $R->getrolename(Auth::user()->id); ?>
 <div class="row">
   <div class="col-lg-12">
      <ol class="breadcrumb">
@@ -126,7 +127,14 @@
       <td>{{$sv->semester == 1 ?'First' : 'Second'}}</td>
       <td>{{$sv->level_id}}</td>
        <td>{{$sv->season}}</td>
-      <td><a href="{{url('deleteRegistration',$sv->id)}}" class="btn btn-xs btn-danger">Delete</a></td>
+      <td>
+      @if($result =="Deskofficer")
+      @else
+      <a href="{{url('deleteRegistration',$sv->id)}}" class="btn btn-xs btn-danger">Delete</a>
+      @endif
+      
+      
+      </td>
     </tr>
     @endforeach
   </table>

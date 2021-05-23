@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -142,6 +141,14 @@ return view('support.entry_year')->withU($user);
     $request->session()->flash('warning', ' No Records is not available');
  return redirect()->action('SupportController@view_used_pin'); 
    }
+   /*if($pin->status == 0)
+   {
+     $role =$this->g_rolename(auth::user()->id);
+    if($role !='support'){
+    $request->session()->flash('warning', ' Pin have not been used.');
+    return redirect()->action('SupportController@view_used_pin');
+    }
+   }*/
    $user = DB::connection('mysql2')->table('users')->where('matric_number',$pin->matric_number)->first();
 
     return view('support.view_used_pin')->withPin($pin)->withUser($user);

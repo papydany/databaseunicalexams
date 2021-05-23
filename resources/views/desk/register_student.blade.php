@@ -3,7 +3,11 @@
 @section('content')
 @inject('r','App\R')
         <!-- Page Heading -->
-<?php $result= $r->getrolename(Auth::user()->id) ?>
+<?php $result= $r->getrolename(Auth::user()->id);
+
+$role =$r->getroleId(Auth::user()->id); 
+
+$acct =$r->getResultActivation($role); ?>
 <div class="row">
     <div class="col-lg-12">
         
@@ -45,9 +49,20 @@
                                 <option value=""> - - Select - -</option>
 
                                 @for ($year = (date('Y')); $year >= 2016; $year--)
-                                    {{!$yearnext =$year+1}}
-                                    <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
-                                @endfor
+                                  {{!$yearnext =$year+1}}
+                                   @if($acct != null)
+                                   @if($acct == $year )
+                                   <option value="">Session Deactivated</option>
+                                   
+                                   @else
+                                   <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                   @endif
+
+                                   @else
+                                   <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                   @endif
+                                  
+                                  @endfor
 
                             </select>
 
@@ -97,7 +112,15 @@
                               </select>
                              
                             </div>
-                            <input type="hidden" name='semester_id' value="1"/>
+                             <div class="col-sm-3 col-md-2">
+                                <label for="semester" class=" control-label">Semester</label>
+                                <select class="form-control" name="semester_id">
+                                    <option value=""> - - Select - -</option>
+                                    <option value="1">First Semester</option>
+                                    <option value="2">Second Semester</option> 
+                                </select>
+    
+                            </div>
 
                         @else
                         <div class="col-sm-3 col-md-2">
@@ -221,6 +244,7 @@
                                 <!-- Modal content-->
                                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/entering_result') }}" data-parsley-validate>
                                         {{ csrf_field() }}
+                                        <input type="hidden" name="faculty_id" value="{{$ff}}">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <button type="button" class="close" data-dismiss="modal">&times;</button>

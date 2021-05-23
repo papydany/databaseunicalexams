@@ -42,6 +42,8 @@ Route::get('getlevel/{id}','ExamofficerController@getlevel');
 Route::get('username/{id}', 'HomeController@username');
 Route::get('/depart/{id}', 'HomeController@getDepartment');
 Route::get('/fos/{id}', 'HomeController@getFos');
+Route::get('sfos/{id}', 'HomeController@Sfos');
+Route::get('sfos', 'HomeController@Sfos');
 
 
 // support
@@ -95,7 +97,7 @@ Route::get('detail_exams_officer/{id}', ['uses' =>'HomeController@detail_exams_o
 Route::get('remove_fos/{id}', ['uses' =>'HomeController@remove_fos','middleware' => 'roles','roles'=>['admin','support']]);
 
 /*===================================student detail ===============================================*/
-Route::get('admin_studentdetails', ['uses' =>'HomeController@admin_studentdetails','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('admin_studentdetails', ['uses' =>'HomeController@admin_studentdetails','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 // edit images
 Route::get('edit_image/{id}', ['uses' =>'HomeController@edit_image','middleware' => 'roles','roles'=>['admin','support']]);
 Route::post('edit_image', ['uses' =>'HomeController@post_edit_image','middleware' => 'roles','roles'=>['admin','support']]);
@@ -159,6 +161,21 @@ Route::post('assign_fosdesk', ['uses' =>'HomeController@assign_fosdesk','middlew
 Route::get('assign_fos', ['uses' =>'HomeController@assign_fos','middleware' => 'roles','roles'=>['admin','support']]);
 
 Route::get('delete_fos/{id}/{yes?}', ['uses' =>'HomeController@delete_fos','middleware' => 'roles','roles'=>['admin','support']]);
+//==================================== specialization ================================
+Route::get('newSpecialization', ['uses' =>'HomeController@newSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::post('newSpecialization', ['uses' =>'HomeController@postSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('viewSpecialization', ['uses' =>'HomeController@viewSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::post('viewSpecialization', ['uses' =>'HomeController@postViewSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+
+Route::get('editSpecialization/{id}', ['uses' =>'HomeController@editSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::post('editSpecialization', ['uses' =>'HomeController@updateSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::post('assignSpecialization', ['uses' =>'HomeController@postAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::post('updateAssignSpecialization', ['uses' =>'HomeController@updateAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('assignSpecialization', ['uses' =>'HomeController@assignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('viewAssignSpecialization', ['uses' =>'HomeController@viewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::post('viewAssignSpecialization', ['uses' =>'HomeController@postViewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+
+
 
 //-------------------------------------------------------------------------------------------------------------------
 //desk officer
@@ -374,6 +391,8 @@ Route::get('studentManagement', ['uses' =>'DeskController@studentManagement','mi
 Route::get('studentManagementAddCourses', ['uses' =>'DeskController@studentManagementAddCourses','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
 Route::get('getStudentManagementAddCourse', ['uses' =>'DeskController@getStudentManagementAddCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
 Route::post('postStudentManagementAddCourse', ['uses' =>'DeskController@postStudentManagementAddCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+//======================= transfer student==============================
+Route::post('tranferStudents', ['uses' =>'HomeController@tranferStudents','middleware' => 'roles','roles'=>['admin','support']]);
 
 Auth::routes();
 Route::get('logout','Auth\LoginController@logout');

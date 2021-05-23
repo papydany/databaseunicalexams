@@ -48,14 +48,15 @@
                    
                         {{ csrf_field() }}
                   <input type="hidden" name="flag" value="{{$rt}}">
+                   <input type="hidden" name="faculty_id" value="{{$f}}">
                  <table class="table table-bordered table-striped">
                  <tr>
                         <th width="3%"></th>
                         <th width="3%">S/N</th>
                         <th>martic Number</th>
                         <th>Names</th>
-                    
-                        <th class="cc" >Ca</th>
+                        <th width="15%">Script No</th>
+                        <th class="cc" >CA</th>
                          <th class="cc" >Exams</th>
                           <th class="cc" >Total</th>
                           </tr>
@@ -97,6 +98,10 @@
 <!-- ===========================check if it has edit right ================================-->
     @if(Auth::user()->edit_right > 0) 
      <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="{{$result->id}}" >
+ 
+     <td>
+  <input type="number" class="form-control fc " name="scriptNo[{{$c}}]" value="{{$result->scriptNo}}" />
+  </td>
   <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="{{$result->ca}}" />
   </td>
@@ -107,6 +112,9 @@
   <input type="" class="form-control fc " name="total[{{$c}}]"  value="{{$result->total}}" id='d{{$c}}' readonly='true' onChange="if (this.value!='') document.getElementById('check[{{$c}}]').checked=true"  />
    </td>
    @else
+   <td>
+  <input type="number" class="form-control fc " name="scriptNo[{{$c}}]" value="{{$result->scriptNo}}" readonly />
+  </td>
   <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="{{$result->ca}}" readonly />
  </td>
@@ -118,6 +126,9 @@
   </td>
    @endif
  @else
+ <td>
+  <input type="number" class="form-control fc " name="scriptNo[{{$c}}]" value="" />
+  </td>
    <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="" />
   </td>
@@ -142,7 +153,9 @@
                                 </table>
                         
 
-                                </form>
+       </form>
+
+                </div>
 
 {{$u->setPath($url)->render()}}
                        @else

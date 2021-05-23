@@ -23,6 +23,7 @@ use App\Contact;
 use App\Course;
 use App\DeskofficeFos;
 use App\PublishResult;
+use App\Specialization;
 use Illuminate\Support\Facades\Auth;
 use Mail;
 use Illuminate\Support\Facades\Session;
@@ -189,8 +190,10 @@ return view('admin.edit_image')->withU($users);
       public function post_getRegStudents(Request $request)
     {
       $s = $request->session;
-      $s_type = $request->student_type;
-      $st = Pin::where([['status',1],['session',$s],['student_type',$s_type]])->get()->count();
+     // $s_type = $request->student_type;
+      $st =DB::connection('mysql2')->table('student_regs')
+      ->where([['semester',1],['session',$s],['season','NORMAL']])->get()->count();
+     // $st = Pin::where([['status',1],['session',$s],['student_type',$s_type]])->get()->count();
    
     return view('admin.admin_getRegStudents')->withN($st);
     }
@@ -280,6 +283,7 @@ public function admin_viewStudents()
       public function post_viewStudents(Request $request)
     {
       $dd = Department::orderBy('department_name','ASC')->get(); 
+      $f= Faculty::orderBy('faculty_name','ASC')->get(); 
       $s = $request->session;
       $fos = $request->fos;
       $d = $request->department;
@@ -287,7 +291,7 @@ public function admin_viewStudents()
       $st = DB::connection('mysql2')->table('users')
       ->where([['entry_year',$s],['fos_id',$fos],['department_id',$d]])->orderBy('matric_number','ASC')->get();
    
-    return view('admin.viewstudents.admin_viewStudents')->withU($st)->withD($dd)->withDid($d)->withFosid($fos)->withS($s);
+    return view('admin.viewstudents.admin_viewStudents')->withF($f)->withU($st)->withD($dd)->withDid($d)->withFosid($fos)->withS($s);
     }
     //======================================== faculty =====================================
     public function new_faculty()
@@ -593,6 +597,133 @@ DB::table('fos')->where('id',$value)->update(['status'=>1]);
 Session::flash('success','successfull');
 return redirect()->action('HomeController@assign_fos');
 }
+
+//==========================specialization=======================================
+public function newSpecialization(){
+       
+  $f = Faculty::orderBy('faculty_name','ASC')->get();
+      $p = Programme::all(); 
+    return view('admin.specialization.index')->withF($f)->withP($p);
+  }
+  
+
+//-------------------------- post specialization  -----------------------
+  function postSpecialization(Request $request)
+  {
+  $this->validate($request,array(
+      'name'=>'required',
+      'department_id'=>'required',
+      'programme_id'=>'required',
+      'fos_id'=>'required',
+      'level'=>'required',));
+
+  $name = strtoupper($request->name);
+  $check = Specialization::where([['name',$name],['fos_id',$request->fos_id]])->first();
+  if($check != null)
+  {
+  Session::flash('warning',"Specialization exist already.please");
+  return $this->newSpecialization();
+  exit();  
+  }
+  $s =new Specialization; 
+ $s->name = $request->name;
+ $s->department_id =$request->department_id;
+ $s->programme_id = $request->programme_id;
+ $s->level = $request->level;
+ $s->fos_id = $request->fos_id; // not assign
+  $s->save();
+  Session::flash('success',"SUCCESSFULL.");
+  return  $this->newSpecialization();
+}
+//------------------------- view specialization --------------
+public function viewSpecialization()
+{
+  $f = Faculty::orderBy('faculty_name','ASC')->get();
+  return view('admin.specialization.view')->withF($f);
+}
+//==============================post view ============================================================
+public function postViewSpecialization(Request $request)
+{
+  $f = Faculty::orderBy('faculty_name','ASC')->get();
+   $this->validate($request,array('fos_id'=>'required',));
+   $id =$request->fos_id;
+   $d=$request->department_id;
+  
+   $fac=$request->faculty_id;
+   $s = Specialization::where('fos_id',$id)->get();
+
+   return view('admin.specialization.view')->withS($s)->withF($f)->withD($d)->withFos($id)
+   ->withFf($fac);
+}
+
+
+//---------------------------------------------------------------------
+public function editSpecialization($id)
+{
+  $f =Specialization::find($id);
+  return view('admin.specialization.edit')->withF($f);
+}
+
+//----------------------- update specialization -------------------
+public function updateSpecialization(Request $request)
+{
+  $id = $request->id;
+ $f =Specialization::find($id);
+$f->name = strtoupper($request->name);
+$f->level =$request->level;
+$f->save();
+ Session::flash('success',"SUCCESSFULL.");
+  return redirect()->action('HomeController@viewSpecialization');
+}
+// -------------------- assign specialization ----------------------
+public function assignSpecialization()
+{
+  $f = Faculty::orderBy('faculty_name','ASC')->get();
+  return view('admin.specialization.assign')->withF($f);
+}
+
+public function postAssignSpecialization(Request $request)
+{
+  
+  $f= Faculty::orderBy('faculty_name','ASC')->get(); 
+  $s = $request->session;
+  $fos = $request->fos_id;
+  $d = $request->department_id;
+  
+  $st = DB::connection('mysql2')->table('users')
+  ->where([['entry_year',$s],['fos_id',$fos],['department_id',$d]])->orderBy('matric_number','ASC')->get();
+
+return view('admin.specialization.assign')->withF($f)->withU($st)->withDid($d)->withFosid($fos)->withS($s);
+}
+
+public function updateAssignSpecialization(Request $request)
+{
+  $s =$request->specialization_id;
+ $studentId =array();
+  $variable =$request->id;
+if($variable == null){
+  Session::flash('warning',"please select students.");
+    return back();
+}
+
+foreach($variable as $k)
+{
+  $studentId [] =$k;
+}
+if(count($studentId) == 0) 
+{
+  Session::flash('warning',"students array is enpty.");
+  return back();
+}
+ DB::connection('mysql2')->table('users')
+->whereIn('id',$studentId)->update(['specialization_id' => $s]);
+Session::flash('success',"students records updated.");
+return back();
+
+
+}
+
+
 //========================================== view desk officer=======================================
 public function new_desk_officer()
 {
@@ -1619,6 +1750,13 @@ public function post_view_course_unit(Request $request)
      $d =Fos::where('department_id', $id)->orderBy('fos_name','ASC')->get();
     return response()->json($d);
     }
+
+    // function to get sfos
+ public function Sfos($id)
+ {
+  $d =Specialization::where('fos_id', $id)->orderBy('name','ASC')->get();
+ return response()->json($d);
+ }
 // function to get fos
  public function username($id)
     {
@@ -1645,4 +1783,66 @@ public function post_update_email(Request $request)
 
 return back();
 }
+
+//================= transfer students=====================
+public function tranferStudents(Request $request)
+{
+  $s =$request->session;
+  $f =$request->faculty;
+  $d=$request->department;
+  $fos =$request->fos;
+  $variable =$request->id;
+if($variable == null){
+  Session::flash('warning',"please select students.");
+    return back();
+}
+  // check if the department and unit have registered courses
+  $reg=RegisterCourse::where([['fos_id',$fos],['session',$s],['level_id',1]])->get();
+  $check =$reg->count();
+  if($check == 0){
+    Session::flash('warning',"you have no registerd courses.");
+    return back();
+  }
+  $programme =Fos::find($fos);
+  foreach($variable as $v)
+  {
+    $deleteResult =StudentResult::where('user_id',$v)->delete();
+    $deleteCourseReg =CourseReg::where('user_id',$v)->delete();
+    $deleteStudentReg =StudentReg::where('user_id',$v)->delete();
+    $l=1;
+    $courseReg2='';
+    $firstSemeter=1;
+    $secondSemester=2;
+    $u =DB::connection('mysql2')->table('users')
+    ->where('id', $v)
+    ->update(['faculty_id' =>$f,'department_id' => $d,'fos_id' => $fos,'entry_year'=>$s]);
+
+     //check if student has registered for first semester
+     $check1 =$this->registrationStatus($v,$firstSemeter,$s);
+     if($check1 == null)
+     {
+     $studentRegId = $this->studentReg($v,$f,$d,$programme->programme_id,$l,$s,$firstSemeter,'NORMAL');
+     $registeredCourses =$this->getRegisteredCourses($l,$s,$firstSemeter,$fos);
+     $courseReg =$this->studentCourseReg($v,$studentRegId,$registeredCourses,$l,$s,$firstSemeter,'NORMAL');
+     }
+
+      //check if student has registered for second semester
+      $check2 =$this->registrationStatus($v,$secondSemester,$s);
+      if($check2 == null)
+      {
+      $studentRegId = $this->studentReg($v,$f,$d,$programme->programme_id,$l,$s,$secondSemester,'NORMAL');
+      $registeredCourses =$this->getRegisteredCourses($l,$s,$secondSemester,$fos);
+      $courseReg2 =$this->studentCourseReg($v,$studentRegId,$registeredCourses,$l,$s,$secondSemester,'NORMAL');
+      }
+      
+  }
+  if($courseReg2 == 1){
+    Session::flash('success',"successfull.");
+  }else{
+    Session::flash('warning',"was not success.");
+  }
+  return back();
+}
+
+
 }

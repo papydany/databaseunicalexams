@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 @section('title','Enter Result')
 @section('content')
+@inject('r','App\R')
  <!-- Page Heading -->
  <style type="text/css">
  .fc {padding:0px;text-align: center;font-weight: bolder;font-size: 14px;}
@@ -8,7 +9,7 @@
  .cc {width:6%;}
         </style>
                 <div class="row">
-                @inject('r','App\R')
+                
                 <?php $fos= $r->get_fos($c->fos_id) ?>
                     <div class="col-lg-12">
                        
@@ -52,13 +53,14 @@
                         <br/>
                         @endif
                         <input type="hidden" name="flag" value="{{$rt}}">
+                        <input type="hidden" name="faculty_id" value="{{$f}}">
                  <table class="table table-bordered table-striped">
                  <tr>
                         <th width="3%" class="text-center"></th>
                         <th width="3%" class="text-center">S/N</th>
                         <th class="text-center">MATRIC NUMBERS</th>
                         <th class="text-center">NAMES</th>
-                    
+                        <th width="15%"  class="text-center">Script No</th> 
                         <th class="cc text-center">CA</th> 
                         <th class="cc text-center">EXAMS</th>
                         <th class="cc text-center">TOTAL</th>
@@ -82,7 +84,7 @@
                       <input type="hidden" name="level_id[{{$c}}]" value="{{$v->level_id}}">
                        <input type="hidden" name="season[{{$c}}]" value="{{$v->period}}">
                        <input type="hidden" name="entry_year[{{$c}}]" value="{{$v->entry_year}}">
-
+                     
                       </td>
                       <td>{{$c}}</td>
                        <td>{{$v->matric_number}}</td>
@@ -107,6 +109,9 @@ $result =DB::connection('mysql2')->table('student_results')->where('coursereg_id
 <!-- ===========================check if it has edit right ================================-->
    {{-- @if(Auth::user()->edit_right > 0) --}}
      <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="{{$result->id}}" >
+     <td>
+  <input type="number" class="form-control fc " name="scriptNo[{{$c}}]"    value="{{$result->scriptNo}}" />
+  </td>
   <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="{{$result->ca}}" />
   </td>
@@ -118,6 +123,9 @@ $result =DB::connection('mysql2')->table('student_results')->where('coursereg_id
    </td>
   {{-- @else
    <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="" >
+   <td>
+  <input type="number" class="form-control fc " name="scriptNo[{{$c}}]"    value="{{$result->scriptNo}}" readonly />
+  </td>
   <td>
 
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="{{$result->ca}}" readonly />
@@ -132,6 +140,9 @@ $result =DB::connection('mysql2')->table('student_results')->where('coursereg_id
  @else
  
  <input type="hidden" class="form-control fc" name="result_id[{{$c}}]" value="" >
+ <td>
+  <input type="number" class="form-control fc " name="scriptNo[{{$c}}]"    value="" />
+  </td>
    <td>
   <input type="" class="form-control fc " name="ca[{{$c}}]" id='ca{{$c}}'  onKeyUp="CA(this,'exam{{$c}}','d{{$c}}','check[{{$c}}]')" value="" />
   </td>
@@ -148,10 +159,13 @@ $result =DB::connection('mysql2')->table('student_results')->where('coursereg_id
 @endforeach
 
 <tr>
-<td colspan="4"></td>
-<td colspan="3" style="padding-top: 18px;padding-bottom:10px;">
+<td colspan="4">
+<button type="submit" class="btn btn-danger" name="delete" value="delete">
+<i class="fa fa-btn fa-user"></i> Delete Course</button>
+</td>
+<td colspan="4" style="padding-top: 18px;padding-bottom:10px;">
 <input type="hidden" name="url" value="{{$url}}">
-<button type="submit" class="btn btn-danger btn-block ">
+<button type="submit" class="btn btn-primary btn-block ">
 <i class="fa fa-btn fa-user"></i> Submit Result</button>
 </td>
 </tr>

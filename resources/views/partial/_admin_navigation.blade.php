@@ -1,3 +1,4 @@
+<?php use Illuminate\Support\Facades\Auth; ?>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -105,6 +106,25 @@
 
                     <li>
                         <a href="{{url('assign_fos')}}">Assign FOS</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="javascript:;" data-toggle="collapse" data-target="#demo4s"><i class="fa fa-fw fa-edit"></i>Specialization<i class="fa fa-fw fa-caret-down"></i></a>
+                <ul id="demo4s" class="collapse">
+                    <li>
+                        <a href="{{url('newSpecialization')}}">Create </a>
+                    </li>
+                    <li>
+                        <a href="{{url('viewSpecialization')}}">View</a>
+                    </li>
+
+                    <li>
+                        <a href="{{url('assignSpecialization')}}">Assign </a>
+                    </li>
+                    <li>
+                        <a href="{{url('viewAssignSpecialization')}}">View Assign </a>
                     </li>
                 </ul>
             </li>

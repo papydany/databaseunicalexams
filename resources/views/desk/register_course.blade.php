@@ -46,7 +46,18 @@
                               </select>
                              
                             </div>
-                            <input type="hidden" name="semester" value="1"/>
+                            <div class="col-sm-3">
+                              <label for="semester" class=" control-label">Semester</label>
+                              <select class="form-control" name="semester">
+                              <option value=""> - - Select - -</option>
+                                  @if(isset($s))
+                                  @foreach($s as $v)
+                                  <option value="{{$v->semester_id}}">{{$v->semester_name}}</option>
+                                  @endforeach
+                                  @endif
+                              </select>
+                             
+                            </div>
                         @else
                      <div class="col-sm-3">
                               <label for="level" class=" control-label">Level</label>
@@ -113,13 +124,14 @@
                           @if(count($f) > 0)
                              <form class="form-horizontal" role="form" method="POST" action="{{ url('/reg_course') }}" data-parsley-validate>
                         {{ csrf_field() }}
+                        <input type="hidden" name="level" value="{{$l}}">
                         @if(isset($m))
                      <input type="hidden" name="month" value="{{$m}}">
                         @endif
  <div class="form-group">
-                     <div class="col-sm-4">
+                     <div class="col-sm-3">
                               <label for="fos" class=" control-label">Field Of Study</label>
-                              <select class="form-control" name="fos" required>
+                              <select class="form-control" name="fos" id='fos' required>
                                <option value=""> - - Select - -</option>
                                  
                                   @foreach($f as $v)
@@ -129,7 +141,14 @@
                               </select>
                              
                             </div>
-   <div class="col-sm-4">
+                            <div class="col-sm-3">
+                              <label for="fos" class=" control-label">Specialization Field Of Study</label>
+                              <select class="form-control" name="sfos" id='sfos' required>
+                               <option value=""> - - Select - -</option>
+                                 </select>
+                             
+                            </div>
+   <div class="col-sm-3">
                               <label for="session" class=" control-label">Session</label>
                               <select class="form-control" name="session_id" required>
                               <option value=""> - - Select - -</option>
@@ -205,4 +224,8 @@
 
 
 
-  @endsection                      
+  @endsection
+  @section('script')
+<script src="{{URL::to('js/main.js')}}"></script>
+
+@endsection

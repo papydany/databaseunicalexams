@@ -53,7 +53,8 @@
                         <th width="3%">S/N</th>
                         <th width="17%">Martic Number</th>
                         <th>Names</th>
-                        <th width="5%">Ca</th>
+                        <th width="7%">Script No</th>
+                        <th width="5%">CA</th>
                         <th width="5%">Exams</th>
                         <th width="5%">Total</th>
                         <th width="5%">Grade</th>
@@ -68,6 +69,7 @@
                        <td>{{$v->matric_number}}</td>
 
                         <td>{{strtoupper($v->surname." ".$v->firstname." ".$v->othername)}}</td>
+                        <td>{{isset($result->scriptNo) ?$result->scriptNo : ''}}</td>
                          <td>{{isset($result->ca) ?$result->ca : ''}}</td>
                        <td>{{isset($result->exam) ? $result->exam: ''}}</td>
                      <td>{{isset($result->total) ? $result->total: ''}}</td>

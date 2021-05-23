@@ -1,8 +1,11 @@
 @extends('layouts.admin')
 @section('title','Enter Result')
 @section('content')
-    @inject('r','App\R')
- <!-- Page Heading -->
+@inject('r','App\R')
+<?php 
+use Illuminate\Support\Facades\Auth;
+$role =$r->getrolename(Auth::user()->id); ?>
+
                 <div class="row">
                     <div class="col-lg-12">
                        
@@ -74,7 +77,9 @@
                 <select class="form-control" name="result_type" required>
                      <option value="">-- select --</option>
                      <option value="Sessional">Sessional</option>
-                    <!-- <option value="Omitted">Omitted</option>-->
+                     @if($role == 'examsofficer')
+                     <option value="Omitted">Omitted</option>
+                     @endif
                      <!--<option value="Correctional">Correctional</option>-->
                </select>
                       </div>

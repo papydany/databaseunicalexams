@@ -27,6 +27,8 @@ use App\Http\Traits\MyTrait;
 class ExamofficerController extends Controller
 {
 	use MyTrait;
+  Const MEDICINE = 14;
+  Const Role =3;
 
    public function __construct()
     {
@@ -53,6 +55,7 @@ class ExamofficerController extends Controller
   $id=Auth::user()->id;
   $f_id = $this->get_fos_exams_officer_and_hod($id,$d,$p);
   $course =$course = $this->getRegisterAssign_courses($id,$l,$semester,$session,$d,$f,$f_id);
+  
  return view('examofficer.eo_assign_courses')->withC($course)->withSm($semester)->withS($session)->withL($l)->withFos($f_id)->withP($p);
 
     }
@@ -66,8 +69,9 @@ class ExamofficerController extends Controller
       $s =$request->input('session'); 
   $period =$request->input('period'); 
   $registercourse = RegisterCourse::find($id);
-   $d =Auth::user()->department_id;
-  $f =Auth::user()->faculty_id;
+  
+ $d =$registercourse->department_id;
+  $f =$registercourse->faculty_id;
   $p =$request->input('programme_id'); 
 
   $prob_user_id = $this->getprobationStudents($p,$d,$f,$l,$s);
@@ -104,7 +108,7 @@ class ExamofficerController extends Controller
         ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.entry_year')
         ->get();
       }
-     // dd($user);
+    
   //Get current page form url e.g. &page=6
         $url ="eo_result_c?id=".$id."&level=".$l."&semester=".$sm."&session=".$s."&period=".$period."&result_type=".$result_type;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -123,7 +127,7 @@ class ExamofficerController extends Controller
 
        // return view('search', ['results' => $paginatedSearchResults]);
     
-      return view('examofficer.eo_result_c')->withU($paginatedSearchResults)->withUrl($url)->withC($registercourse)->withRt($result_type);
+      return view('examofficer.eo_result_c')->withU($paginatedSearchResults)->withUrl($url)->withC($registercourse)->withRt($result_type)->withMed(self::MEDICINE)->withF($f);
     }  
 
 //=========================result insert for student percourse ==========================
@@ -133,6 +137,7 @@ class ExamofficerController extends Controller
         //$this->validate($request,array('id'=>'required',));
         $flag = $request->input('flag');
        // dd($flag);
+         $faculty_id = $request->input('faculty_id');
         $date = date("Y/m/d H:i:s");
         $url =$request->input('url');
 
@@ -154,11 +159,17 @@ return back();
         $l_id =$request->input('level_id')[$value];
         $season =$request->input('season')[$value];
          $ca =$request->input('ca')[$value];
+         $scriptNo =$request->input('scriptNo')[$value];
         $exam=$request->input('exams')[$value];
         //$total=$request->input('total')[$value];
         $total=$ca + $exam;
         $entry_year=$request->input('entry_year')[$value];
+        if($faculty_id == Self::MEDICINE){
+          $grade_value =$this->get_grade_medicine($total,$season,$l_id);
+          }else{
         $grade_value =$this->get_grade($total,$entry_year);
+         }
+        
         $grade = $grade_value['grade'];
         $cp = $this->mm($grade, $cu,$entry_year);
 
@@ -177,7 +188,8 @@ return back();
 
       
 $update = StudentResult::find($result_id);
-            $update->ca = $ca;
+$update->scriptNo = $scriptNo;
+$update->ca = $ca;
             $update->exam = $exam;
             $update->total = $total;
             $update->grade = $grade;
@@ -188,7 +200,7 @@ $update = StudentResult::find($result_id);
 
           
                
-                        $insert_data[] = ['user_id'=>$user_id,'matric_number'=>$mat_no,'course_id'=>$course_id,'coursereg_id'=>$coursereg_id,'ca'=>$ca,'exam'=>$exam,'total'=>$total,'grade'=> $grade,'cu'=>$cu,'cp'=>$cp['cp'],'level_id'=>$l_id,
+                        $insert_data[] = ['user_id'=>$user_id,'matric_number'=>$mat_no,'scriptNo'=>$scriptNo,'course_id'=>$course_id,'coursereg_id'=>$coursereg_id,'ca'=>$ca,'exam'=>$exam,'total'=>$total,'grade'=> $grade,'cu'=>$cu,'cp'=>$cp['cp'],'level_id'=>$l_id,
                             'session'=>$session,'semester'=>$semester,'status'=>0,'season'=>$season,'flag'=>$flag,'examofficer'=>Auth::user()->id,'post_date'=>$date,'approved'=>0];
                     }
 
@@ -386,13 +398,21 @@ return redirect()->action('ExamofficerController@eo_delete_result');
     ->get()
     ->groupBy('fos_id');
    }else{
-   $course = DB::table('assign_courses')
+    $course = DB::table('assign_courses')
+    ->join('register_courses', 'register_courses.id', '=', 'assign_courses.registercourse_id')
+    ->where([['assign_courses.user_id',$id],['assign_courses.level_id',$l],['assign_courses.semester_id',$semester],['assign_courses.session',$session]])
+    //->wherein('assign_courses.fos_id',$f_id)
+    ->orderBy('register_courses.reg_course_status','ASC')
+    ->orderBy('register_courses.reg_course_code','ASC')
+    ->get()->groupBy('fos_id');
+
+  /* $course = DB::table('assign_courses')
         ->join('register_courses', 'register_courses.id', '=', 'assign_courses.registercourse_id')
         ->where([['assign_courses.user_id',$id],['assign_courses.level_id',$l],['assign_courses.semester_id',$semester],['assign_courses.session',$session],['assign_courses.department_id',$d],['assign_courses.faculty_id',$f]])
         ->wherein('assign_courses.fos_id',$f_id)
         ->orderBy('register_courses.reg_course_status','ASC')
         ->orderBy('register_courses.reg_course_code','ASC')
-        ->get()->groupBy('fos_id');
+        ->get()->groupBy('fos_id');*/
    }
     
         return $course;

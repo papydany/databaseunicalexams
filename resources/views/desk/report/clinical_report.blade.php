@@ -168,10 +168,7 @@ $set['bottom'] = '<p style="margin-left:0px">
                   		<th class="text-center text-size">S/N</th>
                   		<th class="text-center">NAME</th>
                   		<th  class="text-center">REG NO</th>
-                          <?php
-                     echo  $set['rpt'][0],
-                      $set['chr'][1];
-                      ?>
+                     
                   		<th class="text-center" colspan="{{$no1}}">COURSE TAKEN</th>
                   		
                   		<th  class="text-center">REMARKS</th>
@@ -181,8 +178,8 @@ $set['bottom'] = '<p style="margin-left:0px">
                   <tr class="thead">
                   <th></th>
                   <th></th>
-                  <th></th>
-                  <th></th>
+                  <!--<th></th>
+                  <th></th>-->
                   <th></th>
                   <?php
      
@@ -250,7 +247,7 @@ $first_semester = empty($first_grade) ? array('') : $first_grade;
 
 $ll = array_merge($first_semester,  array(1=>array()) );
 
- $repeat_course =$R->repeat_course($v->id,$s,$l,$season);
+ //$repeat_course =$R->repeat_course($v->id,$s,$l,$season);
 
 $remark =$R->clinicalRemarks($l,$v->id,$s,$season);
  ?>
@@ -261,8 +258,7 @@ $remark =$R->clinicalRemarks($l,$v->id,$s,$season);
     <td>{{$v->matric_number}}</td>
 <?php
   
-echo '<td class="s9">',$repeat_course,'</td>';
-echo '<td class="s9">',$repeat_course,'</td>';
+
 for($i=0; $i<$k; $i++) {
             
             if( $i == $sizea ) {

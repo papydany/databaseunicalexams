@@ -18,7 +18,7 @@
                 <!-- /.row -->
 
 <div class="row" style="min-height: 420px;">
-    @if(Auth::user()->email == null)
+ @if(Auth::user()->email == null)
 
     <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -31,8 +31,9 @@
         </button>
       </div>
       <div class="modal-body">
+      <p> Result Uploading will be </p>
 
-        <p>Every User is advice to update their account, with a valid <strong>Email address.</strong> This is to enable you reset the passwords if forgotton.</p>
+     <p>Every User is advice to update their account, with a valid <strong>Email address.</strong> This is to enable you reset the passwords if forgotton.</p>
         <p class="text-danger"><strong>NB</strong></p> 
          <ul>
          <li>   To reset your password, you must have updated the portal with your valid email address.</li>
@@ -42,6 +43,8 @@
          <li>Login to your email account and click on the link that redirect to our portal. Enter your new password and submit</li>
      </ul>
      <p><strong class="text-danger">Henceforth, Admin will not be responsible for the retrieving of your password.We can only help with your username. </strong> Once you update your email address you will stop seeing these pop up.</p>
+     
+     
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
@@ -408,8 +411,36 @@
                 
                 </div>
                 @endif
-                @if($result =="Deskofficer" || $result =="support" )
+                @if($result =="Deskofficer")
                 <div class="row">
+                <div class="col-sm-6">
+           <form class="form-horizontal" role="form" method="GET" action="{{ url('/admin_studentdetails') }}" data-parsley-validate>
+                      {{ csrf_field() }}
+
+                        <div class="form-group{{ $errors->has('first_name') ? ' has-error' : '' }}">
+                      
+                       <div class="col-md-8">
+                                <label for="student_type" class="control-label">Matric Number</label>
+                                <input type="text" name="matric_number" value="" class="form-control" />
+                      
+
+                                @if ($errors->has('student_type'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('student_type') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+<br/>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-btn fa-user"></i> Search for Student
+                                </button>
+                            </div>
+
+                        </div>
+
+                        </form>
+  </div>
                     <div class="col-lg-3 col-md-6">
                         <div class="panel panel-red">
                             <div class="panel-heading">

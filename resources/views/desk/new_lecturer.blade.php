@@ -39,6 +39,8 @@
                                    <option value="Rev(prof)">Rev(Prof)</option>
                                    <option value="Barr">Barr</option>
                                    <option value="Barr Mrs">Barr Mrs</option>
+                                   <option value="Engr">Engr</option>
+                                   <option value="Pharm">Pharm</option>
                              
                                </select>
 

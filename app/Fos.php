@@ -21,4 +21,10 @@ class Fos extends Model
     {
         return $this->hasMany('App\PublishResult');
     }
+
+     // 
+     public function specialization()
+     {
+         return $this->hasMany('App\Specialization');
+     }
 }

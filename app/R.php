@@ -39,8 +39,29 @@ use MyTrait;
             ->first();
             return $user->name;
     }
+
+    public function getroleId($id){
+      $user = DB::table('roles')
+          ->join('user_roles', 'roles.id', '=', 'user_roles.role_id')
+          ->where('user_roles.user_id',$id)
+          ->select('roles.id')
+          ->first();
+          return $user->id;
+  }
+
+  public function getResultActivation($id){
+    $user = DB::table('result_activations')
+        ->where([['role_id',$id],['status',1]])
+        ->first();
+        if($user == null)
+        {
+          return null;
+        }else{
+        return $user->session;
+        }
+}
 //===================================PDS=================================================================
-//---------------------get pds result------------------------------------
+//---------------------get pds result------------------------------------//
    public function pds_getresult($id,$mat_no,$course,$semester,$session){
         $result =DB::connection('mysql2')->table('pds_results')
                          ->where([['pdg_user',$id],['matric_number',$mat_no],['course',$course],['semester',$semester],['session',$session]])
@@ -393,7 +414,7 @@ private function getSingleResult($id,$s,$l,$sem,$season,$course_id)
   function result_check_pass_sessional($l, $id, $s, $cgpa,$take_ignore=false, $taketype='',$fos,$f='')
 { $fail=array();$carryf ='';$rept=''; $course_id_array =array();$pass_course_id=array();
   
-  $new_prob=$this->new_Probtion($l,$id,$s,$cgpa,$fos);
+  $new_prob=$this->new_Probtion($l,$id,$s,$cgpa,$fos,$taketype);
   if($new_prob==true){
     return $new_prob;
   }
@@ -711,8 +732,8 @@ function get_entry_sesssion($id)
   return  $users->entry_year;
 }
 //---------------------------------- new probation-------------------------------------------
-function new_Probtion($l,$id,$s,$cgpa,$fos){
-  $fail_cu=$this->get_fail_crunit($l,$id,$s);
+function new_Probtion($l,$id,$s,$cgpa,$fos,$taketype){
+  $fail_cu=$this->get_fail_crunit($l,$id,$s,$taketype);
 //get fos duaration
 $duration =Fos::find($fos);
  //$entry_year = $this->get_entry_sesssion($id);
@@ -831,9 +852,9 @@ if ($n >= 3)
 
 // condition for withdrawer for probation condition
 function withdrawer_condition_for_probation($l,$id,$s,$cgpa){
-  $fail_cu=$this->get_fail_crunit($l,$id,$s);
+  $fail_cu=$this->get_fail_crunit($l,$id,$s,'NORMAL');
 
- $entry_year = $this->get_entry_sesssion($id);
+ //$entry_year = $this->get_entry_sesssion($id);
 
 $return ='';
 
@@ -846,9 +867,10 @@ $return ='';
 }
 
 /*=================================================== End probation function ==================================*/
-function get_fail_crunit($l,$id,$s){
+function get_fail_crunit($l,$id,$s,$taketype){
 
-$sql =StudentResult::where([['level_id',$l],['user_id',$id],['session',$s],['grade','F']])->get(); 
+$sql =StudentResult::where([['level_id',$l],['user_id',$id],['session',$s],['grade','F'],['season',$taketype]])
+->get(); 
 $tcu=$sql->sum('cu');
 return $tcu;
 }

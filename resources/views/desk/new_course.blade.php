@@ -23,6 +23,7 @@
                         <div class="form-group">
 
                         @if(Auth::user()->faculty_id == $med)
+                        <p style="color:red;"><b>NB : </b> From Part I To Part Iv All course creation select First Semester</p>
                         <div class="col-sm-3">
                               <label for="level" class=" control-label">Level</label>
                               <select class="form-control" name="level">
@@ -47,7 +48,17 @@
                               </select>
                              
                             </div>
-                            <input type="hidden" name="semester" value="1"/>
+                            <div class="col-sm-4">
+                              <label for="semester" class=" control-label">Semester</label>
+                              <select class="form-control" name="semester">
+                                  @if(isset($s))
+                                  @foreach($s as $v)
+                                  <option value="{{$v->semester_id}}">{{$v->semester_name}}</option>
+                                  @endforeach
+                                  @endif
+                              </select>
+                             
+                            </div>
                         @else
                      <div class="col-sm-4">
                               <label for="level" class=" control-label">Level</label>

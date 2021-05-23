@@ -5,6 +5,7 @@ use App\Programme;
 use App\Faculty;
 use App\CourseUnit;
 use App\CourseReg;
+use App\StudentReg;
 use Illuminate\Support\Facades\Auth;
 
 trait MyTrait {
@@ -336,4 +337,62 @@ public function getTotalCourseUnitPerSemster($id,$session,$semester,$level,$seas
   return $courseRegTotal; 
 }
  
+//========================== studentreg========================
+public function studentReg($id,$f,$d,$p,$l,$s,$s_id,$season){
+  $newStudentReg = New StudentReg;
+  $newStudentReg->user_id=$id;
+  $newStudentReg->session=$s;
+  $newStudentReg->semester=$s_id;
+  $newStudentReg->programme_id=$p;
+  $newStudentReg->faculty_id=$f;
+  $newStudentReg->department_id=$d;
+  $newStudentReg->level_id=$l;
+  $newStudentReg->season=$season;
+  $newStudentReg->save();
+  return $newStudentReg->id;
+}
+
+public function getRegisteredCourses($l,$s,$s_id,$fos)
+{
+  $rc =DB::table('register_courses')
+  ->where([['session',$s],['fos_id',$fos],['semester_id',$s_id],['level_id',$l],
+  ['reg_course_status','C']])->get();
+return $rc; 
+}
+
+public function studentCourseReg($id,$studentreg_id,$rc,$l,$s,$s_id,$season)
+{$rcId=array(); $grcId=array(); $data=array();
+
+$grc =DB::connection('mysql2')->table('course_regs')
+->where([['studentreg_id',$studentreg_id],['session',$s],['user_id',$id],['semester_id',$s_id],['level_id',$l],
+['period',$season]])->get();
+foreach($grc as $v1){
+  $grcId[] =$v1->registercourse_id;
+
+}
+
+foreach($rc as $v)
+{
+  if(!in_array($v->id,$grcId))
+  {
+    $data[] =['studentreg_id'=>$studentreg_id,'registercourse_id'=>$v->id,
+    'user_id'=>$id,'level_id'=>$l,'semester_id'=>$s_id,'course_id'=>$v->course_id,'period'=>$season,
+    'session'=>$s,'course_title'=>$v->reg_course_title,'course_code'=>$v->reg_course_code,
+    'course_status'=>$v->reg_course_status,'course_unit'=>$v->reg_course_unit];
+    
+  }
+  
+}
+if(count($data) != 0){
+$c =DB::connection('mysql2')->table('course_regs')->insert($data);
+return 1;
+}
+return 2;
+}
+public function registrationStatus($id,$s_id,$s)
+{
+ return DB::connection('mysql2')->table('student_regs')
+     ->where([['user_id',$id],['semester',$s_id],['session',$s]])
+     ->first();
+}
 }
