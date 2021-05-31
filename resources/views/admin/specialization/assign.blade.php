@@ -2,6 +2,8 @@
 @section('title','Specialization')
 @section('content')
 @inject('R','App\R')
+
+<?php $result= $R->getrolename(Auth::user()->id); ?>
  <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -25,7 +27,7 @@
                         {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('department_name') ? ' has-error' : '' }}">
-        
+                          @if($result =="admin" || $result =="support")
                             <div class="col-md-3">
                                 <label for="faculty_id" class="control-label">Select Faculty</label>
                                  <select class="form-control" name="faculty_id" id="faculty_id" required>
@@ -57,6 +59,21 @@
                                <option value="">Select</option>
                                </select>
                             </div>
+                            @else
+
+                            <div class="col-sm-4">
+                                <label for="fos" class=" control-label">Field Of Study</label>
+                                <select class="form-control" name="fos_id" required>
+                                 <option value=""> - - Select - -</option>
+                                   
+                                    @foreach($fos as $v)
+                                    <option value="{{$v->id}}">{{$v->fos_name}}</option>
+                                    @endforeach
+                                    
+                                </select>
+                               
+                              </div>
+                              @endif
                             <div class="col-sm-3">
                               <label for="session" class=" control-label">Entry Session</label>
                               <select class="form-control" name="session" required>
@@ -100,6 +117,19 @@
                  
                           <form class="form-horizontal" role="form" method="POST" action="{{ url('updateAssignSpecialization') }}" data-parsley-validate>
                         {{ csrf_field() }}
+                        <div class="col-sm-4 form-group">
+                          <label for="fos" class=" control-label">Specialization Field Of Study</label>
+                          <select class="form-control" name="specialization_id" required>
+                           <option value=""> - - Select - -</option>
+                             
+                              @foreach($sp as $v)
+                              <option value="{{$v->id}}">{{$v->name}}</option>
+                              @endforeach
+                              
+                          </select>
+                         
+                        </div>
+                        <br/>
 
                           <table class="table table-bordered table-striped">
                             <tr>

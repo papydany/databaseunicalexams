@@ -44,7 +44,8 @@
                         {{ csrf_field() }}
              <input type="hidden" name="pre_url" value="{{url()->previous()}}">            
             <input type="hidden" name="session" value="{{$r->session}}"> 
-            <input type="hidden" name="id" value="{{$r->id}}">          
+            <input type="hidden" name="id" value="{{$r->id}}">
+            <input type="hidden" name="code" value="{{$r->reg_course_code}}">         
                         <table class="table table-bordered table-striped">
                         <tr>
                         <th>Title</th>
@@ -52,7 +53,7 @@
                       </tr>
                       <tr>
                         <th>Code</th>
-                        <th><input type="text" name="code" value="{{$r->reg_course_code}}" class="form-control" required></th>
+                        <th>{{$r->reg_course_code}}</th>
                       </tr>
                       <tr>
                       <th>Status</th>
@@ -64,7 +65,7 @@
                       </tr>
                       <tr>
                       <th>Unit</th>
-                       <td><input type="text" name="unit" value="{{$r->reg_course_unit}}" class="form-control"></td>
+                       <td><input type="number" name="unit" value="{{$r->reg_course_unit}}" class="form-control"></td>
                      </tr>
                      <th>Semester</th>
                        <td>

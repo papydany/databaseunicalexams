@@ -2,6 +2,8 @@
 @section('title','View Fos')
 @section('content')
 @inject('R','App\R')
+
+<?php $result= $R->getrolename(Auth::user()->id); ?>
  <!-- Page Heading -->
                 <div class="row">
                     <div class="col-lg-12">
@@ -25,7 +27,7 @@
                         <div class="form-group{{ $errors->has('department_name') ? ' has-error' : '' }}">
                      
                       
-
+                          @if($result =="admin" || $result =="support")
                             <div class="col-md-3">
                                 <label for="faculty_id" class="control-label">Select Faculty</label>
                                  <select class="form-control" name="faculty_id" id="faculty_id" required>
@@ -57,6 +59,21 @@
                                <option value="">Select</option>
                                </select>
                             </div>
+                            @else
+
+                            <div class="col-sm-4">
+                                <label for="fos" class=" control-label">Field Of Study</label>
+                                <select class="form-control" name="fos_id" required>
+                                 <option value=""> - - Select - -</option>
+                                   
+                                    @foreach($fos as $v)
+                                    <option value="{{$v->id}}">{{$v->fos_name}}</option>
+                                    @endforeach
+                                    
+                                </select>
+                               
+                              </div>
+                              @endif
                            <div class="col-md-2">
                                       <br/>
                                 <button type="submit" class="btn btn-primary">
@@ -71,11 +88,11 @@
                         @if(isset($s))
                         <?php $faculty =$R->get_facultymetname($ff); 
                         $department =$R->get_departmetname($d);
-                        $fos =$R->get_fos($fos); ?>
+                        $fos_name =$R->get_fos($id); ?>
                         <div class="col-md-4"><b>Faculty : </b>{{$faculty}}</div>
                         <div class="col-md-4"><b>Department :</b>{{$department}}</div>
                        
-                        <div class="col-md-4"><b>Fos :</b>{{$fos}}</div>
+                        <div class="col-md-4"><b>Fos :</b>{{$fos_name}}</div>
                         @if(count($s) > 0)
                         <table class="table table-bordered table-striped">
                         <tr>

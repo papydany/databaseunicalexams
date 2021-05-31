@@ -17,14 +17,15 @@
        
         <div class="col-sm-12">
             <div class="panel panel-default">
-                <div class="panel-heading">Register Courses</div>
+                <div class="panel-heading">View Register Courses</div>
                 <div class="panel-body">
                     <form class="form-horizontal" role="form" method="GET" action="{{ url('get_registeredcourse') }}"  data-parsley-validate>
                         {{ csrf_field() }}
                         <div class="form-group">
                      <div class="col-sm-2">
                               <label for="level" class=" control-label">Level</label>
-                              <select class="form-control" name="level">
+                              <select class="form-control" name="level" required>
+                                <option value=""> -- Select --</option>
                                   @if(isset($l))
                                   @foreach($l as $v)
                                   <option value="{{$v->level_id}}">{{$v->level_name}}</option>
@@ -37,7 +38,7 @@
                          
                              <div class="col-sm-3">
                               <label for="fos" class=" control-label">Field Of Study</label>
-                              <select class="form-control" name="fos" required>
+                              <select class="form-control" name="fos" id='fos' required>
                                <option value=""> - - Select - -</option>
                                  
                                   @foreach($f as $v)
@@ -47,6 +48,13 @@
                               </select>
                              
                             </div>
+                            <div class="col-sm-3">
+                              <label for="fos" class=" control-label">Specialization Field Of Study</label>
+                              <select class="form-control" name="sfos" id='sfos' required>
+                                  <option value=""> - - Select - -</option>
+                              </select>
+
+                          </div>
 
                                <div class="col-sm-2">
                               <label for="session" class=" control-label">Session</label>
@@ -93,10 +101,12 @@
                         @if(isset($r))
                         <div class="col-sm-6 www">
                           <p><b>Unit:</b> ( {{$fn->fos_name}})</p>
+                          
+                          <p><b>Specialization:</b> ( {{$fn->fos_name}})</p>
                             </div>
                          <div class="col-sm-6 ww">
                           {{!$next = $g_s + 1}}
-                             <p> <strong>Level : </strong>{{$g_l}}00 &nbsp;&nbsp; <strong>Session : </strong>{{$g_s.' / '.$next}}</p>
+                             <p> <strong>Level : </strong>{{$g_l}}00 &nbsp;&nbsp; &nbsp;&nbsp;<strong>Session : </strong>{{$g_s.' / '.$next}}</p>
                            </div>
                         <div class="col-sm-12">
 
@@ -174,5 +184,22 @@
                         @endif
                         </div>
 
+                        <div class="modal fade" id="myModal" role="dialog" style="margin-top: 100px;">
+                          <div class="modal-dialog">
+                          
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                             
+                              <div class="modal-body text-danger text-center">
+                                <p>... processing ...</p>
+                              </div>
+                             
+                            </div>
+                            
+                          </div>
+                        </div>
+  @endsection
+  @section('script')
+    <script src="{{ URL::to('js/main.js') }}"></script>
 
-  @endsection                      
+@endsection

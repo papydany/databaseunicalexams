@@ -21,7 +21,7 @@ $fosName =$r->get_fos($u->fos_id) ?>
 <div class="row">
     <div class="col-sm-12">
         <div class="panel panel-default">
-            <div class="panel-heading">Enter Result &nbsp;&nbsp;&nbsp; {{$level}}00 LEVEL
+            <div class="panel-heading">Update Result &nbsp;&nbsp;&nbsp; {{$level}}00 LEVEL
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             {{$session}} Session 
             </div>
@@ -30,7 +30,7 @@ $fosName =$r->get_fos($u->fos_id) ?>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     {{$u->matric_number}}</p>
                     <p><b>Field Of Study : </b>{{$fosName}}</p>
-                    <h3 class='text-danger'><strong>NB</strong> Total grade should not be 0 </h3>
+                    <h4 class='text-danger'><strong>NB</strong> Total grade should not be 0. <span class="text-success">Update will only take effect if the total score differ from the original score.</span> </h4>
                 @if($s->count() == 0)
                 <h4 class="text-danger text-center">All result have been entered for these candidate for the level and session</h4>
 
@@ -86,17 +86,17 @@ $fosName =$r->get_fos($u->fos_id) ?>
                                           
                                            
                                               <div class="col-sm-2 text-center text-danger">
- <input type="text" class="form-control"  name="scriptNo[{{$v->id}}]"  value=" " />
+ <input type="text" class="form-control"  name="scriptNo[{{$v->r}}]"  value="{{$v->scriptNo}} " />
 </div>
 <div class="col-sm-2 text-center text-danger">
-    <input type="text" class="form-control"  name="ca[{{$v->id}}]" onKeyUp="CA(this,'exam{{$v->id}}', 'd{{$v->id}}')"  value=" " id="ca{{$v->id}}"/>
+    <input type="text" class="form-control"  name="ca[{{$v->r}}]" onKeyUp="CA(this,'exam{{$v->r}}', 'd{{$v->r}}')"  value="{{$v->ca}}" id="ca{{$v->r}}"/>
    </div>
   <div class="col-sm-2 text-center text-danger">
-  <input type="text"  class="form-control"  name="exam[{{$v->id}}]"  onKeyUp="updA(this,'ca{{$v->id}}','d{{$v->id}}')" value=" " id="exam{{$v->id}}" />
+  <input type="text"  class="form-control"  name="exam[{{$v->r}}]"  onKeyUp="updA(this,'ca{{$v->r}}','d{{$v->r}}')" value="{{$v->exam}} " id="exam{{$v->r}}" />
 
   </div>
   <div class="col-sm-2 text-center text-danger">
- <input type="text"  class="form-control" name="total[{{$v->id.'~'.$v->course_id.'~'.$v->course_unit}}]" value=" " id="d{{$v->id}}" readonly />
+ <input type="text"  class="form-control" name="total[{{$v->r.'~'.$v->id.'~'.$v->course_id.'~'.$v->course_unit}}]" value="{{$v->total}}" id="d{{$v->r}}" readonly />
 </div>
                                            
 
@@ -114,7 +114,7 @@ $fosName =$r->get_fos($u->fos_id) ?>
                                     </div>
                                     <div class="modal-footer">
                                             
-                                        <button type="submit" class="btn btn-success">Submit</button>
+                                        <button type="submit" class="btn btn-warning">Update Result</button>
                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
  
                                     

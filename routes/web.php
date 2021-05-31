@@ -162,18 +162,18 @@ Route::get('assign_fos', ['uses' =>'HomeController@assign_fos','middleware' => '
 
 Route::get('delete_fos/{id}/{yes?}', ['uses' =>'HomeController@delete_fos','middleware' => 'roles','roles'=>['admin','support']]);
 //==================================== specialization ================================
-Route::get('newSpecialization', ['uses' =>'HomeController@newSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('newSpecialization', ['uses' =>'HomeController@postSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::get('viewSpecialization', ['uses' =>'HomeController@viewSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('viewSpecialization', ['uses' =>'HomeController@postViewSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('newSpecialization', ['uses' =>'HomeController@newSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('newSpecialization', ['uses' =>'HomeController@postSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::get('viewSpecialization', ['uses' =>'HomeController@viewSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('viewSpecialization', ['uses' =>'HomeController@postViewSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 
-Route::get('editSpecialization/{id}', ['uses' =>'HomeController@editSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('editSpecialization', ['uses' =>'HomeController@updateSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('assignSpecialization', ['uses' =>'HomeController@postAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('updateAssignSpecialization', ['uses' =>'HomeController@updateAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::get('assignSpecialization', ['uses' =>'HomeController@assignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::get('viewAssignSpecialization', ['uses' =>'HomeController@viewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
-Route::post('viewAssignSpecialization', ['uses' =>'HomeController@postViewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support']]);
+Route::get('editSpecialization/{id}', ['uses' =>'HomeController@editSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('editSpecialization', ['uses' =>'HomeController@updateSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('assignSpecialization', ['uses' =>'HomeController@postAssignSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('updateAssignSpecialization', ['uses' =>'HomeController@updateAssignSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::get('assignSpecialization', ['uses' =>'HomeController@assignSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::get('viewAssignSpecialization', ['uses' =>'HomeController@viewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
+Route::post('viewAssignSpecialization', ['uses' =>'HomeController@postViewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 
 
 
@@ -288,9 +288,16 @@ Route::get('view_student_detail/{id}', ['uses' =>'DeskController@view_student_de
 Route::get('register_student_ii', ['uses' =>'DeskController@register_student_ii','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 Route::get('post_register_student_ii/{fos_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@post_register_student_ii','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 Route::get('registered_student_detail/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
+Route::get('registered_student_detail_update/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail_update','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
+Route::get('registered_student_detail_delete/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail_delete','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 
 Route::post('update_entry_year', ['uses' =>'DeskController@update_entry_year','middleware' => 'roles','roles'=>['Deskofficer']]);
 // registered result mode entering
+
+//post result updated version
+
+Route::post('postResult', ['uses' =>'DeskController@postResult','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
+
 
 Route::post('entering_result', ['uses' =>'DeskController@enter_result','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 Route::get('register_student/{fos_id?}/{l_id?}/{semester_id?}/{session?}/{season?}', ['uses' =>'DeskController@get_register_student','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);

@@ -146,8 +146,13 @@ $result= $r->getrolename(Auth::user()->id) ?>
                             <td>{{$v->surname." ".$v->firstname." ".$v->othername}}</td>
                             
                          <td>
-                                <a href="{{url('registered_student_detail',[$v->id,$l_id,$ss,$season])}}" type="button" class="btn btn-primary btn-xs" target="_blank">Details</a>
-                        </td>
+                                <a href="{{url('registered_student_detail',[$v->id,$l_id,$ss,$season])}}" type="button" class="btn btn-primary btn-xs" target="_blank">Enter Result</a>
+                        
+                               | <a href="{{url('registered_student_detail_update',[$v->id,$l_id,$ss,$season])}}" type="button" class="btn btn-warning btn-xs" target="_blank">Update Result</a>
+                                
+                               | <a href="{{url('registered_student_detail_delete',[$v->id,$l_id,$ss,$season])}}" type="button" class="btn btn-danger btn-xs" target="_blank">Delete Result</a>
+                        
+                            </td>
                         </tr>
                         @endforeach
                 </table>
