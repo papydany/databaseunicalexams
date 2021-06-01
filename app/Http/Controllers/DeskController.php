@@ -5,6 +5,7 @@ use App\AssignCourse;
 use App\Course;
 //use Illuminate\Support\Facades\Input;
 use App\CourseReg;
+use App\StudentReg;
 use App\Department;
 use App\Faculty;
 use App\Fos;
@@ -994,19 +995,7 @@ $lecturer->plain_password =$request->password;*/
                 $studentDetails = array();
                 $resultCourseregId =array();
                 $u = DB::connection('mysql2')->table('users')->find($user_id);
-    
-                $result =DB::connection('mysql2')->table('student_results')
-                ->where([['user_id',$user_id],['session',$session],['level_id',$level],['season',$season]])
-                ->get();
-               
-                if($result->count() != null)
-                {
-                    foreach($result as $v){
-                        $resultCourseregId [] =$v->coursereg_id;
-    
-                    }
-                }
-    
+
                 $studentDetails = DB::connection('mysql2')->table('student_regs')
                     ->join('course_regs', 'course_regs.studentreg_id', '=', 'student_regs.id')
                     ->join('student_results', 'course_regs.id', '=', 'student_results.coursereg_id')
@@ -1042,39 +1031,20 @@ $lecturer->plain_password =$request->password;*/
             $resultCourseregId =array();
             $u = DB::connection('mysql2')->table('users')->find($user_id);
 
-            $result =DB::connection('mysql2')->table('student_results')
-            ->where([['user_id',$user_id],['session',$session],['level_id',$level],['season',$season]])
-            ->get();
-           // dd($result);
-            if($result->count() != null)
-            {
-                foreach($result as $v){
-                    $resultCourseregId [] =$v->coursereg_id;
-
-                }
-            }
-
             $studentDetails = DB::connection('mysql2')->table('student_regs')
-                ->join('course_regs', 'course_regs.studentreg_id', '=', 'student_regs.id')
-                ->where([['student_regs.level_id', $level], ['student_regs.session', $session], ['student_regs.season', $season],
-                    ['student_regs.user_id', $user_id]])
-                ->where([['course_regs.user_id', $user_id], ['course_regs.level_id', $level], ['course_regs.session', $session], ['course_regs.period', $season]])
-                ->whereNotIn('course_regs.id',$resultCourseregId)
-                ->orderBy('course_regs.semester_id', 'ASC')
-                ->select('course_regs.*')
-                ->get()
-                ->groupBy('semester_id');
-//dd($user);
-           // foreach ($user as $v) {
-              /*  $r = $this->getResult($v->id);
-                $studentDetails[] = ['id' => $v->id, 'course_id' => $v->course_id, 'code' => $v->course_code, 'unit' => $v->course_unit, 'r' => $r->id ? $r->id : '', 'ca' => $r->ca ? $r->ca : '',
-                    'exam' => $r->exam ? $r->exam : '', 'total' => $r->total ? $r->total : ''];*/
+                    ->join('course_regs', 'course_regs.studentreg_id', '=', 'student_regs.id')
+                
+                    ->where([ ['student_regs.season', $season],
+                        ['student_regs.user_id', $user_id]])
+                    ->where([['course_regs.user_id', $user_id], ['course_regs.period', $season]])
+                    
+                    ->orderBy('course_regs.session', 'ASC')
+                    ->select('course_regs.*')
+                    ->get()
+                    ->groupBy('session');
 
-   /* $studentDetails[] = ['id' => $v->id, 'course_id' => $v->course_id, 'code' => $v->course_code, 'unit' => $v->course_unit];
-           
-            }*/
-            //dd($studentDetails);
-            return view('desk.register_student.student_details')->withS($studentDetails)->withSession($session)
+          
+            return view('desk.register_student.student_details_delete')->withS($studentDetails)->withSession($session)
                 ->withLevel($level)->withU($u)->withSeason($season);
         } else {
             dd('something went wrong. contact system admin.');
@@ -1194,8 +1164,25 @@ $lecturer->plain_password =$request->password;*/
        public function postResult(Request $request)
        {
            $url = url()->previous();
+
+           if ($request->input('delete') == 'delete') {
+            $ch = $request->input('chk');
+            if ($ch == null) {
+                Session::flash('warning', "you did not select any course to delete.");
+                return back();
+            } else {
+                foreach ($ch as $v) {
+                    $cr = CourseReg::destroy($v);
+                    $sr = StudentResult::where('coursereg_id', $v)->delete();
+                    $srb = StudentResultBackup::where('coursereg_id', $v)->delete();
+                }
+                Session::flash('success', "SUCCESSFULL.");
+            }
+
+            return redirect($url);
+        }
           
-   
+
            $fos = $this->get_fos();
            $l = $this->get_level();
            $semester = $this->get_semester();
@@ -1212,6 +1199,14 @@ $lecturer->plain_password =$request->password;*/
            $flag = "Sessional";
            $date = date("Y/m/d H:i:s");
            $insert_data =array();
+           // check if the student have register higher session
+    $stdreg =StudentReg::where([['user_id',$user_id],['session','>',$session]])->count();
+
+    if($stdreg > 0){
+        Session::flash('warning', "You can not enter grade in a lower session again.");
+        return back(); 
+    }
+           
    
            foreach ($variable as $k => $v) {
    

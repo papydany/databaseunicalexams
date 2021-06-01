@@ -5,7 +5,10 @@
         <!-- Page Heading -->
 <?php 
  use Illuminate\Support\Facades\Auth;
-$result= $r->getrolename(Auth::user()->id) ?>
+$result= $r->getrolename(Auth::user()->id);
+$role =$r->getroleId(Auth::user()->id); 
+
+$acct =$r->getResultActivation($role); ?>
 <div class="row">
     <div class="col-lg-12">
         
@@ -45,12 +48,21 @@ $result= $r->getrolename(Auth::user()->id) ?>
                             <label for="session" class=" control-label">Session</label>
                             <select class="form-control" name="session_id" required>
                                 <option value=""> - - Select - -</option>
-
                                 @for ($year = (date('Y')); $year >= 2016; $year--)
-                                    {{!$yearnext =$year+1}}
-                                    <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
-                                @endfor
+                                {{!$yearnext =$year+1}}
+                                 @if($acct != null)
+                                 @if($acct == $year )
+                                 <option value="">Session Deactivated</option>
+                                 
+                                 @else
+                                 <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                 @endif
 
+                                 @else
+                                 <option value="{{$year}}">{{$year.'/'.$yearnext}}</option>
+                                 @endif
+                                
+                                @endfor
                             </select>
 
                         </div>

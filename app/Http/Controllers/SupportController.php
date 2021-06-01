@@ -293,6 +293,8 @@ $sheet->prependRow(1, $headings);
         $pin->student_type = null;
         $pin->student_id = null;
         $pin->matric_number = null;
+        $pin->log1 = 0;
+        $pin->log2 = 0;
         $pin->session= $request->session;
         $pin->save();
     $request->session()->flash('success', ' SUCCESSFULL');

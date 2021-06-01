@@ -32,7 +32,8 @@ $fosName =$r->get_fos($u->fos_id) ?>
                     <p><b>Field Of Study : </b>{{$fosName}}</p>
                     <h4 class='text-danger'><strong>NB</strong> Total grade should not be 0. <span class="text-success">Update will only take effect if the total score differ from the original score.</span> </h4>
                 @if($s->count() == 0)
-                <h4 class="text-danger text-center">All result have been entered for these candidate for the level and session</h4>
+                <br/>
+                <h4 class="text-danger text-center">No result  for the level and session</h4>
 
                 @else
                 

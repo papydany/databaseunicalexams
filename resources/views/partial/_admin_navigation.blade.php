@@ -431,6 +431,9 @@
                     <li>
                             <a href="{{url('register_student')}}">Registered Student</a>
                         </li>
+                        <li>
+                            <a href="{{url('register_student_ii')}}">Registered Student II</a>
+                        </li>
                     <li>
                         <a href="{{url('departmentreport')}}"><i class="fa fa-fw fa-edit"></i> Generate Report</a>
                        
