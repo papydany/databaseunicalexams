@@ -310,6 +310,7 @@ Route::get('e_result', ['uses' =>'DeskController@e_result','middleware' => 'role
 Route::post('e_result', ['uses' =>'DeskController@e_result_next','middleware' => 'roles','roles'=>'Deskofficer']);
 Route::get('e_result_c', ['uses' =>'DeskController@e_result_c','middleware' => 'roles','roles'=>'Deskofficer']);
 Route::post('insert_result', ['uses' =>'DeskController@insert_result','middleware' => 'roles','roles'=>'Deskofficer']);
+Route::post('excel_insert_result', ['uses' =>'DeskController@excel_insert_result','middleware' => 'roles','roles'=>'Deskofficer']);
 
 
 // entering probation result per course

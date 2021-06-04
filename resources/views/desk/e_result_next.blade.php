@@ -72,10 +72,15 @@
                       
                          <div class="form-group ">
  
-                        <button type="submit" class="btn btn-danger btn-lg ">
+                        <button type="submit" class="btn btn-danger">
                                     <i class="fa fa-btn fa-user"></i> Continue
                                 </button>
-                                </div>
+                             &nbsp;&nbsp;&nbsp;&nbsp;
+                               
+                                 <button type="submit" name="excel" value="excel" class="btn btn-primary">
+                                     <i class="fa fa-btn fa-user"></i> Use Excel to Upload
+                                 </button>
+                             </div>
                                 </form>
 
                        @else

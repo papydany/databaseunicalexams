@@ -124,6 +124,7 @@ $acct =$r->getResultActivation($role); ?>
                                     <i class="fa fa-btn fa-user"></i> Continue
                                 </button>
                             </div>
+                        
                             </div>
                            
                               </form>  </div>

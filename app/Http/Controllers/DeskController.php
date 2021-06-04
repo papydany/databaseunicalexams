@@ -963,6 +963,8 @@ $lecturer->plain_password =$request->password;*/
                 ->where([['course_regs.user_id', $user_id], ['course_regs.level_id', $level], ['course_regs.session', $session], ['course_regs.period', $season]])
                 ->whereNotIn('course_regs.id',$resultCourseregId)
                 ->orderBy('course_regs.semester_id', 'ASC')
+                ->orderBy('course_regs.course_code', 'ASC')
+               ->orderBy('course_regs.session', 'ASC')
                 ->select('course_regs.*')
                 ->get()
                 ->groupBy('semester_id');
@@ -1005,6 +1007,8 @@ $lecturer->plain_password =$request->password;*/
                     ->where([['student_results.level_id', $level], ['student_results.session', $session], ['student_results.season', $season],
                         ['student_results.user_id', $user_id]])
                     ->orderBy('course_regs.semester_id', 'ASC')
+                    ->orderBy('course_regs.course_code', 'ASC')
+                    ->orderBy('course_regs.session', 'ASC')
                     ->select('course_regs.*','student_results.ca','student_results.exam','student_results.total','student_results.scriptNo','student_results.id as r')
                     ->get()
                     ->groupBy('semester_id');
@@ -1037,7 +1041,8 @@ $lecturer->plain_password =$request->password;*/
                     ->where([ ['student_regs.season', $season],
                         ['student_regs.user_id', $user_id]])
                     ->where([['course_regs.user_id', $user_id], ['course_regs.period', $season]])
-                    
+                    ->orderBy('course_regs.course_code', 'ASC')
+                    ->orderBy('course_regs.semester_id', 'ASC')
                     ->orderBy('course_regs.session', 'ASC')
                     ->select('course_regs.*')
                     ->get()
@@ -1444,6 +1449,7 @@ $lecturer->plain_password =$request->password;*/
     //================================== get student  by course =============================================
     public function e_result_c(Request $request)
     {
+        
         $id = $request->input('id');
         $period = $request->input('period');
         $result_type = $request->input('result_type');
@@ -1454,6 +1460,20 @@ $lecturer->plain_password =$request->password;*/
         $l = $registercourse->level_id;
         $s = $registercourse->session;
         $prob_user_id = $this->getprobationStudents($p, $d, $f, $l, $s);
+        if($request->excel =='excel')
+        {
+            $user = DB::connection('mysql2')->table('users')
+                ->join('course_regs', 'course_regs.user_id', '=', 'users.id')
+                ->where('course_regs.registercourse_id', $id)
+                ->where('course_regs.period', $period)
+                ->whereNotIn('users.id', $prob_user_id)
+                ->orderBy('users.matric_number', 'ASC')
+                ->select('course_regs.*', 'users.firstname', 'users.surname', 'users.othername', 'users.matric_number', 'users.entry_year')
+                ->get();
+            return view('desk.excelUpload.index')->withF($f)->withU($user)->withC($registercourse)->withRt($result_type)->withMed(self::MEDICINE)->withPeriod($period);
+
+        }
+       
 
         if ($result_type == "Omitted") {
             $user_with_no_result = $this->student_with_no_result($id, $period);
@@ -1652,6 +1672,79 @@ $lecturer->plain_password =$request->password;*/
         Session::flash('success', "SUCCESSFULL.");
         return back();
         //return redirect($url);
+    }
+
+    //========================  excel insert result ==========================
+
+    
+    public function excel_insert_result(Request $request)
+    {
+        
+      $id = $request->registeredCourseId;
+      $period = $request->period;
+      $level = $request->level;
+      $session = $request->session;
+      $semester = $request->semester;
+      $flag ='sessional';
+      $unit =$request->unit;
+      $faculty_id = $request->input('faculty_id');
+      $date = date("Y/m/d H:i:s");
+      $user_with_no_result = $this->student_with_no_result($id, $period);
+    $studentProfile =array();
+        $user = DB::connection('mysql2')->table('users')
+            ->join('course_regs', 'course_regs.user_id', '=', 'users.id')
+            ->where('course_regs.registercourse_id', $id)
+            ->where('course_regs.period', $period)
+            ->whereIn('users.id', $user_with_no_result)
+            ->orderBy('users.matric_number', 'ASC')
+            ->select('course_regs.*',  'users.matric_number', 'users.entry_year')
+            ->get();
+
+            foreach($user as $u)
+            {
+        $studentProfile [$u->matric_number] =['user_id' => $u->user_id,'matric_number' => $u->matric_number,'course_id' => $u->course_id, 'coursereg_id' => $u->coursereg_id,'entry_year'=>$entry_year];
+              
+            }
+
+        if($request->file('excel_import_result'))
+        {
+                  $path = $request->file('excel_import_result')->getRealPath();
+                  $data = Excel::load($path, function($reader)
+            {
+                  })->get();
+  
+            if(!empty($data) && $data->count())
+            {
+              foreach ($data->toArray() as $row)
+              {
+                if(!empty($row))
+                {
+                    if($studentProfile[$row['matricNo']]['matric_number'] == $row['matricNo']){
+                
+                        $course_id = $studentProfile[$row['matricNo']]['course_id'];
+                        $coursereg_id =$studentProfile[$row['matricNo']]['coursereg_id'];
+                        $user_id =$studentProfile[$row['matricNo']]['user_id'];
+                        $entry_year =$studentProfile[$row['matricNo']]['entry_year'];
+                        if ($faculty_id == Self::MEDICINE) {
+                            $grade_value = $this->get_grade_medicine($row['TOTAL'], $period, $l);
+                        } else {
+                            $grade_value = $this->get_grade($row['TOTAL'], $entry_year);
+                        }
+                        $grade = $grade_value['grade'];
+                     $cp = $this->mm($grade, $unit, $entry_year);
+                    $insert_data[] = ['user_id' => $user_id, 'matric_number' => $row['matricNo'], 'scriptNo' => $row['scriptNo'], 'course_id' => $course_id, 'coursereg_id' => $coursereg_id, 'ca' => $row['CA'], 'exam' => $row['EXAM'], 'total' => $row['TOTAL'], 'grade' => $grade, 'cu' => $unit, 'cp' => $cp['cp'], 'level_id' => $l,
+                    'session' => $session, 'semester' => $semester, 'status' => 0, 'season' => $period, 'flag' => $flag, 'examofficer' => Auth::user()->id, 'post_date' => $date, 'approved' => 0];
+                    }
+                }
+            }
+            if(!empty($insert_data))
+            {
+                DB::connection('mysql2')->table('student_results')->insert($insert_data);
+                Session::flash('success', "SUCCESSFULL.");
+               return back();
+             }
+           }
+         }
     }
 
 //--------------------------------------------view result --------------------------------------------------

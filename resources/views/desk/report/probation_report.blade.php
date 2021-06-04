@@ -80,9 +80,8 @@ top:15px;
                          $regc2 = array('');
                       }
                       	// greater than 1 condition
-                     $no1 =$n1c + 1; 	
-                     $no2 =$n2c + 1;
-                     
+                        $no1 =$n1c + 2; 	
+$no2 =$n2c + 2;
 
 
 
@@ -90,15 +89,11 @@ top:15px;
     $set['rpt'] = array(0=>'<th class="s9 text-center">REPEAT COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
     $set['carry'] = array(0=>'<th class="s9 text-center">CARRY OVER COURSES</th>', 1=>'<th></th>', 2=>'<th class="tB">CH</th>');
     $set['cpga'] = array(0=>'<th>CGPA</th>', 1=>'<th></th>', 2=>'<th class="tB"></th>');
-   
+    $set['chr'] = array(1=>'<th class="tB s9 bbt">Repeat/Carryover Result</th>', 2=>'<th class="tB"></th>');
     $set['plus'] = 1;
     $set['wrong_fix'] = '';
     
- 
-
-
-    
-    $set['class'] = array(0=>'', 1=>'', 2=>'');
+ $set['class'] = array(0=>'', 1=>'', 2=>'');
     
    
     
@@ -191,8 +186,8 @@ top:15px;
                   		<th class="text-center" colspan="{{$no2}}">SECOND SEMESTER RESULTS</th>
                   		<th class="text-center">GPA</th>
                       <?php
-                      echo $set['cpga'][0],
-                          $set['class'][0];
+                      echo $set['cpga'][0];
+                         // $set['class'][0];
                           ?>
                   		<th  class="text-center">REMARKS</th>
                   		
@@ -209,15 +204,15 @@ top:15px;
 
   if( $n1c != 0 || $n2c != 0 ) {
      
-    //echo $set['chr'][1];
+    echo $set['chr'][1];
     
     $sizea = $n1c; //+ 1;
-    $sizeb =  $n1c + 1 + $n2c;
+    $sizeb =  $n1c + 1 + $n2c + 1;
   
-    $k = (int)($n1c + $n2c)  + 2; // additional 2 is for the two elective spaces
+    $k = (int)($n1c + $n2c)  +2; // additional 2 is for the two elective spaces
    // dd($regc1);
 
-    $list = array_merge( $regc1, array(1=>'elective'), $regc2, array(1=>'elective') );
+    $list = array_merge( $regc1, array(1=>'elective'), array(1=>''), $regc2, array(1=>'elective') );
     
 
     for($i=0; $i<$k; $i++) {
@@ -233,9 +228,12 @@ top:15px;
         continue;
       }
       
-      
+      if( $i == ($n1c + 1) )
+        echo $set['chr'][1];
+    
+      else {
         echo '<th class="tB"><p class="ups">',isset($list[$i]->reg_course_code) ? strtoupper($list[$i]->reg_course_code) : '','</p></th>';
-     
+      }
     }
   
   } else {
@@ -258,7 +256,7 @@ top:15px;
 
   if($n1c != 0 || $n2c != 0 ) {
     //echo $k, $sizea, $sizeb;
-   // echo $set['chr'][2];
+    echo $set['chr'][2];
     
     for($i=0; $i<$k; $i++) {
 
@@ -272,9 +270,12 @@ top:15px;
         echo '<th class="tB s9"></th>';
         continue;
       }
-      
-     
+      if( $i == ($n1c + 1) )
+        echo $set['chr'][2];
+    
+      else {
         echo '<th class="tB">',isset($list[$i]->reg_course_unit) ? $list[$i]->reg_course_unit : '','</th>';
+      }
     }
   
   } else
@@ -324,7 +325,15 @@ $elective_grade2 = $R->fetch_electives($v->id,$s,$l,2,$season,$reg_course_electi
 $gpa = $R->get_gpa($s,$v->id,$l,$season);
  // i increase the level so i can use the same function for probation
 $prob_level =$l + 1;
- $repeat_course =$R->repeat_course($v->id,$s,$prob_level,$season);
+ $repeat_course =$R->repeat_course($v->id,$s,$prob_level,$season); // first sementer drop and repeat courses
+$repeat_1 =$R->get_failed_drop_courses($v->id,$l,$s,$season,'R',1);
+$drop_1 = $R->get_failed_drop_courses($v->id,$l,$s,$season,'D',1);
+
+
+  // Second sementer drop and repeat courses
+$repeat_2 =$R->get_failed_drop_courses($v->id,$l,$s,$season,'R',2);
+$drop_2 = $R->get_failed_drop_courses($v->id,$l,$s,$season,'D',2);
+
 $cgpa =$R->auto_cgpa($s,$v->id,$l,$season);
 //dd($season);
 $remark = $R->result_check_pass_probational($l,$v->id,$s, $cgpa,$take_ignore=false,'PROBATION',$fos);
@@ -338,8 +347,8 @@ $remark = $R->result_check_pass_probational($l,$v->id,$s, $cgpa,$take_ignore=fal
 <?php
    
 echo '<td class="s9">',$repeat_course,'</td>';
-echo '<td class="s9">',$R->get_drop_course($v->id,$prob_level,$s,$fos),'</td>';
-             
+echo '<td class="s9">',$R->get_drop_course_probation($v->id,$l,$s,$fos),'</td>';
+echo '<td class="tB s9">',$R->get_failed_drop_course_result($v->id,$l,$s,1, $repeat_1, $drop_1,$season),'</td>';     
               
 for($i=0; $i<$k; $i++) {
             
@@ -356,8 +365,9 @@ for($i=0; $i<$k; $i++) {
 
 
             }
-            
-          
+            if( $i == ($n1c + 1) ) {
+            echo '<td class="tB s9">',$R->get_failed_drop_course_result($v->id,$l,$s,2, $repeat_2, $drop_2,$season);' </td>';
+            }
               
               if( isset($ll[$i]['grade']) ) { 
 

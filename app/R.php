@@ -1254,6 +1254,41 @@ $return .=substr_replace($value->reg_course_code," ",3, 0).'<br/>';
 echo strtoupper($return);
 }
 
+//===============================probation drop course =========================
+
+public function get_drop_course_probation($id,$l,$s,$fos,$season=null)
+{
+ 
+  $last_session =$s-1;
+  $last_level =$l;
+  
+  $return ='';
+  $coursereg_id =array();
+ 
+  $course_reg=DB::connection('mysql2')->table('course_regs')->where([['user_id',$id],['level_id',$last_level],['session',$last_session],['course_status','C']])->get();
+  if(count($course_reg) > 0)
+{
+  foreach ($course_reg as $key => $value) {
+$coursereg_id [] =$value->registercourse_id;
+  }
+}
+
+$reg =DB::table('register_courses')->where([['fos_id',$fos],['level_id',$last_level],['session',$last_session],['reg_course_status','C']])
+->whereNotIn('id',$coursereg_id)
+->orderBy('reg_course_status','ASC')
+->get();
+
+if(count($reg) > 0)
+{
+  foreach ($reg as $key => $value) {
+
+$return .=substr_replace($value->reg_course_code," ",3, 0).'<br/>';
+  }
+}
+  
+echo strtoupper($return);
+}
+
 //=================================summmer vation function===========================
 
 public function repeat_summer_course($id,$session,$level)
