@@ -34,6 +34,17 @@
                                 @endif
                             </div>
                             <div class="col-md-3">
+                                <label for="fos" class=" control-label">Degree</label>
+                                
+                                  <input id="fos" type="text" class="form-control" name="degree" value="{{isset($f->degree) ? $f->degree: ''}}" required>
+  
+                                  @if ($errors->has('degree'))
+                                      <span class="help-block">
+                                          <strong>{{ $errors->first('degree') }}</strong>
+                                      </span>
+                                  @endif
+                              </div>
+                            <div class="col-md-3">
                               <label for="fos" class=" control-label">Duration</label>
                               
                                 <input id="fos" type="text" class="form-control" name="duration" value="{{isset($f->duration) ? $f->duration: ''}}" required>

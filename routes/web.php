@@ -175,6 +175,7 @@ Route::get('assignSpecialization', ['uses' =>'HomeController@assignSpecializatio
 Route::get('viewAssignSpecialization', ['uses' =>'HomeController@viewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 Route::post('viewAssignSpecialization', ['uses' =>'HomeController@postViewAssignSpecialization','middleware' => 'roles','roles'=>['admin','support','Deskofficer']]);
 
+//---------------------------------------------------------------------------------------------------
 
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -290,6 +291,7 @@ Route::get('post_register_student_ii/{fos_id?}/{level?}/{session?}/{season?}', [
 Route::get('registered_student_detail/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 Route::get('registered_student_detail_update/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail_update','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 Route::get('registered_student_detail_delete/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail_delete','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
+Route::get('registered_student_detail_update_any/{user_id?}/{level?}/{session?}/{season?}', ['uses' =>'DeskController@registered_student_detail_update_any','middleware' => 'roles','roles'=>['Deskofficer','examsofficer']]);
 
 Route::post('update_entry_year', ['uses' =>'DeskController@update_entry_year','middleware' => 'roles','roles'=>['Deskofficer']]);
 // registered result mode entering
@@ -310,7 +312,7 @@ Route::get('e_result', ['uses' =>'DeskController@e_result','middleware' => 'role
 Route::post('e_result', ['uses' =>'DeskController@e_result_next','middleware' => 'roles','roles'=>'Deskofficer']);
 Route::get('e_result_c', ['uses' =>'DeskController@e_result_c','middleware' => 'roles','roles'=>'Deskofficer']);
 Route::post('insert_result', ['uses' =>'DeskController@insert_result','middleware' => 'roles','roles'=>'Deskofficer']);
-Route::post('excel_insert_result', ['uses' =>'DeskController@excel_insert_result','middleware' => 'roles','roles'=>'Deskofficer']);
+Route::post('excel_insert_result', ['uses' =>'DeskController@excel_insert_result','middleware' => 'roles','roles'=>['Deskofficer','examsofficer','lecturer','HOD']]);
 
 
 // entering probation result per course
@@ -354,6 +356,7 @@ Route::post('eo_assign_courses',  ['uses' =>'ExamofficerController@eo_assign_cou
 Route::get('eo_result_c', ['uses' =>'ExamofficerController@eo_result_c','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 Route::post('eo_insert_result', ['uses' =>'ExamofficerController@eo_insert_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 Route::post('v_result', ['uses' =>'ExamofficerController@post_v_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
+Route::post('excel_eo_insert_result', ['uses' =>'ExamofficerController@excel_eo_insert_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 
 Route::get('v_result', ['uses' =>'ExamofficerController@v_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
 Route::post('d_result', ['uses' =>'ExamofficerController@display_result','middleware' => 'roles','roles'=>['examsofficer','lecturer','HOD']]);
@@ -399,6 +402,17 @@ Route::get('studentManagement', ['uses' =>'DeskController@studentManagement','mi
 Route::get('studentManagementAddCourses', ['uses' =>'DeskController@studentManagementAddCourses','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
 Route::get('getStudentManagementAddCourse', ['uses' =>'DeskController@getStudentManagementAddCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
 Route::post('postStudentManagementAddCourse', ['uses' =>'DeskController@postStudentManagementAddCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+// repeat
+Route::get('studentManagementAddRepeatCourses', ['uses' =>'DeskController@studentManagementAddRepeatCourses','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+Route::get('getStudentManagementAddRepeatCourse', ['uses' =>'DeskController@getStudentManagementAddRepeatCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+Route::post('postStudentManagementAddRepeatCourse', ['uses' =>'DeskController@postStudentManagementAddRepeatCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+
+// carryover
+Route::get('studentManagementAddCarryOverCourses', ['uses' =>'DeskController@studentManagementAddCarryOverCourses','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+Route::get('getStudentManagementAddCarryOverCourse', ['uses' =>'DeskController@getStudentManagementAddCarryOverCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+Route::post('postStudentManagementAddCarryOverCourse', ['uses' =>'DeskController@postStudentManagementAddCarryOverCourse','middleware' => 'roles','roles'=>['Deskofficer','admin','support']]);
+
+
 //======================= transfer student==============================
 Route::post('tranferStudents', ['uses' =>'HomeController@tranferStudents','middleware' => 'roles','roles'=>['admin','support']]);
 

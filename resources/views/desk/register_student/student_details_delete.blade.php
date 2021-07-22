@@ -76,6 +76,7 @@ $fosName =$r->get_fos($u->fos_id) ?>
                                         
                                         @if($kk == 1)
                                         <h4><strong>FIRST SEMESTER</strong></h4>
+                                        
                                         <div class="col-sm-1 text-center" ><b>Select</b></div>
                                         <div class="col-sm-2 text-center" ><b>Code</b></div>
                                         <div class="col-sm-1 text-center" ><b>Level</b></div>

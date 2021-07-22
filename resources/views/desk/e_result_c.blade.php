@@ -99,7 +99,7 @@ $result =DB::connection('mysql2')->table('student_results')
 ->where([['coursereg_id',$v->id],['approved',1]])->first();
 
                      }else{
-$result =DB::connection('mysql2')->table('student_results')->where('coursereg_id',$v->id)->first();
+$result =null; //=DB::connection('mysql2')->table('student_results')->where('coursereg_id',$v->id)->first();
                      }
                      
                      ?>

@@ -23,6 +23,7 @@ use App\CourseReg;
 use App\DeskofficeFos;
 use App\Service\R;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use App\Http\Traits\MyTrait;
 class ExamofficerController extends Controller
 {
@@ -54,9 +55,11 @@ class ExamofficerController extends Controller
   $f =Auth::user()->faculty_id;
   $id=Auth::user()->id;
   $f_id = $this->get_fos_exams_officer_and_hod($id,$d,$p);
-  $course =$course = $this->getRegisterAssign_courses($id,$l,$semester,$session,$d,$f,$f_id);
+  $course = $this->getRegisterAssign_courses($id,$l,$semester,$session,$d,$f,$f_id);
+  $course2 = $this->getRegisterAssign_courses_examsOfficer($id,$l,$semester,$session,$d,$f,$f_id);
   
- return view('examofficer.eo_assign_courses')->withC($course)->withSm($semester)->withS($session)->withL($l)->withFos($f_id)->withP($p);
+ 
+ return view('examofficer.eo_assign_courses')->withC($course)->withC2($course2)->withSm($semester)->withS($session)->withL($l)->withFos($f_id)->withP($p);
 
     }
 //---------------------------------------- get student  by course -----------------------------------
@@ -70,12 +73,25 @@ class ExamofficerController extends Controller
   $period =$request->input('period'); 
   $registercourse = RegisterCourse::find($id);
   
- $d =$registercourse->department_id;
+  $d =$registercourse->department_id;
   $f =$registercourse->faculty_id;
   $p =$request->input('programme_id'); 
 
   $prob_user_id = $this->getprobationStudents($p,$d,$f,$l,$s);
-  //dd($prob_user_id);
+  
+  if($request->excel =='excel')
+  {
+      /*$user = DB::connection('mysql2')->table('users')
+          ->join('course_regs', 'course_regs.user_id', '=', 'users.id')
+          ->where('course_regs.registercourse_id', $id)
+          ->where('course_regs.period', $period)
+          ->whereNotIn('users.id', $prob_user_id)
+          ->orderBy('users.matric_number', 'ASC')
+          ->select('course_regs.*', 'users.firstname', 'users.surname', 'users.othername', 'users.matric_number', 'users.entry_year')
+          ->get();*/
+      return view('examofficer.excelUpload.index')->withF($f)->withC($registercourse)->withRt($result_type)->withMed(self::MEDICINE)->withPeriod($period);
+
+  }
 
   if($result_type == "Omitted")
     {
@@ -103,10 +119,12 @@ class ExamofficerController extends Controller
       $user = DB::connection('mysql2')->table('users')
         ->join('course_regs', 'course_regs.user_id', '=', 'users.id')
         ->where([['course_regs.registercourse_id',$id],['level_id',$l],['semester_id',$sm],['session',$s],['period',$period]])
-        ->whereNotIn('users.id',$prob_user_id)
+      ->whereNotIn('users.id',$prob_user_id)
         ->orderBy('users.matric_number','ASC')
         ->select('course_regs.*', 'users.firstname', 'users.surname','users.othername','users.matric_number','users.entry_year')
         ->get();
+
+   
       }
     
   //Get current page form url e.g. &page=6
@@ -220,6 +238,9 @@ $update->ca = $ca;
          return back();
       //  return redirect($url);
     }
+
+//=====================================
+
 //--------------------------------------------view result --------------------------------------------------
     public function v_result()
     {
@@ -387,17 +408,19 @@ return redirect()->action('ExamofficerController@eo_delete_result');
 }
  
  //----------------------------------------------------------------------------------------------------------
-
- public function getRegisterAssign_courses($id,$l,$semester,$session,$d,$f,$f_id)
+ public function getRegisterAssign_courses_examsOfficer($id,$l,$semester,$session,$d,$f,$f_id)
  {
-  $role =$this->getrolename($id);
-   if($role == "examsofficer")
-   {
-    $course =RegisterCourse::where([['semester_id',$semester],['level_id',$l],['session',$session]])
+  
+    $course =DB::table('register_courses')->where([['semester_id',$semester],['level_id',$l],['session',$session]])
     ->wherein('fos_id',$f_id)
     ->get()
     ->groupBy('fos_id');
-   }else{
+    return $course;
+ }
+ public function getRegisterAssign_courses($id,$l,$semester,$session,$d,$f,$f_id)
+ {
+  
+  
     $course = DB::table('assign_courses')
     ->join('register_courses', 'register_courses.id', '=', 'assign_courses.registercourse_id')
     ->where([['assign_courses.user_id',$id],['assign_courses.level_id',$l],['assign_courses.semester_id',$semester],['assign_courses.session',$session]])
@@ -413,7 +436,7 @@ return redirect()->action('ExamofficerController@eo_delete_result');
         ->orderBy('register_courses.reg_course_status','ASC')
         ->orderBy('register_courses.reg_course_code','ASC')
         ->get()->groupBy('fos_id');*/
-   }
+  
     
         return $course;
  }

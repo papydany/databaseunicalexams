@@ -45,8 +45,7 @@
                   <span class="text-center text-success"><strong>Result Type :</strong>&nbsp;{{$rt}}</span></div>
                 <div class="panel-body">
              
-                  <h4 class="text-danger">NB : The excel sheet must carry the header title as indicated below and also its should not be more than 100 students per sheet for now</h4>
-               
+                <h4 class="text-danger">NB : The excel sheet must carry the header title as indicated below and also its should not be more than 100 students per sheet for now</h4>
                    
                       <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="{{ url('excel_insert_result') }}" data-parsley-validate>
                    
@@ -68,7 +67,7 @@
                         <th class="text-center">NAMES</th>
                         <th width="15%"  class="text-center">ScriptNo</th> 
                         <th class="cc text-center">CA</th> 
-                        <th class="cc text-center">EXAM</th>
+                        <th class="cc text-center">EXAMS</th>
                         <th class="cc text-center">TOTAL</th>
                       
                           </tr>
@@ -76,7 +75,7 @@
                   
 <tr></tr>
 <td>
-  <label>select excel file</label>
+  <label>select excell file</label>
 <input type="file" name="excel_import_result" value="" class="form-control" required>
 </td>
 <td colspan="3"></td>

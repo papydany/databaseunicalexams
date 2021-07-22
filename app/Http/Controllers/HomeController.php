@@ -26,7 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
-use Mail;
+
 
 class HomeController extends Controller
 {
@@ -461,6 +461,7 @@ class HomeController extends Controller
         $f->fos_name = $fos;
         $f->department_id = $request->department_id;
         $f->programme_id = $request->programme_id;
+        $f->degree = $request->degree;
         $f->duration = $request->duration;
         $f->status = 0; // not assign
         $f->save();
@@ -498,6 +499,7 @@ class HomeController extends Controller
         $id = $request->id;
         $f = Fos::find($id);
         $f->fos_name = strtoupper($request->fos_name);
+        $f->degree = $request->degree;
         $f->duration = $request->duration;
         $f->save();
         Session::flash('success', "SUCCESSFULL.");

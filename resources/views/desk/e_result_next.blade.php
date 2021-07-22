@@ -17,7 +17,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Enter Result</div>
                 <div class="panel-body">
-                <div class="col-sm-4 col-sm-offset-4">
+                <div class="col-sm-6 col-sm-offset-3">
                   {{!$next = $s_id + 1}}
                   {{! $semester =DB::table('semesters')
                   ->where('semester_id',$sm_id)->first()}}
@@ -73,12 +73,17 @@
                          <div class="form-group ">
  
                         <button type="submit" class="btn btn-danger">
-                                    <i class="fa fa-btn fa-user"></i> Continue
+                                    Continue To Enter Result
                                 </button>
                              &nbsp;&nbsp;&nbsp;&nbsp;
                                
                                  <button type="submit" name="excel" value="excel" class="btn btn-primary">
-                                     <i class="fa fa-btn fa-user"></i> Use Excel to Upload
+                                     Use Excel to Upload
+                                 </button>
+                                 &nbsp;&nbsp;&nbsp;&nbsp;
+                               
+                                 <button type="submit" name="update" value="update" class="btn btn-warning">
+                                      Update Result
                                  </button>
                              </div>
                                 </form>

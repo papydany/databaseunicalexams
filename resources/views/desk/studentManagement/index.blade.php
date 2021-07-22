@@ -17,14 +17,20 @@
             <div class="panel-heading"> Student Management</div>
             <div class="panel-body">
             <ul>
-                   <li>
+                   <li style="padding: 5px">
                         <a href="{{url('studentManagementAddCourses')}}" target='blank'>Add Courses</a>
                     </li>
-                    <li>
+                    <li style="padding: 5px">
+                        <a href="{{url('studentManagementAddRepeatCourses')}}" target='blank'>Add Repeat Courses</a>
+                    </li>
+                    <li style="padding: 5px">
+                        <a href="{{url('studentManagementAddCarryOverCourses')}}" target='blank'>Add CarryOver Courses</a>
+                    </li>
+                    <li style="padding: 5px">
                         <a href="{{url('create_course_unit_special')}}" target='blank'>Set Course unit</a>
                     </li>
                    
-                    <li>
+                    <li style="padding: 5px">
                         <a href="{{url('view_course_unit')}}" target='blank'>View Set Course unit</a>
                     </li>
                 </ul>

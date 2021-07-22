@@ -196,19 +196,19 @@ top:15px;
                       <tr>
                           <td>
                              <p class="text-center" style="font-size:18px; font-weight:700;">
-                                UNIVERSITY OF CALABAR </br>
+                                UNIVERSITY OF CALABAR <br/>
                             CALABAR</p>
     
                               <div class="col-sm-9 www" style="padding-left: 0px; padding-right: 0px;">
   
-                                  <p>FACULTY: {{$f}}</br>
-                                 DEPARTMENT: {{$d}}</br>
+                                  <p>FACULTY: {{$f}}<br/>
+                                 DEPARTMENT: {{$d}}<br/>
                                   PROGRAMME:  {{$fos_name }}</p>
                               </div>
                               <div class="col-sm-3 ww" style="padding-left: 0px; padding-right: 0px; float: right;">
                                   {{!$next = $s + 1}}
-                                  <p> <strong>YEAR OF STUDY : </strong>{{$l.' / '.$duration}}</br>
-                                 <strong>SESSION : </strong>{{$s.' / '.$next}}</br>
+                                  <p> <strong>YEAR OF STUDY : </strong>{{$l.' / '.$duration}}<br/>
+                                 <strong>SESSION : </strong>{{$s.' / '.$next}}<br/>
                                   <strong>SEMESTER : </strong>FIRST & SECOND </p>
                               </div>
                           </td>
@@ -337,16 +337,15 @@ top:15px;
      '<th class="tB"></th>',
      '</tr></thead>';    
   
- 
- 
-if($pn >= 1)
+  
+if($cpage >= 1)
 {
-  $pn1 =$pn -1;
+  $pn1 =$cpage -1;
   $c = $page * $pn1;
 }
 else
 { $c = 0;}
-
+ 
   ?> 
  @if(count($u) > 0)
   

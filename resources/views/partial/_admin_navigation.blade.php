@@ -330,9 +330,9 @@
                     <li>
                         <a href="{{url('view_student')}}">Veiw Student </a>
                     </li>
-                    <li>
+                    {{--<li>
                         <a href="{{url('register_student')}}">Registered Student</a>
-                    </li>
+                    </li>--}}
 
                     <li>
                         <a href="{{url('register_student_ii')}}">Registered Student II</a>
@@ -346,6 +346,9 @@
                 <ul id="demo5" class="collapse">
                     <li>
                         <a href="{{url('e_result')}}">Enter result</a>
+                    </li>
+                    <li>
+                        <a href="{{url('update_result')}}">Update result</a>
                     </li>
                     <li>
                         <a href="{{url('view_result')}}">View result</a>
@@ -428,9 +431,9 @@
                     </li>
                     @endif
                     @if($result =="examsofficer")
-                    <li>
+                   {{-- <li>
                             <a href="{{url('register_student')}}">Registered Student</a>
-                        </li>
+                        </li>--}}
                         <li>
                             <a href="{{url('register_student_ii')}}">Registered Student II</a>
                         </li>

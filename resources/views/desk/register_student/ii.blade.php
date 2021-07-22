@@ -163,6 +163,9 @@ $acct =$r->getResultActivation($role); ?>
                                | <a href="{{url('registered_student_detail_update',[$v->id,$l_id,$ss,$season])}}" type="button" class="btn btn-warning btn-xs" target="_blank">Update Result</a>
                                 
                                | <a href="{{url('registered_student_detail_delete',[$v->id,$l_id,$ss,$season])}}" type="button" class="btn btn-danger btn-xs" target="_blank">Delete Result</a>
+
+                               | <a href="{{url('registered_student_detail_update_any',[$v->id,$l_id,$ss,$season])}}" type="button" class="btn btn-success btn-xs" target="_blank">Update Any Result</a>
+                        
                         
                             </td>
                         </tr>

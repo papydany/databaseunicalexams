@@ -103,7 +103,7 @@
                      <select class="form-control" name="id" required>
                      <option value="">-- select --</option>
                       @foreach($c as $v)
-                      <option value="{{$v->id.'~'.$v->course_id.'~'.$v->reg_course_code}}">{{$v->reg_course_code}}</option>
+                      <option value="{{$v->id.'~'.$v->course_id.'~'.$v->reg_course_code}}">{{$v->reg_course_code}} = {{$v->reg_course_status}}</option>
                       @endforeach
                      </select>
                      <input type="hidden" name="fos_id" value="{{$f_id}}">
@@ -116,7 +116,14 @@
                      <select class="form-control" name="period" required>
                      <option value="">-- select --</option>
                      <option value="NORMAL">NORMAL</option>
-                      <option value="VACATION">VACATION</option>
+                     @if(Auth::user()->programme_id == 2)
+                     <option value="RESIT">RESIT</option>
+                     @else
+                     <option value="VACATION">VACATION</option>
+
+                     @endif
+      
+                      
                 
                      </select>
                       </div>

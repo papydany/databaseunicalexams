@@ -14,7 +14,7 @@
                 </div>
 
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-12">
             <div class="panel panel-default">
                 <div class="panel-heading">View Fos</div>
                 <div class="panel-body">
@@ -57,7 +57,8 @@
                         <th>S/N</th>
                         <th>Fos</th>
                         <th>Programme</th>
-                        <th>duration</th>
+                        <th>Degree</th>
+                        <th>Duration</th>
                         <th>Action</th>
                        </tr>
                        {{!!$c = 0}}
@@ -68,6 +69,7 @@
                        <td>{{! $p = DB::table('programmes')
                        ->find($v->programme_id)}}
                       {{$p->programme_name}}</td>
+                      <td> {{$v->degree}}</td>
                            <td> {{$v->duration}}</td>
                       <td> <div class="btn-group">
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

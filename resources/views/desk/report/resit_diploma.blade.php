@@ -306,11 +306,9 @@ top:15px;
      '<th class="tB"></th>',
      '</tr></thead>';    
   
- 
- 
-if($pn >= 1)
+if($cpage >= 1)
 {
-  $pn1 =$pn -1;
+  $pn1 =$cpage -1;
   $c = $page * $pn1;
 }
 else

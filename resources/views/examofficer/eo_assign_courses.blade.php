@@ -28,9 +28,12 @@ $role =$r->getrolename(Auth::user()->id); ?>
                         <p> <strong>Semester : </strong>{{$semester->semester_name}}</p>
                         <p><strong>Level : </strong>{{$l}}00</p>
                         <p><strong>Session : </strong>{{$s.' / '.$next}}</p>
-                   
-                          @if(isset($c))
-                        @if(count($c) > 0)
+                
+                  
+@if($role =='examsofficer' && isset($c) || $role =='examsofficer' && isset($c2) || isset($c))
+@if($role =='examsofficer' && count($c) > 0 || $role =='examsofficer' && count($c2) > 0 || count($c) > 0)
+
+                    
                        
 
 
@@ -50,6 +53,19 @@ $role =$r->getrolename(Auth::user()->id); ?>
                       @endforeach
                          </optgroup>
                     @endforeach
+
+                    @if($role =='examsofficer')
+
+                    @foreach($c2 as  $k => $value)
+                    <?php $fos = $r->get_fos($k); ?>
+                     <optgroup label="{{$fos}}">
+                     @foreach($value as $v)
+                    <option value="{{isset($v->registercourse_id) ? $v->registercourse_id : $v->id}}">{{$v->reg_course_code}}&nbsp;&nbsp;=&nbsp;&nbsp;{{$v->reg_course_status}}</option>
+                    @endforeach
+                    
+                       </optgroup>
+                  @endforeach
+                  @endif
                      </select>
                       <input type="hidden" name="level" value="{{$l}}">
                      <input type="hidden" name="semester" value="{{$sm}}">
@@ -87,8 +103,13 @@ $role =$r->getrolename(Auth::user()->id); ?>
 
                          <div class="form-group ">
  
-                        <button type="submit" class="btn btn-danger btn-lg ">
+                        <button type="submit" class="btn btn-danger">
                                     <i class="fa fa-btn fa-user"></i> Continue
+                                </button>
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                               
+                                <button type="submit" name="excel" value="excel" class="btn btn-primary">
+                                    <i class="fa fa-btn fa-user"></i> Use Excel to Upload
                                 </button>
                                 </div>
                                 </form>

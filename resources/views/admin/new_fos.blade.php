@@ -79,6 +79,17 @@
                                 @endif
                             </div>
 
+                            <div class="col-md-4">
+                                <label for="duration" class=" control-label">Degree</label>
+                                  <input id="degree" type="text" class="form-control" name="degree" value="{{ old('degree') }}" required>
+  
+                                  @if ($errors->has('degree'))
+                                      <span class="help-block">
+                                          <strong>{{ $errors->first('degree') }}</strong>
+                                      </span>
+                                  @endif
+                              </div>
+
                              <div class="col-md-4">
                               <label for="duration" class=" control-label">Duration</label>
                                 <input id="duration" type="number" class="form-control" name="duration" value="{{ old('duration') }}" required>
